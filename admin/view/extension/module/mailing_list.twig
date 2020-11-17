@@ -1,0 +1,151 @@
+{{ header }}{{ column_left }}
+<div id="content">
+    <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+    </ul>
+
+
+
+    <div class="page-header">
+        <div class="container-fluid">
+            <h1>{{heading_title}}</h1>
+        </div>
+    </div>
+    <div class="container-fluid">
+        {% if error_warning %}
+        <div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> <?php echo $error_warning; ?>
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+        </div>
+        {% endif %}
+
+        {% if success %}
+        <div class="alert alert-success"><i class="fa fa-check-circle"></i> <?php echo $success; ?>
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+        </div>
+        {% endif %}
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-pencil"></i> {{text_edit}}</h3>
+            </div>
+            <div class="panel-body">
+                <form action="{{action}}" method="post" enctype="multipart/form-data" id="form-pilibaba" class="form-horizontal">
+                    <ul class="nav nav-tabs">
+                        <li class="active" id="li-tab-settings"><a href="#tab-templates" data-toggle="tab">{{tab_templates}}</a></li>
+                        <li id="li-tab-settings"><a href="#tab-user" data-toggle="tab">{{tab_users}}</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="tab-templates">
+                            <div style="margin-bottom: 20px" class="pull-right">
+                                <a href="{{ add }}" data-toggle="tooltip" title="{{ button_add }}" class="btn btn-primary"><i class="fa fa-plus"></i></a>
+                                <button type="button" form="form-product" formaction="{{ delete }}" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger" onclick="confirm('{{ text_confirm }}') ? $('#form-product').submit() : false;"><i class="fa fa-trash-o"></i></button>
+                            </div>
+                            <table class="table table-bordered table-hover">
+                                <thead>
+                                <tr>
+                                    <td style="width: 1px;" class="text-center"><input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', this.checked);" /></td>
+                                    <td class="text-left">{% if sort == 'name' %} <a href="{{ sort_email }}" class="{{ order|lower }}">{{ column_email }}</a> {% else %} <a href="{{ sort_email }}">{{ column_email }}</a> {% endif %}</td> {# TODO SORT #}
+                                    <td class="text-left">{% if sort == 'c.email' %} <a href="{{ sort_name }}" class="{{ order|lower }}">{{ column_name }}</a> {% else %} <a href="{{ sort_name }}">{{ column_name }}</a> {% endif %}</td>
+                                </tr>
+                                </thead>
+                                <tbody>
+
+                                {% if customers %}
+                                    {% for customer in customers %}
+                                        <tr>
+                                            <td class="text-center">
+                                                {% if customer.customer_id in selected %}
+                                                    <input type="checkbox" name="selected[]" value="{{ customer.customer_id }}" checked="checked" />
+                                                {% else %}
+                                                    <input type="checkbox" name="selected[]" value="{{ customer.customer_id }}" />
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-left">{{ customer.email }}</td>
+                                            <td class="text-left">
+                                                {{ customer.name }}
+                                                <span class="pull-right">
+                                                    <a href="index.php?route=customer/customer/edit&user_token={{ user_token }}&customer_id={{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>
+                                                    <a href="#" data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></a>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td class="text-center" colspan="8">{{ text_no_results }}</td>
+                                    </tr>
+                                {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="tab-pane" id="tab-user">
+                            <table class="table table-bordered table-hover">
+                                <thead>
+                                <tr>
+                                    <td style="width: 1px;" class="text-center"><input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', this.checked);" /></td>
+                                    <td class="text-left">{% if sort == 'name' %} <a href="{{ sort_email }}" class="{{ order|lower }}">{{ column_email }}</a> {% else %} <a href="{{ sort_email }}">{{ column_email }}</a> {% endif %}</td> {# TODO SORT #}
+                                    <td class="text-left">{% if sort == 'c.email' %} <a href="{{ sort_name }}" class="{{ order|lower }}">{{ column_name }}</a> {% else %} <a href="{{ sort_name }}">{{ column_name }}</a> {% endif %}</td>
+                                </tr>
+                                </thead>
+                                <tbody>
+
+                                {% if customers %}
+                                    {% for customer in customers %}
+                                        <tr>
+                                            <td class="text-center">
+                                                {% if customer.customer_id in selected %}
+                                                    <input type="checkbox" name="selected[]" value="{{ customer.customer_id }}" checked="checked" />
+                                                {% else %}
+                                                    <input type="checkbox" name="selected[]" value="{{ customer.customer_id }}" />
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-left">{{ customer.email }}</td>
+                                            <td class="text-left">
+                                                {{ customer.name }}
+                                                <span class="pull-right">
+                                                    <a href="index.php?route=customer/customer/edit&user_token={{ user_token }}&customer_id={{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>
+                                                    <a href="#" data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></a>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td class="text-center" colspan="8">{{ text_no_results }}</td>
+                                    </tr>
+                                {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @media (min-width: 768px) {
+        #button-register, #img_loading_register {
+            position: relative;
+            left: 5px;
+        }
+    }
+</style>
+<script type="text/javascript">
+    $('.unsubscribe-customer').on('click', function(e) {
+        e.preventDefault();
+        const _this = $(this)
+        $.ajax({
+            type: "POST",
+            url: 'index.php?route=extension/module/mailing/unsubcribe&customer_id=' + $(this).data('customerId') + '&user_token={{ user_token }}',
+            success: function() {
+                _this.parent().parent().parent().remove()
+            }
+        });
+    });
+</script>
+
+{{footer}}
