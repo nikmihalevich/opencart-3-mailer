@@ -1,0 +1,204 @@
+{{ header }}{{ column_left }}
+<div id="content">
+    <div class="page-header">
+        <div class="container-fluid">
+            <h1>{{heading_title}}</h1>
+            <ul class="breadcrumb">
+                {% for breadcrumb in breadcrumbs %}
+                <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="container-fluid">
+        {% if error_warning %}
+        <div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> <?php echo $error_warning; ?>
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+        </div>
+        {% endif %}
+
+        {% if success %}
+        <div class="alert alert-success"><i class="fa fa-check-circle"></i> <?php echo $success; ?>
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+        </div>
+        {% endif %}
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-pencil"></i> {{text_edit}}</h3>
+            </div>
+            <div class="panel-body">
+                <form action="{{action}}" method="post" enctype="multipart/form-data" id="form-pilibaba" class="form-horizontal">
+                    <ul class="nav nav-tabs">
+                        <li class="active" id="li-tab-settings"><a href="#tab-templates" data-toggle="tab">{{tab_template}}</a></li>
+                        <li id="li-tab-settings"><a href="#tab-2" data-toggle="tab">{{tab_users}}</a></li>
+                        <li id="li-tab-settings"><a href="#tab-3" data-toggle="tab">{{tab_mailing}}</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="tab-templates"> {# 1 TAB TEMPLATE #}
+                        <div class="form-group required">
+                                <label class="col-sm-2 control-label" for="input-name">{{ entry_template_name }}</label>
+                                <div class="col-sm-10">
+                                    <input type="text" name="template_name" value="{{ mailing.name }}" placeholder="{{ entry_name }}" id="input-name{{ language.language_id }}" class="form-control"/>
+                                    {% if error_name[language.language_id] %}
+                                        <div class="text-danger">{{ error_name[language.language_id] }}</div>
+                                    {% endif %} 
+                                </div>
+                            </div>
+                            <div class="form-group required">
+                                <label class="col-sm-2 control-label" for="input-name">{{ entry_letter_theme }}</label>
+                                <div class="col-sm-10">
+                                    <input type="text" name="letter_theme" value="{{ mailing_description.letter_theme }}" placeholder="{{ entry_name }}" id="input-name{{ language.language_id }}" class="form-control"/>
+                                    {% if error_name[language.language_id] %}
+                                        <div class="text-danger">{{ error_name[language.language_id] }}</div>
+                                    {% endif %} 
+                                </div>
+                            </div>
+                            <div class="form-group required">
+                                <label class="col-sm-2 control-label" for="input-name">{{ entry_letter_text }}</label>
+                                <div class="col-sm-10">
+                                    <textarea name="letter_text" placeholder="{{ entry_description }}" id="input-description{{ language.language_id }}" data-toggle="summernote" data-lang="{{ summernote }}" class="form-control">{{ mailing_description.letter_text }}</textarea>
+                                    {% if error_name[language.language_id] %}
+                                        <div class="text-danger">{{ error_name[language.language_id] }}</div>
+                                    {% endif %} 
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label" for="input-tax-class">{{ entry_products }}</label>
+                                <div class="col-sm-10">
+                                <select name="categories" id="input-tax-class" class="form-control">
+                                    {# <option value="0">{{ text_category }}</option> #}
+
+                                    {% for tax_class in tax_classes %}
+                                    {% if tax_class.tax_class_id == tax_class_id %}
+
+                                        <option value="{{ tax_class.tax_class_id }}" selected="selected">{{ tax_class.title }}</option>
+
+                                    {% else %}
+
+                                        <option value="{{ tax_class.tax_class_id }}">{{ tax_class.title }}</option>
+
+                                    {% endif %}
+                                    {% endfor %}
+
+                                </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label" for="input-name">{{ entry_added_products }}</label>
+                            </div>
+                            <div class="form-group">
+                                <div>
+                                    <label class="col-sm-2 control-label" for="input-name">{{ entry_social }}</label>
+                                    <div class="col-sm-2">
+                                        <input type="text" name="social_icon" value="{{ product_description.name }}" placeholder="{{ entry_icon_code }}" id="input-name{{ language.language_id }}" class="form-control"/>
+                                        {% if error_name[language.language_id] %}
+                                            <div class="text-danger">{{ error_name[language.language_id] }}</div>
+                                        {% endif %} 
+                                    </div>
+                                    <div class="col-sm-7">
+                                        <input type="text" name="social_link" value="{{ product_description.name }}" placeholder="{{ entry_link }}" id="input-name{{ language.language_id }}" class="form-control"/>
+                                        {% if error_name[language.language_id] %}
+                                            <div class="text-danger">{{ error_name[language.language_id] }}</div>
+                                        {% endif %} 
+                                    </div>
+                                    <a href="#" data-customer-id="{{ mailing.mailing_id }}" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger"><i class="fa fa-trash-o"></i></a>
+                                </div>
+                                <div class="pull-right">
+                                    <div class="col-sm-2">
+                                        <a href="#" data-customer-id="{{ mailing.mailing_id }}" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-primary"><i class="fa fa-plus"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary">{{ button_save }}</button>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="tab-2"> {# 2 TAB USERS #}
+                            <table class="table table-bordered table-hover">
+                                <thead>
+                                <tr>
+                                    <td style="width: 1px;" class="text-center"><input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', this.checked);" /></td>
+                                    <td class="text-left">{% if sort == 'name' %} <a href="{{ sort_email }}" class="{{ order|lower }}">{{ column_email }}</a> {% else %} <a href="{{ sort_email }}">{{ column_email }}</a> {% endif %}</td> {# TODO SORT #}
+                                    <td class="text-left">{% if sort == 'c.email' %} <a href="{{ sort_name }}" class="{{ order|lower }}">{{ column_name }}</a> {% else %} <a href="{{ sort_name }}">{{ column_name }}</a> {% endif %}</td>
+                                </tr>
+                                </thead>
+                                <tbody>
+
+                                {% if customers %}
+                                    {% for customer in customers %}
+                                        <tr>
+                                            <td class="text-center">
+                                                {% if customer.customer_id in selected %}
+                                                    <input type="checkbox" name="selected[]" value="{{ customer.customer_id }}" checked="checked" />
+                                                {% else %}
+                                                    <input type="checkbox" name="selected[]" value="{{ customer.customer_id }}" />
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-left">{{ customer.email }}</td>
+                                            <td class="text-left">
+                                                {{ customer.name }}
+                                                <span class="pull-right">
+                                                    <a href="index.php?route=customer/customer/edit&user_token={{ user_token }}&customer_id={{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>
+                                                    <a href="#" data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></a>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td class="text-center" colspan="8">{{ text_no_results }}</td>
+                                    </tr>
+                                {% endif %}
+                                </tbody>
+                            </table>
+                            <div class="text-center">
+                                <button class="btn btn-primary">{{ button_select_all }}</button>
+                                <button class="btn btn-primary">{{ button_select_marked }}</button>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="tab-3"> {# 3 TAB MAILING #}
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label" for="input-name">{{ entry_count_letters }}</label>
+                                <div class="col-sm-10">
+                                    <input type="text" name="count_letters" value="{{ mailing.count_letters }}" placeholder="{{ entry_name }}" id="input-name{{ language.language_id }}" class="form-control"/>
+                                    {% if error_name[language.language_id] %}
+                                        <div class="text-danger">{{ error_name[language.language_id] }}</div>
+                                    {% endif %} 
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label" for="input-name">{{ entry_date_automailing }}</label>
+                                <div class="col-sm-10">
+                                    <input type="datetime-local" name="date_automailing" value="{{ mailing.date_start }}" placeholder="{{ entry_name }}" id="input-name{{ language.language_id }}" class="form-control"/>
+                                    {% if error_name[language.language_id] %}
+                                        <div class="text-danger">{{ error_name[language.language_id] }}</div>
+                                    {% endif %} 
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <button class="btn btn-primary">{{ button_start }}</button>
+                                <button class="btn btn-primary">{{ button_start_by_date }}</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @media (min-width: 768px) {
+        #button-register, #img_loading_register {
+            position: relative;
+            left: 5px;
+        }
+    }
+</style>
+<link href="view/javascript/summernote/summernote.css" rel="stylesheet"/>
+<script type="text/javascript" src="view/javascript/summernote/summernote.js"></script>
+<script type="text/javascript" src="view/javascript/summernote/summernote-image-attributes.js"></script>
+<script type="text/javascript" src="view/javascript/summernote/opencart.js"></script>
+
+{{footer}}
