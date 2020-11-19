@@ -66,49 +66,86 @@
                             <div class="form-group">
                                 <label class="col-sm-2 control-label" for="input-tax-class">{{ entry_products }}</label>
                                 <div class="col-sm-10">
-                                <select name="categories" id="input-tax-class" class="form-control">
-                                    {# <option value="0">{{ text_category }}</option> #}
+                                    <select name="categories" id="input-product-categories" class="form-control">
+{#                                         <option selected value="{{ categories[0].category_id }}">{{ categories[0].name }}</option>#}
 
-                                    {% for tax_class in tax_classes %}
-                                    {% if tax_class.tax_class_id == tax_class_id %}
+                                        {% for category in categories %}
 
-                                        <option value="{{ tax_class.tax_class_id }}" selected="selected">{{ tax_class.title }}</option>
+                                            <option value="{{ category.category_id }}">{{ category.name }}</option>
 
-                                    {% else %}
+                                        {% endfor %}
 
-                                        <option value="{{ tax_class.tax_class_id }}">{{ tax_class.title }}</option>
+                                    </select>
 
-                                    {% endif %}
-                                    {% endfor %}
+                                    {# TODO #}
+                                    <div class="row products-list">
 
-                                </select>
+                                    </div>
+
+
                                 </div>
-                            </div>
-                            <div class="form-group">
                                 <label class="col-sm-2 control-label" for="input-name">{{ entry_added_products }}</label>
+                                <div class="col-sm-10">
+                                    <div class="row added-products-list">
+
+                                        {% for mailing_product in mailing_products %}
+
+                                        <div data-product-id="{{ mailing_product.product_id }}" class="product-layout product-list col-sm-3 col-xs-12" style="border: 1px solid #e3e3e3; border-radius: 10px; margin-left: 15px; margin-top: 15px; padding: 10px; width: 15%;">
+                                            <div class="product-thumb">
+                                                <div class="image">
+                                                    {% if mailing_product.image %}
+                                                        <img src="/image/{{ mailing_product.image }}" alt="{{ mailing_product.name }}" title="{{ mailing_product.name }}" class="img-responsive" />
+                                                    {% else %}
+                                                        <img src="/image/cache/no_image-100x100.png" alt="{{ mailing_product.name }}" title="{{ mailing_product.name }}" class="img-responsive" />
+                                                    {% endif %}
+                                                </div>
+                                                <div>
+                                                    <div class="caption">
+                                                        <p>{{ mailing_product.name }}</p>
+                                                        <p class="price">
+                                                            {{ mailing_product.price}}
+                                                        </p>
+                                                        <div class="button-group">
+                                                            <button type="button" onclick="deleteProductFromMailing({{ mailing_product.product_id }})">
+                                                                Удалить из рассылки
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                        {% endfor %}
+
+                                    </div>
+                                </div>
+
                             </div>
                             <div class="form-group">
-                                <div>
-                                    <label class="col-sm-2 control-label" for="input-name">{{ entry_social }}</label>
-                                    <div class="col-sm-2">
-                                        <input type="text" name="social_icon" value="{{ product_description.name }}" placeholder="{{ entry_icon_code }}" id="input-name{{ language.language_id }}" class="form-control"/>
-                                        {% if error_name[language.language_id] %}
-                                            <div class="text-danger">{{ error_name[language.language_id] }}</div>
-                                        {% endif %} 
+                                <label class="col-sm-2 control-label" for="input-name">{{ entry_social }}</label>
+                                <div class="col-sm-10">
+                                    <div class="social-fields">
+
+                                        {% for mailing_social_link in mailing_social_links %}
+
+                                            <div style="margin-bottom: 15px;">
+                                                <div class="col-sm-2">
+                                                    <input type="text" name="social_icon[]" value="{{ mailing_social_link.icon }}" placeholder="{{ entry_icon_code }}" id="input-name{{ language.language_id }}" class="form-control"/>
+                                                </div>
+                                                <div class="col-sm-9">
+                                                    <input type="text" name="social_link[]" value="{{ mailing_social_link.link }}" placeholder="{{ entry_link }}" id="input-name{{ language.language_id }}" class="form-control"/>
+                                                </div>
+                                                <span onclick="$(this).parent().remove()" class="btn btn-danger"><i class="fa fa-trash-o"></i></span>
+                                            </div>
+
+                                        {% endfor %}
+
                                     </div>
-                                    <div class="col-sm-7">
-                                        <input type="text" name="social_link" value="{{ product_description.name }}" placeholder="{{ entry_link }}" id="input-name{{ language.language_id }}" class="form-control"/>
-                                        {% if error_name[language.language_id] %}
-                                            <div class="text-danger">{{ error_name[language.language_id] }}</div>
-                                        {% endif %} 
-                                    </div>
-                                    <a href="#" data-customer-id="{{ mailing.mailing_id }}" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger"><i class="fa fa-trash-o"></i></a>
+                                    <div class="col-sm-11"></div>
+                                    <span class="btn btn-primary" onclick="addSocialField()"><i class="fa fa-plus"></i></span>
                                 </div>
-                                <div class="pull-right">
-                                    <div class="col-sm-2">
-                                        <a href="#" data-customer-id="{{ mailing.mailing_id }}" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-primary"><i class="fa fa-plus"></i></a>
-                                    </div>
-                                </div>
+
                             </div>
                             <div class="text-center">
                                 <button type="submit" class="btn btn-primary">{{ button_save }}</button>
@@ -129,10 +166,10 @@
                                     {% for customer in customers %}
                                         <tr>
                                             <td class="text-center">
-                                                {% if customer.customer_id in selected %}
-                                                    <input type="checkbox" name="selected[]" value="{{ customer.customer_id }}" checked="checked" />
+                                                {% if customer.customer_id in mailing_customers %}
+                                                    <input type="checkbox" name="mailing_customers[]" value="{{ customer.customer_id }}" checked="checked" />
                                                 {% else %}
-                                                    <input type="checkbox" name="selected[]" value="{{ customer.customer_id }}" />
+                                                    <input type="checkbox" name="mailing_customers[]" value="{{ customer.customer_id }}" />
                                                 {% endif %}
                                             </td>
                                             <td class="text-left">{{ customer.email }}</td>
@@ -161,7 +198,7 @@
                             <div class="form-group">
                                 <label class="col-sm-2 control-label" for="input-name">{{ entry_count_letters }}</label>
                                 <div class="col-sm-10">
-                                    <input type="text" name="count_letters" value="{{ mailing.count_letters }}" placeholder="{{ entry_name }}" id="input-name{{ language.language_id }}" class="form-control"/>
+                                    <input type="text" name="count_letters" value="{{ mailing.counter_letters }}" placeholder="{{ entry_name }}" id="input-name{{ language.language_id }}" class="form-control"/>
                                     {% if error_name[language.language_id] %}
                                         <div class="text-danger">{{ error_name[language.language_id] }}</div>
                                     {% endif %} 
@@ -201,4 +238,96 @@
 <script type="text/javascript" src="view/javascript/summernote/summernote-image-attributes.js"></script>
 <script type="text/javascript" src="view/javascript/summernote/opencart.js"></script>
 
+<script type="text/javascript">
+
+    function addSocialField() {
+        $('.social-fields').append(
+            '<div style="margin-bottom: 15px;">' +
+                '<div class="col-sm-2">' +
+                    '<input type="text" name="social_icon[]" value="" placeholder="{{ entry_icon_code }}" id="input-name{{ language.language_id }}" class="form-control"/>' +
+                '</div>' +
+                '<div class="col-sm-9">' +
+                    '<input type="text" name="social_link[]" value="" placeholder="{{ entry_link }}" id="input-name{{ language.language_id }}" class="form-control"/>' +
+                '</div>' +
+                '<span onclick="$(this).parent().remove()" class="btn btn-danger"><i class="fa fa-trash-o"></i></span>' +
+            '</div>'
+        )
+    }
+
+    function deleteProductFromMailing(product_id) {
+        $('.added-products-list').find("[data-product-id='" + product_id + "']").appendTo(".products-list")
+        $('.products-list').find("[data-product-id='" + product_id + "']").find('.button-group').html(
+            '<button type="button" onclick="addProductToMailing(' + product_id + ')"> Добавить в рассылку</button>'
+        )
+    }
+
+    function addProductToMailing(product_id) {
+        $('.products-list').find("[data-product-id='" + product_id + "']").appendTo(".added-products-list")
+        $('.added-products-list').find("[data-product-id='" + product_id + "']").find('.button-group').html(
+            '<button type="button" onclick="deleteProductFromMailing(' + product_id + ')"> Удалить из рассылки</button>' +
+            '<input type="hidden" name="added_products_id[]" id="added-product-id" value="' + product_id + '" />'
+        )
+    }
+
+    function getProductsByCategoryId() {
+        let category_id = $("#input-product-categories option:selected").val()
+
+        $.ajax({
+            url: 'index.php?route=extension/module/mailing/getproducts&user_token={{ user_token }}&category_id=' + category_id,
+            dataType: 'json',
+            // beforeSend: function() {
+            //     $('#button-setting').button('loading');
+            // },
+            // complete: function() {
+            //     $('#button-setting').button('reset');
+            // },
+            success: function(products) {
+                $('.products-list').empty();
+                products.forEach(function (val, key) {
+                    let product_image = val.thumb ? val.thumb : "/image/cache/no_image-100x100.png"
+
+                    let isAdded = $('.added-products-list').find("[data-product-id='" + val.product_id + "']").length
+
+                    if(!isAdded) {
+
+                        $('.products-list').append(
+                            '<div data-product-id="'+val.product_id+'" class="product-layout product-list col-sm-3 col-xs-12" style="border: 1px solid #e3e3e3; border-radius: 10px; margin-left: 15px; margin-top: 15px; padding: 10px; width: 15%;' +
+                                '<div class="product-thumb">' +
+                                    '<div class="image"><img src="'+ product_image + '" alt="'+ val.name +'" title="'+ val.name +'" class="img-responsive" /></div>' +
+                                        '<div>' +
+                                            '<div class="caption">' +
+                                                '<p>' + val.name + '</p>' +
+                                                '<p class="price">' +
+                                                    val.price +
+                                                '</p>' +
+                                                '<div class="button-group">' +
+                                                    '<button type="button" onclick="addProductToMailing(' + val.product_id + ')">' +
+                                                    'Добавить в рассылку' +
+                                                    '</button>' +
+                                                '</div>' +
+                                            '</div>' +
+                                        '</div>' +
+                                    '</div>' +
+                                '</div>' +
+                            '</div>'
+                        )
+                    }
+                })
+                // $('#modal-developer').remove();
+                //
+                // $('body').prepend('<div id="modal-developer" class="modal">' + html + '</div>');
+                //
+                // $('#modal-developer').modal('show');
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+            }
+        });
+    }
+
+    $(document).ready(function() {
+        getProductsByCategoryId()
+        $('#input-product-categories').on('change', getProductsByCategoryId)
+    })
+</script>
 {{footer}}
