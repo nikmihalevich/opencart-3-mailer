@@ -81,7 +81,7 @@ class ModelExtensionModuleMailing extends Model {
     }
 
     public function edit($mailing_id, $data) {
-        $this->db->query("UPDATE " . DB_PREFIX . "mailing SET `name` = '" . $this->db->escape($data['template_name']) . "', counter_letters = '" . $this->db->escape($data['count_letters']) . "', date_start = '" . $this->db->escape($data['date_automailing']) . "', date_added = NOW() WHERE mailing_id = '" . (int)$mailing_id . "'");
+        $this->db->query("UPDATE " . DB_PREFIX . "mailing SET `name` = '" . $this->db->escape($data['template_name']) . "', counter_letters = '" . $this->db->escape($data['count_letters']) . "', date_start = '" . $this->db->escape($data['date_automailing']) . "' WHERE mailing_id = '" . (int)$mailing_id . "'");
 
         $this->db->query("DELETE FROM " . DB_PREFIX . "mailing_description WHERE mailing_id = '" . (int)$mailing_id . "'");
         $this->db->query("INSERT INTO " . DB_PREFIX . "mailing_description SET mailing_id = '" . (int)$mailing_id . "', language_id = '" . (int)1 . "', theme = '" . $this->db->escape($data['letter_theme']) . "', text = '" . $this->db->escape($data['letter_text']) . "'");
@@ -212,6 +212,24 @@ class ModelExtensionModuleMailing extends Model {
         }
 
         return $new_array;
+    }
+
+    public function getCustomersMail($customers_id) {
+        $customer_mails_temp = array();
+        $customer_mails = array();
+
+        foreach($customers_id as $k => $v) {
+            $query = $this->db->query("SELECT email FROM " . DB_PREFIX . "customer WHERE customer_id = '" . (int)$v . "'");
+            $customer_mails_temp[] = $query->rows[0];
+        }
+
+        foreach ($customer_mails_temp as $key => $row) {  // loop over the array of arrays
+            foreach ($row as $kkey => $value) {  // loop over each sub-array (even if just 1 item)
+                $customer_mails[$key] = $value;      // set the output array key to the value
+            }
+        }
+
+        return $customer_mails;
     }
 
     // FIXME

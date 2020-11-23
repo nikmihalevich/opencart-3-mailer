@@ -12,8 +12,6 @@ class ControllerExtensionModuleMailing extends Controller {
 
         $this->document->setTitle($this->language->get('heading_title'));
 
-         $this->install();
-
         $this->getList();
     }
 
@@ -406,6 +404,65 @@ class ControllerExtensionModuleMailing extends Controller {
             $this->load->model('extension/module/mailing');
             $this->model_extension_module_mailing->unsubscribe($this->request->get['customer_id']);
         }
+    }
+
+    public function startMailing() {
+        if(isset($this->request->get['mailing_id'])) {
+            // TODO
+            $this->load->model('extension/module/mailing');
+
+            $mailing = $this->model_extension_module_mailing->getMailing($this->request->get['mailing_id']);;
+            $mailing_description = $this->model_extension_module_mailing->getMailingDescriptions($this->request->get['mailing_id']);
+            $mailing_products = $this->model_extension_module_mailing->getMailingProducts($this->request->get['mailing_id']);
+            $mailing_social = $this->model_extension_module_mailing->getMailingSocialLinks($this->request->get['mailing_id']);
+            $mailing_customers = $this->model_extension_module_mailing->getMailingCustomersId($this->request->get['mailing_id']); // FIXME
+            $customers_mails = $this->model_extension_module_mailing->getCustomersMail($mailing_customers);
+
+            $count_letters = intval($mailing['counter_letters']);
+
+            for($i = 0; $i < count($customers_mails); $i += $count_letters) {
+                $to = "";
+                for($j = $i; $j < $i + $count_letters; $j++) {
+                    if(isset($customers_mails[$j])) {
+                        $to .= "<". $customers_mails[$j] .">, ";
+                    }
+                }
+
+                // send mail
+                $this->sendMail($to, $mailing_description);
+                
+                sleep(1);
+            }
+        }
+    }
+
+    protected function sendMail($too, $message_info) {
+        $to = substr($too, 0, strlen($too)-2);
+
+        $subject = "Заголовок письма"; 
+
+        $message = htmlspecialchars_decode(
+                    '<html>
+                        <style>
+                            .fa-facebook:before {
+                                content: "\f09a";
+                                font-size: 15px;
+                            }                  
+                        </style>
+                        <body>
+                        <i class="fab fa-facebook"></i>
+                        ' .
+                            $message_info["letter_text"] .
+                        '</body>
+                    </html>'
+                );
+        
+        // FIXME email from DB
+        $headers  = "Content-type: text/html; charset=utf-8 \r\n"; 
+        $headers .= "From: От кого письмо <cheburekk570@gmail.com>\r\n"; 
+        $headers .= "Reply-To: cheburekk570@gmail.com\r\n"; 
+
+        mail($to, $message_info["letter_theme"], $message, $headers); 
     }
 
     public function install() {

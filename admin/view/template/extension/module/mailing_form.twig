@@ -214,7 +214,7 @@
                                 </div>
                             </div>
                             <div class="text-center">
-                                <button class="btn btn-primary">{{ button_start }}</button>
+                                <span onclick="startMailing()" class="btn btn-primary">{{ button_start }}</span>
                                 <button class="btn btn-primary">{{ button_start_by_date }}</button>
                             </div>
                         </div>
@@ -239,6 +239,18 @@
 <script type="text/javascript" src="view/javascript/summernote/opencart.js"></script>
 
 <script type="text/javascript">
+
+    function startMailing() {
+        $.ajax({
+            url: 'index.php?route=extension/module/mailing/startmailing&user_token={{ user_token }}&mailing_id={{ mailing.mailing_id }}',
+            success: function() {
+                console.log("end");
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+            }
+        });
+    }
 
     function addSocialField() {
         $('.social-fields').append(
