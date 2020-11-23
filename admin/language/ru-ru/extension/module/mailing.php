@@ -36,13 +36,16 @@ $_['column_template_name']  = 'Название шаблона';
 $_['column_date_start']     = 'Дата запуска';
 
 // Help
-$_['help_email_address']    = 'Please enter the email address for the owner of this business.';
-$_['help_password']         = 'Please enter a password between 8 and 30 characters.';
+$_['help_products']         = 'Для добавления линейки продуктов в письмо';
+$_['help_social']           = 'Для добавления ссылок на соц сети';
 $_['help_currency']         = 'Select the currency used on your website and to withdraw to your bank account.';
 
 // Error
-$_['error_warning']         = 'Warning: Please check the form carefully for errors!';
-$_['error_permission']      = 'Warning: You do not have permission to modify payment Pilibaba!';
+$_['error_warning']         = 'Заполните обязательные поля!';
+$_['error_permission']      = 'Вы не имеете прав на редактирование этого модуля.';
+$_['error_template_name']   = 'Введите имя шаблона!';
+$_['error_letter_theme']    = 'Введите тему письма!';
+$_['error_letter_text']     = 'Введите текст письма!';
 
 // Button
 $_['button_start']          = 'Запустить сейчас';

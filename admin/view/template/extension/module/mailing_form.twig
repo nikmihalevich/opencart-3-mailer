@@ -12,7 +12,7 @@
     </div>
     <div class="container-fluid">
         {% if error_warning %}
-        <div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> <?php echo $error_warning; ?>
+        <div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
             <button type="button" class="close" data-dismiss="alert">&times;</button>
         </div>
         {% endif %}
@@ -40,8 +40,8 @@
                                 <label class="col-sm-2 control-label" for="input-name">{{ entry_template_name }}</label>
                                 <div class="col-sm-10">
                                     <input type="text" name="template_name" value="{{ mailing.name }}" placeholder="{{ entry_name }}" id="input-name{{ language.language_id }}" class="form-control"/>
-                                    {% if error_name[language.language_id] %}
-                                        <div class="text-danger">{{ error_name[language.language_id] }}</div>
+                                    {% if error_name %}
+                                        <div class="text-danger">{{ error_name }}</div>
                                     {% endif %} 
                                 </div>
                             </div>
@@ -49,17 +49,21 @@
                                 <label class="col-sm-2 control-label" for="input-name">{{ entry_letter_theme }}</label>
                                 <div class="col-sm-10">
                                     <input type="text" name="letter_theme" value="{{ mailing_description.letter_theme }}" placeholder="{{ entry_name }}" id="input-name{{ language.language_id }}" class="form-control"/>
-                                    {% if error_name[language.language_id] %}
-                                        <div class="text-danger">{{ error_name[language.language_id] }}</div>
+                                    {% if error_letter_theme %}
+                                        <div class="text-danger">{{ error_letter_theme }}</div>
                                     {% endif %} 
                                 </div>
                             </div>
                             <div class="form-group required">
                                 <label class="col-sm-2 control-label" for="input-name">{{ entry_letter_text }}</label>
                                 <div class="col-sm-10">
+                                    <div style="margin: 10px; padding: 10px;">
+                                        <span style="margin-right: 20px;"><b>[products]</b> - {{ help_products }}</span>
+                                        <span><b>[social]</b> - {{ help_social }}</span>
+                                    </div>
                                     <textarea name="letter_text" placeholder="{{ entry_description }}" id="input-description{{ language.language_id }}" data-toggle="summernote" data-lang="{{ summernote }}" class="form-control">{{ mailing_description.letter_text }}</textarea>
-                                    {% if error_name[language.language_id] %}
-                                        <div class="text-danger">{{ error_name[language.language_id] }}</div>
+                                    {% if error_letter_text %}
+                                        <div class="text-danger">{{ error_letter_text }}</div>
                                     {% endif %} 
                                 </div>
                             </div>
@@ -109,6 +113,7 @@
                                                             <button type="button" onclick="deleteProductFromMailing({{ mailing_product.product_id }})">
                                                                 Удалить из рассылки
                                                             </button>
+                                                            <input type="hidden" name="added_products_id[]" id="added-product-id" value="{{ mailing_product.product_id }}" />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -125,25 +130,20 @@
                             <div class="form-group">
                                 <label class="col-sm-2 control-label" for="input-name">{{ entry_social }}</label>
                                 <div class="col-sm-10">
-                                    <div class="social-fields">
 
-                                        {% for mailing_social_link in mailing_social_links %}
+                                    {% for social_icon in social_icons %}
 
-                                            <div style="margin-bottom: 15px;">
-                                                <div class="col-sm-2">
-                                                    <input type="text" name="social_icon[]" value="{{ mailing_social_link.icon }}" placeholder="{{ entry_icon_code }}" id="input-name{{ language.language_id }}" class="form-control"/>
-                                                </div>
-                                                <div class="col-sm-9">
-                                                    <input type="text" name="social_link[]" value="{{ mailing_social_link.link }}" placeholder="{{ entry_link }}" id="input-name{{ language.language_id }}" class="form-control"/>
-                                                </div>
-                                                <span onclick="$(this).parent().remove()" class="btn btn-danger"><i class="fa fa-trash-o"></i></span>
-                                            </div>
-
-                                        {% endfor %}
-
+                                    <div class="social-fields" style="display:flex; justify-content: center; align-items: center; margin-bottom: 10px;">
+                                        <div class="col-sm-2">
+                                            <img src="/image/{{ social_icon.image }}" style="width: 25px; height: 25px; margin-right: 5px;" alt="{{ social_icon.name }}">
+                                            <span>{{ social_icon.name }}</span>
+                                        </div>
+                                        <div class="col-sm-10">
+                                            <input type="text" name="social_link[]" value="{{ social_icon.link }}" placeholder="{{ entry_link }}" id="input-name{{ language.language_id }}" class="form-control"/>
+                                        </div>
                                     </div>
-                                    <div class="col-sm-11"></div>
-                                    <span class="btn btn-primary" onclick="addSocialField()"><i class="fa fa-plus"></i></span>
+
+                                    {% endfor %}
                                 </div>
 
                             </div>
@@ -155,7 +155,7 @@
                             <table class="table table-bordered table-hover">
                                 <thead>
                                 <tr>
-                                    <td style="width: 1px;" class="text-center"><input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', this.checked);" /></td>
+                                    <td style="width: 1px;" class="text-center"><input type="checkbox" onclick="$('input[name*=\'mailing_customers\']').prop('checked', this.checked);" /></td>
                                     <td class="text-left">{% if sort == 'name' %} <a href="{{ sort_email }}" class="{{ order|lower }}">{{ column_email }}</a> {% else %} <a href="{{ sort_email }}">{{ column_email }}</a> {% endif %}</td> {# TODO SORT #}
                                     <td class="text-left">{% if sort == 'c.email' %} <a href="{{ sort_name }}" class="{{ order|lower }}">{{ column_name }}</a> {% else %} <a href="{{ sort_name }}">{{ column_name }}</a> {% endif %}</td>
                                 </tr>
@@ -189,28 +189,26 @@
                                 {% endif %}
                                 </tbody>
                             </table>
-                            <div class="text-center">
-                                <button class="btn btn-primary">{{ button_select_all }}</button>
-                                <button class="btn btn-primary">{{ button_select_marked }}</button>
-                            </div>
+{#                            <div class="text-center">#}
+{#                                <button class="btn btn-primary">{{ button_select_all }}</button>#}
+{#                                <button class="btn btn-primary">{{ button_select_marked }}</button>#}
+{#                            </div>#}
                         </div>
                         <div class="tab-pane" id="tab-3"> {# 3 TAB MAILING #}
                             <div class="form-group">
                                 <label class="col-sm-2 control-label" for="input-name">{{ entry_count_letters }}</label>
                                 <div class="col-sm-10">
-                                    <input type="text" name="count_letters" value="{{ mailing.counter_letters }}" placeholder="{{ entry_name }}" id="input-name{{ language.language_id }}" class="form-control"/>
-                                    {% if error_name[language.language_id] %}
-                                        <div class="text-danger">{{ error_name[language.language_id] }}</div>
-                                    {% endif %} 
+                                    {% if mailing.counter_letters %}
+                                        <input type="number" name="count_letters" value="{{ mailing.counter_letters }}" placeholder="{{ entry_name }}" id="input-name{{ language.language_id }}" class="form-control"/>
+                                    {% else %}
+                                        <input type="number" name="count_letters" value="10" placeholder="{{ entry_name }}" id="input-name{{ language.language_id }}" class="form-control"/>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-2 control-label" for="input-name">{{ entry_date_automailing }}</label>
                                 <div class="col-sm-10">
                                     <input type="datetime-local" name="date_automailing" value="{{ mailing.date_start }}" placeholder="{{ entry_name }}" id="input-name{{ language.language_id }}" class="form-control"/>
-                                    {% if error_name[language.language_id] %}
-                                        <div class="text-danger">{{ error_name[language.language_id] }}</div>
-                                    {% endif %} 
                                 </div>
                             </div>
                             <div class="text-center">

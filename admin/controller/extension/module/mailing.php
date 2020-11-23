@@ -22,7 +22,7 @@ class ControllerExtensionModuleMailing extends Controller {
 
         $this->load->model('extension/module/mailing');
 
-        if (($this->request->server['REQUEST_METHOD'] == 'POST') /*&& $this->validateForm()*/) {
+        if ($this->request->server['REQUEST_METHOD'] == 'POST' && $this->validateForm()) {
             $this->model_extension_module_mailing->add($this->request->post);
 
             $this->session->data['success'] = $this->language->get('text_success');
@@ -36,7 +36,7 @@ class ControllerExtensionModuleMailing extends Controller {
             $this->response->redirect($this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . $url, true));
         }
 
-        $this->getForm();
+        $this->getForm("add");
     }
 
     public function edit() {
@@ -46,21 +46,21 @@ class ControllerExtensionModuleMailing extends Controller {
 
         $this->load->model('extension/module/mailing');
 
-        if (($this->request->server['REQUEST_METHOD'] == 'POST') /*&& $this->validateForm()*/) {
+        if ($this->request->server['REQUEST_METHOD'] == 'POST' && $this->validateForm()) {
              $this->model_extension_module_mailing->edit($this->request->get['mailing_id'], $this->request->post);
 
             $this->session->data['success'] = $this->language->get('text_success');
 
-            // echo "<pre>";
-            // print_r($this->request->post);
-            // echo "<pre>";
+//             echo "<pre>";
+//             print_r($this->request->post);
+//             echo "<pre>";
 
             $url = '';
 
             $this->response->redirect($this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . $url, true));
         }
 
-        $this->getForm();
+        $this->getForm("edit");
     }
 
     public function delete() {
@@ -112,9 +112,14 @@ class ControllerExtensionModuleMailing extends Controller {
             $url .= '&order=ASC';
         }
 
-        $data['sort_name'] = $this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . '&sort=name' . $url, true);
+        $data['sort_mname'] = $this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . '&sort=m.name' . $url, true);
+        $data['sort_date_added'] = $this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . '&sort=date_added' . $url, true);
+        $data['sort_date_start'] = $this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . '&sort=date_start' . $url, true);
 
+
+        $data['sort_name'] = $this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . '&sort=c.name' . $url, true);
         $data['sort_email'] = $this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . '&sort=c.email' . $url, true);
+
         $data['breadcrumbs'] = array();
 
         $data['breadcrumbs'][] = array(
@@ -149,7 +154,12 @@ class ControllerExtensionModuleMailing extends Controller {
             );
         }
 
-        $mailings = $this->model_extension_module_mailing->getMailings();
+        $filter_data = array(
+            'sort'              => $sort,
+            'order'             => $order,
+        );
+
+        $mailings = $this->model_extension_module_mailing->getMailings($filter_data);
 
         foreach ($mailings as $mailing) {
             $data['mailings'][] = array(
@@ -183,7 +193,7 @@ class ControllerExtensionModuleMailing extends Controller {
         $this->response->setOutput($this->load->view('extension/module/mailing_list', $data));
     }
 
-    protected function getForm() {
+    protected function getForm($type) {
 		$data['text_form'] = !isset($this->request->get['product_id']) ? $this->language->get('text_add') : $this->language->get('text_edit');
 
         if (isset($this->request->get['sort'])) {
@@ -212,31 +222,24 @@ class ControllerExtensionModuleMailing extends Controller {
 			$data['error_warning'] = '';
 		}
 
-		if (isset($this->error['name'])) {
-			$data['error_name'] = $this->error['name'];
+		if (isset($this->error['template_name'])) {
+			$data['error_name'] = $this->error['template_name'];
 		} else {
-			$data['error_name'] = array();
+			$data['error_name'] = '';
 		}
 
-		if (isset($this->error['meta_title'])) {
-			$data['error_meta_title'] = $this->error['meta_title'];
+		if (isset($this->error['letter_theme'])) {
+			$data['error_letter_theme'] = $this->error['letter_theme'];
 		} else {
-			$data['error_meta_title'] = array();
+			$data['error_letter_theme'] = '';
 		}
 
-		if (isset($this->error['model'])) {
-			$data['error_model'] = $this->error['model'];
+		if (isset($this->error['letter_text'])) {
+			$data['error_letter_text'] = $this->error['letter_text'];
 		} else {
-			$data['error_model'] = '';
+			$data['error_letter_text'] = '';
 		}
 
-		if (isset($this->error['keyword'])) {
-			$data['error_keyword'] = $this->error['keyword'];
-		} else {
-			$data['error_keyword'] = '';
-		}
-
-		$url = '';
 
 		$data['breadcrumbs'] = array();
 
@@ -252,8 +255,12 @@ class ControllerExtensionModuleMailing extends Controller {
 
 		if (!isset($this->request->get['mailing_id'])) {
 			$data['action'] = $this->url->link('extension/module/mailing/add', 'user_token=' . $this->session->data['user_token'] . $url, true);
+            $data['sort_name'] = $this->url->link('extension/module/mailing/' . $type, 'user_token=' . $this->session->data['user_token'] . '&sort=name' . $url, true);
+            $data['sort_email'] = $this->url->link('extension/module/mailing/' . $type, 'user_token=' . $this->session->data['user_token'] . '&sort=c.email' . $url, true);
 		} else {
 			$data['action'] = $this->url->link('extension/module/mailing/edit', 'user_token=' . $this->session->data['user_token'] . '&mailing_id=' . $this->request->get['mailing_id'] . $url, true);
+            $data['sort_name'] = $this->url->link('extension/module/mailing/' . $type, 'user_token=' . $this->session->data['user_token'] . '&sort=name' . '&mailing_id=' . $this->request->get['mailing_id'] . $url, true);
+            $data['sort_email'] = $this->url->link('extension/module/mailing/' . $type, 'user_token=' . $this->session->data['user_token'] . '&sort=c.email' . '&mailing_id=' . $this->request->get['mailing_id'] . $url, true);
 		}
 
         $data['cancel'] = $this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . $url, true);
@@ -292,6 +299,7 @@ class ControllerExtensionModuleMailing extends Controller {
             $data['mailing_social_links'] = $this->request->post['mailing_social_links'];
         } elseif (isset($this->request->get['mailing_id'])) {
             $data['mailing_social_links'] = $this->model_extension_module_mailing->getMailingSocialLinks($this->request->get['mailing_id']);
+
         } else {
             $data['mailing_social_links'] = array();
         }
@@ -302,6 +310,16 @@ class ControllerExtensionModuleMailing extends Controller {
             $data['mailing_customers'] = $this->model_extension_module_mailing->getMailingCustomersId($this->request->get['mailing_id']);
         } else {
             $data['mailing_customers'] = array();
+        }
+
+        $data['social_icons'] = $this->model_extension_module_mailing->getSocialIcons();
+
+        foreach ($data['social_icons'] as $k => $icon) {
+            foreach ($data['mailing_social_links'] as $link) {
+                if($icon['icon_id'] == $link['icon_id']) {
+                    $data['social_icons'][$k]['link'] = $link['link'];
+                }
+            }
         }
 
         $filter_data = array(
@@ -322,10 +340,6 @@ class ControllerExtensionModuleMailing extends Controller {
             );
         }
 
-        $data['sort_name'] = $this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . '&sort=name' . $url, true);
-
-        $data['sort_email'] = $this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . '&sort=c.email' . $url, true);
-
         $data['categories'] = array();
 
         $this->load->model('catalog/category');
@@ -339,23 +353,6 @@ class ControllerExtensionModuleMailing extends Controller {
             );
         }
 
-		// TODO
-		if (isset($this->request->post['model'])) {
-			$data['model'] = $this->request->post['model'];
-		} elseif (!empty($product_info)) {
-			$data['model'] = $product_info['model'];
-		} else {
-			$data['model'] = '';
-		}
-
-		if (isset($this->request->post['customers'])) {
-			$data['customers'] = $this->request->post['customers'];
-		} elseif (!empty($product_info)) {
-			$data['sku'] = $product_info['sku'];
-		} else {
-			$data['sku'] = '';
-		}
-
 		$this->load->model('design/layout');
 
 		$data['layouts'] = $this->model_design_layout->getLayouts();
@@ -365,14 +362,6 @@ class ControllerExtensionModuleMailing extends Controller {
 		$data['footer'] = $this->load->controller('common/footer');
 
 		$this->response->setOutput($this->load->view('extension/module/mailing_form', $data));
-    }
-
-    public function addProduct() {
-        if(isset($this->request->get['product_id']) && isset($this->request->get['mailing_id']) ) {
-            $this->load->model('extension/module/mailing');
-            $this->model_extension_module_mailing->addProductToMailing($this->request->get['product_id'], $this->request->get['mailing_id']);
-            $this->response->setOutput(123);
-        }
     }
 
     public function getProducts() {
@@ -400,7 +389,6 @@ class ControllerExtensionModuleMailing extends Controller {
 
     public function unsubcribe() {
         if ($this->request->server['REQUEST_METHOD'] == 'POST') {
-            var_dump($this->request->get['customer_id']);
             $this->load->model('extension/module/mailing');
             $this->model_extension_module_mailing->unsubscribe($this->request->get['customer_id']);
         }
@@ -418,51 +406,116 @@ class ControllerExtensionModuleMailing extends Controller {
             $mailing_customers = $this->model_extension_module_mailing->getMailingCustomersId($this->request->get['mailing_id']); // FIXME
             $customers_mails = $this->model_extension_module_mailing->getCustomersMail($mailing_customers);
 
+            $social_icons = $this->model_extension_module_mailing->getSocialIcons();
+
+            foreach ($mailing_social as $k => $link) {
+                foreach ($social_icons as $icon) {
+                    if($link['icon_id'] == $icon['icon_id']) {
+                        $mailing_social[$k]['image'] = $icon['image'];
+                    }
+                }
+            }
+
+            $matches = array();
+            // get shortcode from text
+            preg_match_all('/\[(.*?)\\]/s', $mailing_description["letter_text"], $matches);
+
+            // shortcodes analysis
+            if(isset($matches[1])) {
+                foreach ($matches[1] as $match) {
+                    $snippet_txt = '['. $match . ']';
+                    switch ($match) {
+                        case "products":
+                            $snippet_output = htmlspecialchars($this->getHtmlProducts($mailing_products));
+                            $mailing_description["letter_text"] = str_replace($snippet_txt, $snippet_output , $mailing_description["letter_text"]);
+                            break;
+                        case "social":
+                            $snippet_output = htmlspecialchars($this->getHtmlSocial($mailing_social));
+                            $mailing_description["letter_text"] = str_replace($snippet_txt, $snippet_output , $mailing_description["letter_text"]);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+
             $count_letters = intval($mailing['counter_letters']);
 
             for($i = 0; $i < count($customers_mails); $i += $count_letters) {
-                $to = "";
                 for($j = $i; $j < $i + $count_letters; $j++) {
                     if(isset($customers_mails[$j])) {
-                        $to .= "<". $customers_mails[$j] .">, ";
+                        // send mail
+                        $this->sendMail($customers_mails[$j], $mailing_description);
                     }
                 }
-
-                // send mail
-                $this->sendMail($to, $mailing_description);
-                
                 sleep(1);
             }
+
         }
     }
 
-    protected function sendMail($too, $message_info) {
-        $to = substr($too, 0, strlen($too)-2);
-
-        $subject = "Заголовок письма"; 
-
+    protected function sendMail($to, $message_info) {
         $message = htmlspecialchars_decode(
-                    '<html>
-                        <style>
-                            .fa-facebook:before {
-                                content: "\f09a";
-                                font-size: 15px;
-                            }                  
-                        </style>
-                        <body>
-                        <i class="fab fa-facebook"></i>
-                        ' .
+            '<html>
+                        <body>' .
                             $message_info["letter_text"] .
                         '</body>
-                    </html>'
-                );
-        
+                </html>'
+            );
+
         // FIXME email from DB
         $headers  = "Content-type: text/html; charset=utf-8 \r\n"; 
-        $headers .= "From: От кого письмо <cheburekk570@gmail.com>\r\n"; 
-        $headers .= "Reply-To: cheburekk570@gmail.com\r\n"; 
+        $headers .= "From: От кого письмо <testoviitestovich@gmail.com>\r\n";
+        $headers .= "Reply-To: testoviitestovich@gmail.com\r\n";
 
-        mail($to, $message_info["letter_theme"], $message, $headers); 
+        mail($to, $message_info["letter_theme"], $message, $headers);
+    }
+
+    protected function getHtmlProducts($products) {
+        $html = '<div style="display: flex;">';
+        foreach ($products as $product) {
+            $html .= '<div style="max-width: 25%; border: 1px solid #ff7c7c; border-radius: 10px; margin-right: 5px; padding: 10px;"><div class="image">';
+
+            
+            //FIXME FOR PROD
+            if(isset($product['image'])) {
+                $html .= '<img src="http://geniussys.com/img/placeholder/blogpost-placeholder-100x100.png" alt="'. $product['name'] . '" title="'. $product['name'] . '" class="img-responsive" />';
+//                $html .= '<img src="/image/'. $product['image'] . '" alt="'. $product['name'] . '" title="'. $product['name'] . '" class="img-responsive" />';
+            } else {
+//                $html .= '<img src="/image/cache/no_image-100x100.png" alt="'. $product['name'] . '" title="'. $product['name'] . '" class="img-responsive" />';
+                $html .= '<img src="http://geniussys.com/img/placeholder/blogpost-placeholder-100x100.png" alt="'. $product['name'] . '" title="'. $product['name'] . '" class="img-responsive" />';
+            }
+
+            $html .= '</div>
+                    <div>
+                        <div class="caption">
+                            <p>' . $product['name'] . '</p>
+                            <p class="price">
+                                ' . $this->currency->format($product['price'], $this->session->data['currency']) . ' 
+                            </p>
+                        </div>
+                    </div>
+                </div>';
+        }
+        $html .= '</div>';
+        return $html;
+    }
+
+    protected function getHtmlSocial($social_links) {
+        $html = '<span>Мы в соц сетях:</span>';
+
+        $html .= '<div style="display:flex;">';
+
+
+        //FIXME FOR PROD
+        foreach ($social_links as $social_link) {
+            $html .= '<a href="' . $social_link["link"] . '" style="margin-right: 15px;"><img src="https://cdn2.iconfinder.com/data/icons/social-media-applications/64/social_media_applications_1-facebook-512.png" style="width: 25px; height: 25px;" alt="' . $social_link["name"] . '"></a>';
+//            $html .= '<a href="' . $social_link["link"] . '" style="margin-right: 15px;"><img src="' . $social_link['image'] . '" style="width: 25px; height: 25px;" alt="' . $social_link["name"] . '"></a>';
+        }
+        
+        $html .= '</div>';
+        return $html;
     }
 
     public function install() {
@@ -482,57 +535,31 @@ class ControllerExtensionModuleMailing extends Controller {
     }
 
     protected function validateForm() {
-        if (!$this->user->hasPermission('modify', 'extension/module')) {
+        if (!$this->user->hasPermission('modify', 'extension/module/mailing')) {
             $this->error['warning'] = $this->language->get('error_permission');
         }
 
-//        foreach ($this->request->post['product_description'] as $language_id => $value) {
-//            if ((utf8_strlen($value['name']) < 1) || (utf8_strlen($value['name']) > 255)) {
-//                $this->error['name'][$language_id] = $this->language->get('error_name');
-//            }
-//
-//            if ((utf8_strlen($value['meta_title']) < 1) || (utf8_strlen($value['meta_title']) > 255)) {
-//                $this->error['meta_title'][$language_id] = $this->language->get('error_meta_title');
-//            }
-//        }
-//
-//        if ((utf8_strlen($this->request->post['model']) < 1) || (utf8_strlen($this->request->post['model']) > 64)) {
-//            $this->error['model'] = $this->language->get('error_model');
-//        }
-//
-//        if ($this->request->post['product_seo_url']) {
-//            $this->load->model('design/seo_url');
-//
-//            foreach ($this->request->post['product_seo_url'] as $store_id => $language) {
-//                foreach ($language as $language_id => $keyword) {
-//                    if (!empty($keyword)) {
-//                        if (count(array_keys($language, $keyword)) > 1) {
-//                            $this->error['keyword'][$store_id][$language_id] = $this->language->get('error_unique');
-//                        }
-//
-//                        $seo_urls = $this->model_design_seo_url->getSeoUrlsByKeyword($keyword);
-//
-//                        foreach ($seo_urls as $seo_url) {
-//                            if (($seo_url['store_id'] == $store_id) && (!isset($this->request->get['product_id']) || (($seo_url['query'] != 'product_id=' . $this->request->get['product_id'])))) {
-//                                $this->error['keyword'][$store_id][$language_id] = $this->language->get('error_keyword');
-//
-//                                break;
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//
-//        if ($this->error && !isset($this->error['warning'])) {
-//            $this->error['warning'] = $this->language->get('error_warning');
-//        }
+        if ((utf8_strlen($this->request->post['template_name']) < 1) || (utf8_strlen($this->request->post['template_name']) > 64)) {
+            $this->error['template_name'] = $this->language->get('error_template_name');
+        }
+
+        if ((utf8_strlen($this->request->post['letter_theme']) < 1) || (utf8_strlen($this->request->post['letter_theme']) > 64)) {
+            $this->error['letter_theme'] = $this->language->get('error_letter_theme');
+        }
+
+        if (utf8_strlen($this->request->post['letter_text']) < 1) {
+            $this->error['letter_text'] = $this->language->get('error_letter_text');
+        }
+
+        if ($this->error && !isset($this->error['warning'])) {
+            $this->error['warning'] = $this->language->get('error_warning');
+        }
 
         return !$this->error;
     }
 
     protected function validate() {
-        if (!$this->user->hasPermission('modify', 'extension/payment/stripe')) {
+        if (!$this->user->hasPermission('modify', 'extension/module/mailing')) {
             $this->error['warning'] = $this->language->get('error_permission');
         }
 

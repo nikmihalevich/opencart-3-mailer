@@ -26,7 +26,7 @@ class ModelExtensionModuleMailing extends Model {
         $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "mailing_social_links` (
             `id` INT(11) NOT NULL AUTO_INCREMENT,
             `mailing_id` INT(11) NOT NULL,
-            `icon` varchar(50) NOT NULL,
+            `icon_id` INT(11) NOT NULL,
             `link` varchar(255) NOT NULL,
             PRIMARY KEY (`id`)
 		) ENGINE=MyISAM DEFAULT COLLATE=utf8_general_ci;");
@@ -36,7 +36,18 @@ class ModelExtensionModuleMailing extends Model {
             `customer_id` INT(11) NOT NULL,
             PRIMARY KEY (`id`)
 		) ENGINE=MyISAM DEFAULT COLLATE=utf8_general_ci;");
-        // $this->db->query("CREATE INDEX `idx_mailing` ON `" . DB_PREFIX . "product_to_mailing` (`mailing_id`)");
+        $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "social_icons` (
+            `id` INT(11) NOT NULL AUTO_INCREMENT,
+            `icon_id` INT(11) NOT NULL,
+            `name` VARCHAR(50) NOT NULL,
+            `image` VARCHAR(255) NOT NULL,
+            PRIMARY KEY (`id`)
+		) ENGINE=MyISAM DEFAULT COLLATE=utf8_general_ci;");
+        $this->db->query("INSERT INTO " . DB_PREFIX . "social_icons SET `icon_id` = '1', `name` = 'Facebook', `image` = 'social/facebook.png'");
+        $this->db->query("INSERT INTO " . DB_PREFIX . "social_icons SET `icon_id` = '2', `name` = 'Instagram', `image` = 'social/instagram.png'");
+        $this->db->query("INSERT INTO " . DB_PREFIX . "social_icons SET `icon_id` = '3', `name` = 'OK', `image` = 'social/odnoklassniki.png'");
+        $this->db->query("INSERT INTO " . DB_PREFIX . "social_icons SET `icon_id` = '4', `name` = 'Twitter', `image` = 'social/twitter.png'");
+        $this->db->query("INSERT INTO " . DB_PREFIX . "social_icons SET `icon_id` = '5', `name` = 'VK', `image` = 'social/VK.png'");
     }
 
     public function uninstall() {
@@ -45,13 +56,17 @@ class ModelExtensionModuleMailing extends Model {
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "product_to_mailing`");
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "mailing_social_links`");
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "customer_to_mailing`");
-        // $this->db->query("ALTER TABLE `" . DB_PREFIX . "product_to_mailing` DROP INDEX `idx_mailing`");
+        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "social_icons`");
 
         $this->log('Module uninstalled');
     }
 
     public function add($data) {
-        $this->db->query("INSERT INTO " . DB_PREFIX . "mailing SET `name` = '" . $this->db->escape($data['template_name']) . "', counter_letters = '" . $this->db->escape($data['count_letters']) . "', date_start = '" . $this->db->escape($data['date_automailing']) . "', date_added = NOW()");
+        if($data['count_letters'] == 0) {
+            $data['count_letters'] = 10;
+        }
+
+        $this->db->query("INSERT INTO " . DB_PREFIX . "mailing SET `name` = '" . $this->db->escape($data['template_name']) . "', counter_letters = '" . (int)$data['count_letters'] . "', date_start = '" . $this->db->escape($data['date_automailing']) . "', date_added = NOW()");
 
         $mailing_id = $this->db->getLastId();
 
@@ -63,9 +78,11 @@ class ModelExtensionModuleMailing extends Model {
 			}
         }
 
-        if(isset($data['social_icon']) && isset($data['social_link'])) {
-            foreach ($data['social_icon'] as $key => $value) {
-                $this->db->query("INSERT INTO " . DB_PREFIX . "mailing_social_links SET mailing_id = '" . (int)$mailing_id . "', icon = '" . $value . "', link = '" . $data['social_link'][$key] . "'");
+        if(isset($data['social_link'])) {
+            foreach ($data['social_link'] as $key => $value) {
+                if($value != '') {
+                    $this->db->query("INSERT INTO " . DB_PREFIX . "mailing_social_links SET mailing_id = '" . (int)$mailing_id . "', icon_id = '" . ($key + 1) . "', link = '" . $value . "'");
+                }
             }
         }
 
@@ -94,9 +111,11 @@ class ModelExtensionModuleMailing extends Model {
         }
 
         $this->db->query("DELETE FROM " . DB_PREFIX . "mailing_social_links WHERE mailing_id = '" . (int)$mailing_id . "'");
-        if(isset($data['social_icon']) && isset($data['social_link'])) {
-            foreach ($data['social_icon'] as $key => $value) {
-                $this->db->query("INSERT INTO " . DB_PREFIX . "mailing_social_links SET mailing_id = '" . (int)$mailing_id . "', icon = '" . $value . "', link = '" . $data['social_link'][$key] . "'");
+        if(isset($data['social_link'])) {
+            foreach ($data['social_link'] as $key => $value) {
+                if($value != '') {
+                    $this->db->query("INSERT INTO " . DB_PREFIX . "mailing_social_links SET mailing_id = '" . (int)$mailing_id . "', icon_id = '" . ($key + 1) . "', link = '" . $value . "'");
+                }
             }
         }
 
@@ -125,12 +144,9 @@ class ModelExtensionModuleMailing extends Model {
 
         // TODO
         $sort_data = array(
-            'pd.name',
-            'p.model',
-            'p.price',
-            'p.quantity',
-            'p.status',
-            'p.sort_order'
+            'date_added',
+            'm.name',
+            'date_start'
         );
 
         if (isset($data['sort']) && in_array($data['sort'], $sort_data)) {
@@ -194,9 +210,32 @@ class ModelExtensionModuleMailing extends Model {
 	}
 
 	public function getMailingSocialLinks($mailing_id) {
-        $query = $this->db->query("SELECT icon, link FROM " . DB_PREFIX . "mailing_social_links WHERE mailing_id = '" . (int)$mailing_id . "'");
+        $social_links = array();
+        $query = $this->db->query("SELECT icon_id, link FROM " . DB_PREFIX . "mailing_social_links WHERE mailing_id = '" . (int)$mailing_id . "'");
 
-        return $query->rows;
+        foreach ($query->rows as $result) {
+            $social_links[] = array(
+                'icon_id' => intval($result['icon_id']),
+                'link'    => $result['link']
+            );
+        }
+
+        return $social_links;
+    }
+
+    public function getSocialIcons() {
+        $social_icons = array();
+        $query = $this->db->query("SELECT icon_id, `name`, image FROM " . DB_PREFIX . "social_icons");
+
+        foreach ($query->rows as $result) {
+            $social_icons[] = array(
+                'icon_id' => intval($result['icon_id']),
+                'name'    => $result['name'],
+                'image'   => $result['image']
+            );
+        }
+
+        return $social_icons;
     }
 
     public function getMailingCustomersId($mailing_id) {
@@ -230,11 +269,6 @@ class ModelExtensionModuleMailing extends Model {
         }
 
         return $customer_mails;
-    }
-
-    // FIXME
-	public function addProductToMailing($product_id, $mailing_id) {
-        $this->db->query("INSERT INTO " . DB_PREFIX . "product_to_mailing SET `product_id` = '" . $this->db->escape($product_id) . "', mailing_id = '" . $this->db->escape($mailing_id) . "'");
     }
 
     public function unsubscribe($customer_id) {
