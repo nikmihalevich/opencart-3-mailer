@@ -142,7 +142,6 @@ class ModelExtensionModuleMailing extends Model {
     public function getMailings($data = array()) {
         $sql = "SELECT * FROM " . DB_PREFIX . "mailing m LEFT JOIN " . DB_PREFIX . "mailing_description md ON (m.mailing_id = md.mailing_id) WHERE md.language_id = '" . (int)$this->config->get('config_language_id') . "'";
 
-        // TODO
         $sort_data = array(
             'date_added',
             'm.name',

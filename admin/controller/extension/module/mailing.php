@@ -408,7 +408,7 @@ class ControllerExtensionModuleMailing extends Controller {
 
     public function startMailing($id) {
         if(isset($this->request->get['mailing_id']) || isset($id)) {
-            // TODO
+
             $this->load->model('extension/module/mailing');
 
             $mailing_id = $this->request->get['mailing_id'] ? $this->request->get['mailing_id'] : $id;
@@ -417,7 +417,7 @@ class ControllerExtensionModuleMailing extends Controller {
             $mailing_description = $this->model_extension_module_mailing->getMailingDescriptions($mailing_id);
             $mailing_products = $this->model_extension_module_mailing->getMailingProducts($mailing_id);
             $mailing_social = $this->model_extension_module_mailing->getMailingSocialLinks($mailing_id);
-            $mailing_customers = $this->model_extension_module_mailing->getMailingCustomersId($mailing_id); // FIXME
+            $mailing_customers = $this->model_extension_module_mailing->getMailingCustomersId($mailing_id);
             $customers_mails = $this->model_extension_module_mailing->getCustomersMail($mailing_customers);
 
             $social_icons = $this->model_extension_module_mailing->getSocialIcons();
@@ -480,8 +480,8 @@ class ControllerExtensionModuleMailing extends Controller {
 
         // FIXME email from DB
         $headers  = "Content-type: text/html; charset=utf-8 \r\n"; 
-        $headers .= "From: От кого письмо <testoviitestovich@gmail.com>\r\n";
-        $headers .= "Reply-To: testoviitestovich@gmail.com\r\n";
+        $headers .= "From: От кого письмо <shop@opencart.com>\r\n";
+        $headers .= "Reply-To: shop@opencart.com\r\n";
 
         mail($to, $message_info["letter_theme"], $message, $headers);
     }
@@ -491,14 +491,10 @@ class ControllerExtensionModuleMailing extends Controller {
         foreach ($products as $product) {
             $html .= '<div style="max-width: 25%; border: 1px solid #ff7c7c; border-radius: 10px; margin-right: 5px; padding: 10px;"><div class="image">';
 
-            
-            //FIXME FOR PROD
             if(isset($product['image'])) {
-                $html .= '<img src="http://geniussys.com/img/placeholder/blogpost-placeholder-100x100.png" alt="'. $product['name'] . '" title="'. $product['name'] . '" class="img-responsive" />';
-//                $html .= '<img src="/image/'. $product['image'] . '" alt="'. $product['name'] . '" title="'. $product['name'] . '" class="img-responsive" />';
+                $html .= '<img src="/image/'. $product['image'] . '" alt="'. $product['name'] . '" title="'. $product['name'] . '" class="img-responsive" />';
             } else {
-//                $html .= '<img src="/image/cache/no_image-100x100.png" alt="'. $product['name'] . '" title="'. $product['name'] . '" class="img-responsive" />';
-                $html .= '<img src="http://geniussys.com/img/placeholder/blogpost-placeholder-100x100.png" alt="'. $product['name'] . '" title="'. $product['name'] . '" class="img-responsive" />';
+                $html .= '<img src="/image/cache/no_image-100x100.png" alt="'. $product['name'] . '" title="'. $product['name'] . '" class="img-responsive" />';
             }
 
             $html .= '</div>
@@ -521,11 +517,8 @@ class ControllerExtensionModuleMailing extends Controller {
 
         $html .= '<div style="display:flex;">';
 
-
-        //FIXME FOR PROD
         foreach ($social_links as $social_link) {
-            $html .= '<a href="' . $social_link["link"] . '" style="margin-right: 15px;"><img src="https://cdn2.iconfinder.com/data/icons/social-media-applications/64/social_media_applications_1-facebook-512.png" style="width: 25px; height: 25px;" alt="' . $social_link["name"] . '"></a>';
-//            $html .= '<a href="' . $social_link["link"] . '" style="margin-right: 15px;"><img src="' . $social_link['image'] . '" style="width: 25px; height: 25px;" alt="' . $social_link["name"] . '"></a>';
+            $html .= '<a href="' . $social_link["link"] . '" style="margin-right: 15px;"><img src="' . $social_link['image'] . '" style="width: 25px; height: 25px;" alt="' . $social_link["name"] . '"></a>';
         }
         
         $html .= '</div>';
