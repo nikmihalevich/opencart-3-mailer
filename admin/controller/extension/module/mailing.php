@@ -394,16 +394,30 @@ class ControllerExtensionModuleMailing extends Controller {
         }
     }
 
-    public function startMailing() {
-        if(isset($this->request->get['mailing_id'])) {
+    public function checkMailingDate() {
+        $this->load->model('extension/module/mailing');
+
+        $mailings = $this->model_extension_module_mailing->getMailings();
+
+        foreach($mailings as $mailing) {
+            if($mailing['date_start'] == date("Y-m-d H:i:s")) {
+                $this->startMailing($mailing['mailing_id']);
+            }
+        }
+    }
+
+    public function startMailing($id) {
+        if(isset($this->request->get['mailing_id']) || isset($id)) {
             // TODO
             $this->load->model('extension/module/mailing');
 
-            $mailing = $this->model_extension_module_mailing->getMailing($this->request->get['mailing_id']);;
-            $mailing_description = $this->model_extension_module_mailing->getMailingDescriptions($this->request->get['mailing_id']);
-            $mailing_products = $this->model_extension_module_mailing->getMailingProducts($this->request->get['mailing_id']);
-            $mailing_social = $this->model_extension_module_mailing->getMailingSocialLinks($this->request->get['mailing_id']);
-            $mailing_customers = $this->model_extension_module_mailing->getMailingCustomersId($this->request->get['mailing_id']); // FIXME
+            $mailing_id = $this->request->get['mailing_id'] ? $this->request->get['mailing_id'] : $id;
+
+            $mailing = $this->model_extension_module_mailing->getMailing($mailing_id);
+            $mailing_description = $this->model_extension_module_mailing->getMailingDescriptions($mailing_id);
+            $mailing_products = $this->model_extension_module_mailing->getMailingProducts($mailing_id);
+            $mailing_social = $this->model_extension_module_mailing->getMailingSocialLinks($mailing_id);
+            $mailing_customers = $this->model_extension_module_mailing->getMailingCustomersId($mailing_id); // FIXME
             $customers_mails = $this->model_extension_module_mailing->getCustomersMail($mailing_customers);
 
             $social_icons = $this->model_extension_module_mailing->getSocialIcons();
@@ -457,7 +471,7 @@ class ControllerExtensionModuleMailing extends Controller {
 
     protected function sendMail($to, $message_info) {
         $message = htmlspecialchars_decode(
-            '<html>
+                '<html>
                         <body>' .
                             $message_info["letter_text"] .
                         '</body>
