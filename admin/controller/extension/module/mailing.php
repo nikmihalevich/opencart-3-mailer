@@ -3,12 +3,8 @@ class ControllerExtensionModuleMailing extends Controller {
     private $error = array();
 
     public function index() {
-        $this->load->model('setting/setting');
-
         $this->load->model('extension/module/mailing');
         $this->load->language('extension/module/mailing');
-
-        $this->load->model('customer/customer');
 
         $this->document->setTitle($this->language->get('heading_title'));
 
@@ -26,10 +22,6 @@ class ControllerExtensionModuleMailing extends Controller {
             $this->model_extension_module_mailing->add($this->request->post);
 
             $this->session->data['success'] = $this->language->get('text_success');
-
-//             echo "<pre>";
-//             print_r($this->request->post);
-//             echo "<pre>";
 
             $url = '';
 
@@ -50,10 +42,6 @@ class ControllerExtensionModuleMailing extends Controller {
              $this->model_extension_module_mailing->edit($this->request->get['mailing_id'], $this->request->post);
 
             $this->session->data['success'] = $this->language->get('text_success');
-
-//             echo "<pre>";
-//             print_r($this->request->post);
-//             echo "<pre>";
 
             $url = '';
 
@@ -401,17 +389,22 @@ class ControllerExtensionModuleMailing extends Controller {
 
         foreach($mailings as $mailing) {
             if($mailing['date_start'] == date("Y-m-d H:i:s")) {
-                $this->startMailing($mailing['mailing_id']);
+                $this->mailing($mailing['mailing_id']);
             }
         }
     }
 
-    public function startMailing($id) {
-        if(isset($this->request->get['mailing_id']) || isset($id)) {
+    public function startMailing() {
+        if(isset($this->request->get['mailing_id'])) {
+            $this->mailing($this->request->get['mailing_id']);
+        }
+    }
 
+    protected function mailing($id) {
+        if(isset($id)) {
             $this->load->model('extension/module/mailing');
 
-            $mailing_id = $this->request->get['mailing_id'] ? $this->request->get['mailing_id'] : $id;
+            $mailing_id = $id;
 
             $mailing = $this->model_extension_module_mailing->getMailing($mailing_id);
             $mailing_description = $this->model_extension_module_mailing->getMailingDescriptions($mailing_id);
@@ -465,17 +458,16 @@ class ControllerExtensionModuleMailing extends Controller {
                 }
                 sleep(1);
             }
-
         }
     }
 
     protected function sendMail($to, $message_info) {
         $message = htmlspecialchars_decode(
-                '<html>
-                        <body>' .
-                            $message_info["letter_text"] .
-                        '</body>
-                </html>'
+        '<html>
+                <body>' .
+                    $message_info["letter_text"] .
+                '</body>
+               </html>'
             );
 
         // FIXME email from DB
@@ -518,7 +510,7 @@ class ControllerExtensionModuleMailing extends Controller {
         $html .= '<div style="display:flex;">';
 
         foreach ($social_links as $social_link) {
-            $html .= '<a href="' . $social_link["link"] . '" style="margin-right: 15px;"><img src="' . $social_link['image'] . '" style="width: 25px; height: 25px;" alt="' . $social_link["name"] . '"></a>';
+            $html .= '<a href="' . $social_link["link"] . '" style="margin-right: 15px;"><img src="' . $social_link['image'] . '" style="width: 25px; height: 25px;" alt=""></a>';
         }
         
         $html .= '</div>';
@@ -538,6 +530,23 @@ class ControllerExtensionModuleMailing extends Controller {
             $this->load->model('extension/module/mailing');
 
             $this->model_extension_module_mailing->uninstall();
+        }
+    }
+
+    public function configure() {
+        $this->load->language('extension/extension/module');
+
+        if (!$this->user->hasPermission('modify', 'extension/extension/module')) {
+            $this->response->redirect($this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'], true));
+        } else {
+            $this->load->model('user/user_group');
+
+            $this->model_user_user_group->addPermission($this->user->getGroupId(), 'access', 'extension/module/pp_button');
+            $this->model_user_user_group->addPermission($this->user->getGroupId(), 'modify', 'extension/module/pp_button');
+
+            $this->install();
+
+            $this->response->redirect($this->url->link('design/layout', 'user_token=' . $this->session->data['user_token'], true));
         }
     }
 
