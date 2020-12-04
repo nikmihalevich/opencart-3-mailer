@@ -382,6 +382,23 @@ class ControllerExtensionModuleMailing extends Controller {
         }
     }
 
+    public function unsubcribeFromMailing() {
+        if ($this->request->server['REQUEST_METHOD'] == 'POST') {
+            $this->load->model('extension/module/mailing');
+            $this->model_extension_module_mailing->unsubscribeFromMailing($this->request->get['mailing_id'], $this->request->get['customer_id']);
+        }
+    }
+
+    public function mailingCustomersId() {
+        if ($this->request->server['REQUEST_METHOD'] == 'POST') {
+            $this->load->model('extension/module/mailing');
+            $mailing_customers = $this->model_extension_module_mailing->getMailingCustomersId($this->request->get['mailing_id']);
+
+            $this->response->addHeader('Content-Type: application/json');
+		    $this->response->setOutput(json_encode($mailing_customers));
+        }
+    }
+
     public function checkMailingDate() {
         $this->load->model('extension/module/mailing');
 

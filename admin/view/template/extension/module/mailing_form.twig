@@ -75,7 +75,6 @@
                                 <label class="col-sm-2 control-label" for="input-tax-class">{{ entry_products }}</label>
                                 <div class="col-sm-10">
                                     <select name="categories" id="input-product-categories" class="form-control">
-{#                                         <option selected value="{{ categories[0].category_id }}">{{ categories[0].name }}</option>#}
 
                                         {% for category in categories %}
 
@@ -152,7 +151,18 @@
                             </div>
                         </div>
                         <div class="tab-pane" id="tab-2"> {# 2 TAB USERS #}
-                            <table class="table table-bordered table-hover">
+                            <div class="form-group">
+                                <div class="col-sm-5">
+                                    <input type="text" name="filter_email" value="" placeholder="Email" id="input-name" class="form-control"/>
+                                </div>
+                                <div class="col-sm-5">
+                                    <input type="text" name="filter_name" value="" placeholder="Name" id="input-name" class="form-control"/>
+                                </div>
+                                <div class="col-sm-2">
+                                    <span onclick="resetFilter()" data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_reset }}" class="btn btn-danger"><i class="fa fa-refresh"></i></span>
+                                </div>
+                            </div>
+                            <table class="table table-bordered table-hover mailing-users">
                                 <thead>
                                 <tr>
                                     <td style="width: 1px;" class="text-center"><input type="checkbox" onclick="$('input[name*=\'mailing_customers\']').prop('checked', this.checked);" /></td>
@@ -177,7 +187,9 @@
                                                 {{ customer.name }}
                                                 <span class="pull-right">
                                                     <a href="index.php?route=customer/customer/edit&user_token={{ user_token }}&customer_id={{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>
-                                                    <a href="#" data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></a>
+                                                    {% if customer.customer_id in mailing_customers %}
+                                                        <span data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></span>
+                                                    {% endif %}
                                                 </span>
                                             </td>
                                         </tr>
@@ -189,10 +201,6 @@
                                 {% endif %}
                                 </tbody>
                             </table>
-{#                            <div class="text-center">#}
-{#                                <button class="btn btn-primary">{{ button_select_all }}</button>#}
-{#                                <button class="btn btn-primary">{{ button_select_marked }}</button>#}
-{#                            </div>#}
                         </div>
                         <div class="tab-pane" id="tab-3"> {# 3 TAB MAILING #}
                             <div class="form-group">
@@ -233,6 +241,149 @@
 <script type="text/javascript" src="view/javascript/summernote/opencart.js"></script>
 
 <script type="text/javascript">
+    let mailing_customers_ids
+    function usnub() {
+        $('.unsubscribe-customer').on('click', function(e) {
+            e.preventDefault();
+            const _this = $(this)
+            $.ajax({
+                type: "POST",
+                url: 'index.php?route=extension/module/mailing/unsubcribefrommailing&customer_id=' + $(this).data('customerId') + '&mailing_id={{ mailing.mailing_id }}' + '&user_token={{ user_token }}',
+                success: function() {
+                    _this.parent().parent().parent().find('input[type=\'checkbox\']').removeAttr("checked");
+                    _this.remove();
+                    getMailingCustomers()
+                }
+            });
+        });
+    }
+
+    function getMailingCustomers() {
+        $.ajax({
+            url: 'index.php?route=extension/module/mailing/mailingcustomersid&user_token={{ user_token }}&mailing_id={{ mailing.mailing_id }}',
+            type: "POST",
+            dataType: 'json',
+            success: function(json) {
+                mailing_customers_ids = json;
+            }
+        });
+    }
+
+    getMailingCustomers()
+    usnub()
+
+    $('input[name=\'filter_name\']').autocomplete({
+        'source': function(request, response) {
+            $.ajax({
+            url: 'index.php?route=customer/customer/autocomplete&user_token={{ user_token }}&filter_name=' +  encodeURIComponent(request),
+            dataType: 'json',
+            success: function(json) {
+                response($.map(json, function(item) {
+                return {
+                    label: item['name'],
+                    name:  item['name'],
+                    email: item['email'],
+                    value: item['customer_id']
+                }
+                }));
+            }
+            });
+        },
+        'select': function(item) {
+            $('input[name=\'filter_name\']').val(item['label']);
+            $('input[name=\'filter_email\']').val('');
+            CustomersHtml(item);
+        }
+    });
+    $('input[name=\'filter_email\']').autocomplete({
+        'source': function(request, response) {
+            $.ajax({
+            url: 'index.php?route=customer/customer/autocomplete&user_token={{ user_token }}&filter_email=' +  encodeURIComponent(request),
+            dataType: 'json',
+            success: function(json) {
+                response($.map(json, function(item) {
+                return {
+                    label: item['email'],
+                    name:  item['name'],
+                    email: item['email'],
+                    value: item['customer_id']
+                }
+                }));
+            }
+            });
+        },
+        'select': function(item) {
+            $('input[name=\'filter_email\']').val(item['label']);
+            $('input[name=\'filter_name\']').val('');
+            CustomersHtml(item);
+        }
+    });
+
+    function CustomersHtml(item) {
+        let html = '<tr>' +
+                        '<td class="text-center">';
+
+        if(mailing_customers_ids.indexOf( item['value'] ) != -1)
+            html += '<input type="checkbox" name="mailing_customers[]" value="' + item['value'] + '" checked="checked" />';
+        else
+            html += '<input type="checkbox" name="mailing_customers[]" value="' + item['value'] + '"/>';
+
+        html +=         '</td>' +
+                        '<td class="text-left">' + item['email'] + '</td>' +
+                        '<td class="text-left">' + item['name'] +
+                            '<span class="pull-right">' +
+                                '<a href="index.php?route=customer/customer/edit&user_token={{ user_token }}&customer_id=' + item['value'] + '" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>';
+
+        if(mailing_customers_ids.indexOf( item['value'] ) != -1)
+            html += '<span data-customer-id="' + item['value'] +'" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></span>';
+
+        html +=             '</span>' +
+                        '</td>' +
+                    '</tr>'
+
+        $('.mailing-users tbody').html(
+            html
+        )
+        usnub()
+    }
+
+    function resetFilter() { 
+        let html
+        {% if customers %}
+            {% for customer in customers %}
+                    html += '<tr>' +
+                                '<td class="text-center">';
+                if(mailing_customers_ids.indexOf( '{{customer.customer_id}}' ) != -1)            
+                    html +=         '<input type="checkbox" name="mailing_customers[]" value="{{ customer.customer_id }}" checked="checked" />'
+                else
+                    html +=         '<input type="checkbox" name="mailing_customers[]" value="{{ customer.customer_id }}" />';
+
+                    html +=     '</td>' +
+                                '<td class="text-left">{{ customer.email }}</td>' +
+                                '<td class="text-left">' +
+                                    '{{ customer.name }}' +
+                                    '<span class="pull-right">' +
+                                        '<a href="index.php?route=customer/customer/edit&user_token={{ user_token }}&customer_id={{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>';
+                                        
+                    if(mailing_customers_ids.indexOf( '{{customer.customer_id}}' ) != -1)
+                        html +=         '<span data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></span>';
+                    
+                    html +=         '</span>' +
+                                '</td>' +
+                            '</tr>';
+                    {% endfor %}
+                {% else %}
+                    html =  '<tr>' +
+                                '<td class="text-center" colspan="8">{{ text_no_results }}</td>' +
+                            '</tr>';
+        {% endif %}
+        
+        $('.mailing-users tbody').html(
+            html
+        )
+        $('input[name=\'filter_name\']').val('');
+        $('input[name=\'filter_email\']').val('');
+    }
 
     function addSocialField() {
         $('.social-fields').append(
@@ -269,12 +420,6 @@
         $.ajax({
             url: 'index.php?route=extension/module/mailing/getproducts&user_token={{ user_token }}&category_id=' + category_id,
             dataType: 'json',
-            // beforeSend: function() {
-            //     $('#button-setting').button('loading');
-            // },
-            // complete: function() {
-            //     $('#button-setting').button('reset');
-            // },
             success: function(products) {
                 $('.products-list').empty();
                 products.forEach(function (val, key) {
@@ -307,11 +452,6 @@
                         )
                     }
                 })
-                // $('#modal-developer').remove();
-                //
-                // $('body').prepend('<div id="modal-developer" class="modal">' + html + '</div>');
-                //
-                // $('#modal-developer').modal('show');
             },
             error: function(xhr, ajaxOptions, thrownError) {
                 alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
