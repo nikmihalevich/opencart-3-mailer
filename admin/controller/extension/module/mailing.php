@@ -509,7 +509,7 @@ class ControllerExtensionModuleMailing extends Controller {
 
     protected function sendMail($to, $message_info) {
         $message = htmlspecialchars_decode(
-        '<html>
+        	'<html>
                 <body>' .
                     $message_info["letter_text"] .
                 '</body>
@@ -530,15 +530,15 @@ class ControllerExtensionModuleMailing extends Controller {
             $html .= '<div style="max-width: 25%; border: 1px solid #ff7c7c; border-radius: 10px; margin-right: 5px; padding: 10px;"><div class="image">';
 
             if(isset($product['image'])) {
-                $html .= '<a href="'. ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) .'index.php?route=product/product&product_id='. $product['product_id'] .'"><img src="'. ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) .'image/'. $product['image'] . '" alt="'. $product['name'] . '" title="'. $product['name'] . '" class="img-responsive" /></a>';
+                $html .= '<a href="' . ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . 'index.php?route=product/product&product_id=' . $product['product_id'] . '"><img src="' . ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . 'image/' . $product['image'] . '" alt="' . $product['name'] . '" title="' . $product['name'] . '" class="img-responsive" /></a>';
             } else {
-                $html .= '<a href="//'. ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) .'index.php?route=product/product&product_id='. $product['product_id'] .'"><img src="'. ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) .'image/cache/no_image-100x100.png" alt="'. $product['name'] . '" title="'. $product['name'] . '" class="img-responsive" /></a>';
+                $html .= '<a href="' . ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . 'index.php?route=product/product&product_id=' . $product['product_id'] . '"><img src="' . ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . 'image/cache/no_image-100x100.png" alt="' . $product['name'] . '" title="' . $product['name'] . '" class="img-responsive" /></a>';
             }
 
             $html .= '</div>
                     <div>
                         <div class="caption">
-                            <p><a target="_blank" href="'. ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) .'index.php?route=product/product&product_id='. $product['product_id'] .'">' . $product['name'] . '</a></p>
+                            <p><a target="_blank" href="' . ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . 'index.php?route=product/product&product_id=' . $product['product_id'] . '">' . $product['name'] . '</a></p>
                             <p class="price">
                                 ' . $this->currency->format($product['price'], $this->session->data['currency']) . ' 
                             </p>
@@ -556,7 +556,7 @@ class ControllerExtensionModuleMailing extends Controller {
         $html .= '<div style="display:flex;">';
 
         foreach ($social_links as $social_link) {
-            $html .= '<a href="' . $social_link["link"] . '" style="margin-right: 15px;"><img src="'. ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . $social_link['image'] . '" style="width: 25px; height: 25px;" alt=""></a>';
+            $html .= '<a href="' . $social_link["link"] . '" style="margin-right: 15px;"><img src="' . ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . $social_link['image'] . '" style="width: 25px; height: 25px;" alt=""></a>';
         }
         
         $html .= '</div>';
