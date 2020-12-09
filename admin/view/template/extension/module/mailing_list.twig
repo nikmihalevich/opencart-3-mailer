@@ -37,7 +37,7 @@
                         <div class="tab-pane active" id="tab-templates">
                             <div style="margin-bottom: 20px" class="pull-right">
                                 <a href="{{ add }}" data-toggle="tooltip" title="{{ button_add }}" class="btn btn-primary"><i class="fa fa-plus"></i></a>
-                                <button type="button" form="form-product" formaction="{{ delete }}" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger" onclick="confirm('{{ text_confirm }}') ? $('#form-product').submit() : false;"><i class="fa fa-trash-o"></i></button>
+                                <button type="button" form="form-product" formaction="{{ delete }}" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger" onclick="confirm('{{ text_delete_mailings }}') ? $('#form-product').submit() : false;"><i class="fa fa-trash-o"></i></button>
                             </div>
                             <table class="table table-bordered table-hover">
                                 <thead>
@@ -65,10 +65,10 @@
                                             <td class="text-left">
                                                 {{ mailing.date_start }}
                                                 <span class="pull-right">
-                                                    <span onclick="confirm('{{ text_confirm }}') ? startMailing({{mailing.mailing_id}}) : false;" data-toggle="tooltip" title="{{ button_start }}" class="btn btn-primary"><i class="fa fa-play-circle"></i></span>
-                                                    <span onclick="confirm('{{ text_confirm }}') ? startMailingByDate({{mailing.mailing_id}}, '{{ mailing.date_start }}') : false;" data-toggle="tooltip" title="{{ button_start_by_date }}" class="btn btn-primary"><i class="fa fa-clock-o"></i></span>
+                                                    <span onclick="confirm('{{ text_start_mailing }}') ? startMailing({{mailing.mailing_id}}) : false;" data-toggle="tooltip" title="{{ button_start }}" class="btn btn-primary"><i class="fa fa-play-circle"></i></span>
+                                                    <span onclick="confirm('{{ text_start_mailing_date }}') ? startMailingByDate({{mailing.mailing_id}}, '{{ mailing.date_start }}') : false;" data-toggle="tooltip" title="{{ button_start_by_date }}" class="btn btn-primary"><i class="fa fa-clock-o"></i></span>
                                                     <a href="index.php?route=extension/module/mailing/edit&user_token={{ user_token }}&mailing_id={{ mailing.mailing_id }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>
-                                                    <span onclick="confirm('{{ text_confirm }}') ? location = '{{ delete }}&mailing_id={{mailing.mailing_id}}' : false;" title="{{ button_delete }}" class="btn btn-danger"><i class="fa fa-trash-o"></i></span>
+                                                    <span onclick="confirm('{{ text_delete_mailing }}') ? location = '{{ delete }}&mailing_id={{mailing.mailing_id}}' : false;" title="{{ button_delete }}" class="btn btn-danger"><i class="fa fa-trash-o"></i></span>
                                                 </span>
                                             </td>
                                         </tr>
@@ -119,6 +119,10 @@
                                 {% endif %}
                                 </tbody>
                             </table>
+                            <div class="row">
+                                <div class="col-sm-6 text-left">{{ pagination }}</div>
+                                <div class="col-sm-6 text-right">{{ results }}</div>
+                            </div>
                         </div>
                     </div>
                 </form>
@@ -141,7 +145,7 @@
                 <p>Some text in the modal.</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-default close-modal" data-dismiss="modal">Close</button>
             </div>
         </div>
 
@@ -164,12 +168,19 @@
             beforeSend: function() {
                 $('.modal-body p').text('');
                 $('.modal-body p').text('Рассылка началась');
-                $('.show-modal-btn').click()
+                $('#myModal').modal({
+                    show: true
+                })
             },
             success: function() {
                 $('.modal-body p').text('');
                 $('.modal-body p').text('Рассылка успешно выполнена!');
-                $('.show-modal-btn').click()
+                $('#myModal').modal({
+                    show: false
+                })
+                $('#myModal').modal({
+                    show: true
+                })
             },
             error: function(xhr, ajaxOptions, thrownError) {
                 alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
@@ -188,14 +199,16 @@
 
     $('.unsubscribe-customer').on('click', function(e) {
         e.preventDefault();
-        const _this = $(this)
-        $.ajax({
-            type: "POST",
-            url: 'index.php?route=extension/module/mailing/unsubcribe&customer_id=' + $(this).data('customerId') + '&user_token={{ user_token }}',
-            success: function() {
-                _this.parent().parent().parent().remove()
-            }
-        });
+        if(confirm('{{ text_unsubscribe_user }}')) {
+            const _this = $(this)
+            $.ajax({
+                type: "POST",
+                url: 'index.php?route=extension/module/mailing/unsubcribe&customer_id=' + $(this).data('customerId') + '&user_token={{ user_token }}',
+                success: function() {
+                    _this.parent().parent().parent().remove()
+                }
+            });
+        }
     });
 </script>
 

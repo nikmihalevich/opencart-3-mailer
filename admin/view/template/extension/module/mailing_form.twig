@@ -245,16 +245,18 @@
     function usnub() {
         $('.unsubscribe-customer').on('click', function(e) {
             e.preventDefault();
-            const _this = $(this)
-            $.ajax({
-                type: "POST",
-                url: 'index.php?route=extension/module/mailing/unsubcribefrommailing&customer_id=' + $(this).data('customerId') + '&mailing_id={{ mailing.mailing_id }}' + '&user_token={{ user_token }}',
-                success: function() {
-                    _this.parent().parent().parent().find('input[type=\'checkbox\']').removeAttr("checked");
-                    _this.remove();
-                    getMailingCustomers()
-                }
-            });
+            if(confirm('{{ text_unsubscribe_user }}')) {
+                const _this = $(this)
+                $.ajax({
+                    type: "POST",
+                    url: 'index.php?route=extension/module/mailing/unsubcribefrommailing&customer_id=' + $(this).data('customerId') + '&mailing_id={{ mailing.mailing_id }}' + '&user_token={{ user_token }}',
+                    success: function() {
+                        _this.parent().parent().parent().find('input[type=\'checkbox\']').removeAttr("checked");
+                        _this.remove();
+                        getMailingCustomers()
+                    }
+                });
+            }
         });
     }
 

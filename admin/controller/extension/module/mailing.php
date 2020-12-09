@@ -92,6 +92,18 @@ class ControllerExtensionModuleMailing extends Controller {
             $order = 'ASC';
         }
 
+        if (isset($this->request->get['mailingpage'])) {
+            $mailingpage = $this->request->get['mailingpage'];
+        } else {
+            $mailingpage = 1;
+        }
+
+        if (isset($this->request->get['page'])) {
+            $page = $this->request->get['page'];
+        } else {
+            $page = 1;
+        }
+
         $url = '';
 
         if ($order == 'ASC') {
@@ -99,6 +111,7 @@ class ControllerExtensionModuleMailing extends Controller {
         } else {
             $url .= '&order=ASC';
         }
+
 
         $data['sort_mname'] = $this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . '&sort=m.name' . $url, true);
         $data['sort_date_added'] = $this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . '&sort=date_added' . $url, true);
@@ -128,9 +141,13 @@ class ControllerExtensionModuleMailing extends Controller {
             'filter_newsletter' => 1,
             'sort'              => $sort,
             'order'             => $order,
+            'start'             => ($page - 1) * $this->config->get('config_limit_admin'),
+            'limit'             => $this->config->get('config_limit_admin')
         );
 
         $this->load->model('customer/customer');
+
+        $customer_total = $this->model_customer_customer->getTotalCustomers($filter_data);
 
         $newsletter_subs = $this->model_customer_customer->getCustomers($filter_data);
 
@@ -173,6 +190,16 @@ class ControllerExtensionModuleMailing extends Controller {
         }
 
         $data['user_token'] = $this->session->data['user_token'];
+
+        $pagination = new Pagination();
+        $pagination->total = $customer_total;
+        $pagination->page = $page;
+        $pagination->limit = $this->config->get('config_limit_admin');
+        $pagination->url = $this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . $url . '&page={page}', true);
+
+        $data['pagination'] = $pagination->render();
+
+        $data['results'] = sprintf($this->language->get('text_pagination'), ($customer_total) ? (($page - 1) * $this->config->get('config_limit_admin')) + 1 : 0, ((($page - 1) * $this->config->get('config_limit_admin')) > ($customer_total - $this->config->get('config_limit_admin'))) ? $customer_total : ((($page - 1) * $this->config->get('config_limit_admin')) + $this->config->get('config_limit_admin')), $customer_total, ceil($customer_total / $this->config->get('config_limit_admin')));
 
         $data['header'] = $this->load->controller('common/header');
         $data['column_left'] = $this->load->controller('common/column_left');
@@ -404,8 +431,10 @@ class ControllerExtensionModuleMailing extends Controller {
 
         $mailings = $this->model_extension_module_mailing->getMailings();
 
+        date_default_timezone_set('Europe/Moscow');
+
         foreach($mailings as $mailing) {
-            if($mailing['date_start'] == date("Y-m-d H:i:s")) {
+            if(substr($mailing['date_start'], 0, -3) == date("Y-m-d H:i")) {
                 $this->mailing($mailing['mailing_id']);
             }
         }
@@ -501,15 +530,15 @@ class ControllerExtensionModuleMailing extends Controller {
             $html .= '<div style="max-width: 25%; border: 1px solid #ff7c7c; border-radius: 10px; margin-right: 5px; padding: 10px;"><div class="image">';
 
             if(isset($product['image'])) {
-                $html .= '<img src="/image/'. $product['image'] . '" alt="'. $product['name'] . '" title="'. $product['name'] . '" class="img-responsive" />';
+                $html .= '<a href="'. ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) .'index.php?route=product/product&product_id='. $product['product_id'] .'"><img src="'. ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) .'image/'. $product['image'] . '" alt="'. $product['name'] . '" title="'. $product['name'] . '" class="img-responsive" /></a>';
             } else {
-                $html .= '<img src="/image/cache/no_image-100x100.png" alt="'. $product['name'] . '" title="'. $product['name'] . '" class="img-responsive" />';
+                $html .= '<a href="//'. ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) .'index.php?route=product/product&product_id='. $product['product_id'] .'"><img src="'. ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) .'image/cache/no_image-100x100.png" alt="'. $product['name'] . '" title="'. $product['name'] . '" class="img-responsive" /></a>';
             }
 
             $html .= '</div>
                     <div>
                         <div class="caption">
-                            <p>' . $product['name'] . '</p>
+                            <p><a target="_blank" href="'. ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) .'index.php?route=product/product&product_id='. $product['product_id'] .'">' . $product['name'] . '</a></p>
                             <p class="price">
                                 ' . $this->currency->format($product['price'], $this->session->data['currency']) . ' 
                             </p>
@@ -527,7 +556,7 @@ class ControllerExtensionModuleMailing extends Controller {
         $html .= '<div style="display:flex;">';
 
         foreach ($social_links as $social_link) {
-            $html .= '<a href="' . $social_link["link"] . '" style="margin-right: 15px;"><img src="' . $social_link['image'] . '" style="width: 25px; height: 25px;" alt=""></a>';
+            $html .= '<a href="' . $social_link["link"] . '" style="margin-right: 15px;"><img src="'. ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . $social_link['image'] . '" style="width: 25px; height: 25px;" alt=""></a>';
         }
         
         $html .= '</div>';
