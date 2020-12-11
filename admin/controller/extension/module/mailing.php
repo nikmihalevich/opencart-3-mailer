@@ -426,6 +426,26 @@ class ControllerExtensionModuleMailing extends Controller {
         }
     }
 
+    public function subscribedCustomersId() {
+        if ($this->request->server['REQUEST_METHOD'] == 'POST') {
+            $filter_data = array(
+                'filter_newsletter' => 1,
+            );
+
+            $this->load->model('customer/customer');
+
+            $newsletter_subs_id = array();
+            $newsletter_subs = $this->model_customer_customer->getCustomers($filter_data);
+
+            foreach ($newsletter_subs as $key => $newsletter_sub) {
+                $newsletter_subs_id[$key] = $newsletter_sub['customer_id'];
+            }
+
+            $this->response->addHeader('Content-Type: application/json');
+            $this->response->setOutput(json_encode($newsletter_subs_id));
+        }
+    }
+
     public function checkMailingDate() {
         $this->load->model('extension/module/mailing');
 
@@ -442,7 +462,15 @@ class ControllerExtensionModuleMailing extends Controller {
 
     public function startMailing() {
         if(isset($this->request->get['mailing_id'])) {
-            $this->mailing($this->request->get['mailing_id']);
+            $this->load->model('extension/module/mailing');
+
+            $mailing_customers = $this->model_extension_module_mailing->getMailingCustomersId($this->request->get['mailing_id']);
+
+            if(!empty($mailing_customers)) {
+                $this->mailing($this->request->get['mailing_id']);
+            } else {
+                $this->response->setOutput("Для начала рассылки добавьте в нее пользователей!");
+            }
         }
     }
 
@@ -530,9 +558,9 @@ class ControllerExtensionModuleMailing extends Controller {
             $html .= '<div style="max-width: 25%; border: 1px solid #ff7c7c; border-radius: 10px; margin-right: 5px; padding: 10px;"><div class="image">';
 
             if(isset($product['image'])) {
-                $html .= '<a href="' . ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . 'index.php?route=product/product&product_id=' . $product['product_id'] . '"><img src="' . ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . 'image/' . $product['image'] . '" alt="' . $product['name'] . '" title="' . $product['name'] . '" class="img-responsive" /></a>';
+                $html .= '<a href="' . ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . 'index.php?route=product/product&product_id=' . $product['product_id'] . '"><img src="' . ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . 'image/' . $product['image'] . '" alt="' . $product['name'] . '" title="' . $product['name'] . '" class="img-responsive" style="width: 100%;" /></a>';
             } else {
-                $html .= '<a href="' . ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . 'index.php?route=product/product&product_id=' . $product['product_id'] . '"><img src="' . ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . 'image/cache/no_image-100x100.png" alt="' . $product['name'] . '" title="' . $product['name'] . '" class="img-responsive" /></a>';
+                $html .= '<a href="' . ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . 'index.php?route=product/product&product_id=' . $product['product_id'] . '"><img src="' . ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . 'image/cache/no_image-100x100.png" alt="' . $product['name'] . '" title="' . $product['name'] . '" class="img-responsive" style="width: 100%;" /></a>';
             }
 
             $html .= '</div>
@@ -540,7 +568,7 @@ class ControllerExtensionModuleMailing extends Controller {
                         <div class="caption">
                             <p><a target="_blank" href="' . ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . 'index.php?route=product/product&product_id=' . $product['product_id'] . '">' . $product['name'] . '</a></p>
                             <p class="price">
-                                ' . $this->currency->format($product['price'], $this->session->data['currency']) . ' 
+                                ' . $this->currency->format($product['price'], $this->config->get('config_currency')) . ' 
                             </p>
                         </div>
                     </div>
@@ -556,11 +584,74 @@ class ControllerExtensionModuleMailing extends Controller {
         $html .= '<div style="display:flex;">';
 
         foreach ($social_links as $social_link) {
-            $html .= '<a href="' . $social_link["link"] . '" style="margin-right: 15px;"><img src="' . ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . $social_link['image'] . '" style="width: 25px; height: 25px;" alt=""></a>';
+            $html .= '<a href="' . $social_link["link"] . '" style="margin-right: 15px;"><img src="' . ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . "image/" . $social_link['image'] . '" style="width: 25px; height: 25px;" alt=""></a>';
         }
         
         $html .= '</div>';
         return $html;
+    }
+
+    public function autocomplete() {
+        $json = array();
+
+        if (isset($this->request->get['filter_name']) || isset($this->request->get['filter_email'])) {
+            if (isset($this->request->get['filter_name'])) {
+                $filter_name = $this->request->get['filter_name'];
+            } else {
+                $filter_name = '';
+            }
+
+            if (isset($this->request->get['filter_email'])) {
+                $filter_email = $this->request->get['filter_email'];
+            } else {
+                $filter_email = '';
+            }
+
+            if (isset($this->request->get['filter_affiliate'])) {
+                $filter_affiliate = $this->request->get['filter_affiliate'];
+            } else {
+                $filter_affiliate = '';
+            }
+
+            $this->load->model('customer/customer');
+
+            $filter_data = array(
+                'filter_name'      => $filter_name,
+                'filter_email'     => $filter_email,
+                'filter_affiliate' => $filter_affiliate,
+                'filter_newsletter'=> 1,
+                'start'            => 0,
+                'limit'            => 5
+            );
+
+            $results = $this->model_customer_customer->getCustomers($filter_data);
+
+            foreach ($results as $result) {
+                $json[] = array(
+                    'customer_id'       => $result['customer_id'],
+                    'customer_group_id' => $result['customer_group_id'],
+                    'name'              => strip_tags(html_entity_decode($result['name'], ENT_QUOTES, 'UTF-8')),
+                    'customer_group'    => $result['customer_group'],
+                    'firstname'         => $result['firstname'],
+                    'lastname'          => $result['lastname'],
+                    'email'             => $result['email'],
+                    'telephone'         => $result['telephone'],
+                    'custom_field'      => json_decode($result['custom_field'], true),
+                    'address'           => $this->model_customer_customer->getAddresses($result['customer_id'])
+                );
+            }
+        }
+
+        $sort_order = array();
+
+        foreach ($json as $key => $value) {
+            $sort_order[$key] = $value['name'];
+        }
+
+        array_multisort($sort_order, SORT_ASC, $json);
+
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
     }
 
     public function install() {

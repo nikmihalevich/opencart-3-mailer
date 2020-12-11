@@ -82,7 +82,18 @@
                             </table>
                         </div>
                         <div class="tab-pane" id="tab-user">
-                            <table class="table table-bordered table-hover">
+                            <div class="form-group">
+                                <div class="col-sm-5">
+                                    <input type="text" name="filter_email" value="" placeholder="Email" id="input-name" class="form-control"/>
+                                </div>
+                                <div class="col-sm-5">
+                                    <input type="text" name="filter_name" value="" placeholder="Name" id="input-name" class="form-control"/>
+                                </div>
+                                <div class="col-sm-2">
+                                    <span onclick="resetFilter()" data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_reset }}" class="btn btn-danger"><i class="fa fa-refresh"></i></span>
+                                </div>
+                            </div>
+                            <table class="table table-bordered table-hover subscribed-customers">
                                 <thead>
                                 <tr>
                                     <td style="width: 1px;" class="text-center"><input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', this.checked);" /></td>
@@ -161,6 +172,130 @@
     }
 </style>
 <script type="text/javascript">
+    let subscribed_customers_ids;
+
+    function getSubscribedCustomers() {
+        $.ajax({
+            url: 'index.php?route=extension/module/mailing/subscribedCustomersId&user_token={{ user_token }}',
+            type: "POST",
+            dataType: 'json',
+            success: function(json) {
+                subscribed_customers_ids = json;
+            }
+        });
+    }
+
+    getSubscribedCustomers()
+
+    $('input[name=\'filter_name\']').autocomplete({
+        'source': function(request, response) {
+            $.ajax({
+                url: 'index.php?route=extension/module/mailing/autocomplete&user_token={{ user_token }}&filter_name=' +  encodeURIComponent(request),
+                dataType: 'json',
+                success: function(json) {
+                    response($.map(json, function(item) {
+                        return {
+                            label: item['name'],
+                            name:  item['name'],
+                            email: item['email'],
+                            value: item['customer_id']
+                        }
+                    }));
+                }
+            });
+        },
+        'select': function(item) {
+            $('input[name=\'filter_name\']').val(item['label']);
+            $('input[name=\'filter_email\']').val('');
+            if(subscribed_customers_ids.indexOf( item['value'] ) !== -1)
+                CustomersHtml(item);
+        }
+    });
+    $('input[name=\'filter_email\']').autocomplete({
+        'source': function(request, response) {
+            $.ajax({
+                url: 'index.php?route=extension/module/mailing/autocomplete&user_token={{ user_token }}&filter_email=' +  encodeURIComponent(request),
+                dataType: 'json',
+                success: function(json) {
+                    response($.map(json, function(item) {
+                        return {
+                            label: item['email'],
+                            name:  item['name'],
+                            email: item['email'],
+                            value: item['customer_id']
+                        }
+                    }));
+                }
+            });
+        },
+        'select': function(item) {
+            $('input[name=\'filter_email\']').val(item['label']);
+            $('input[name=\'filter_name\']').val('');
+            if(subscribed_customers_ids.indexOf( item['value']) !== -1 )
+                CustomersHtml(item);
+        }
+    });
+
+    function CustomersHtml(item) {
+        let html = '<tr>' +
+            '<td class="text-center">';
+
+            html += '<input type="checkbox" name="mailing_customers[]" value="' + item['value'] + '"/>';
+
+        html +=         '</td>' +
+            '<td class="text-left">' + item['email'] + '</td>' +
+            '<td class="text-left">' + item['name'] +
+            '<span class="pull-right">' +
+            '<a href="index.php?route=customer/customer/edit&user_token={{ user_token }}&customer_id=' + item['value'] + '" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>';
+
+        html += '<a href="#" data-customer-id="' + item['value'] +'" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></a>';
+
+        html +=             '</span>' +
+            '</td>' +
+            '</tr>'
+
+        $('.subscribed-customers tbody').html(
+            html
+        )
+        unsub()
+    }
+
+    function resetFilter() {
+        let html
+        {% if customers %}
+            {% for customer in customers %}
+                if(subscribed_customers_ids.indexOf( '{{ customer.customer_id }}' ) !== -1 ) {
+                    html += '<tr>' +
+                        '<td class="text-center">';
+
+                    html += '<input type="checkbox" name="mailing_customers[]" value="{{ customer.customer_id }}" />';
+
+                    html += '</td>' +
+                        '<td class="text-left">{{ customer.email }}</td>' +
+                        '<td class="text-left">' +
+                        '{{ customer.name }}' +
+                        '<span class="pull-right">' +
+                        '<a href="index.php?route=customer/customer/edit&user_token={{ user_token }}&customer_id={{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>';
+
+                    html += '<a href="#" data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></a>';
+
+                    html += '</span>' +
+                        '</td>' +
+                        '</tr>';
+                }
+            {% endfor %}
+        {% else %}
+            html =  '<tr>' +
+                '<td class="text-center" colspan="8">{{ text_no_results }}</td>' +
+                '</tr>';
+        {% endif %}
+
+        $('.subscribed-customers tbody').html(
+            html
+        )
+        $('input[name=\'filter_name\']').val('');
+        $('input[name=\'filter_email\']').val('');
+    }
 
     function startMailing(mailing_id) {
         $.ajax({
@@ -172,12 +307,17 @@
                     show: true
                 })
             },
-            success: function() {
-                $('.modal-body p').text('');
-                $('.modal-body p').text('Рассылка успешно выполнена!');
+            success: function(res) {
                 $('#myModal').modal({
                     show: false
                 })
+                $('.modal-body p').text('');
+
+                if(!res)
+                    $('.modal-body p').text('Рассылка успешно выполнена!');
+                else
+                    $('.modal-body p').text(res);
+
                 $('#myModal').modal({
                     show: true
                 })
@@ -194,22 +334,28 @@
         } else {
             $('.modal-body p').text('Для этого типа рассылки необходимо указать корректную дату!');
         }
-            $('.show-modal-btn').click()
+        $('#myModal').modal({
+            show: true
+        })
     }
 
-    $('.unsubscribe-customer').on('click', function(e) {
-        e.preventDefault();
-        if(confirm('{{ text_unsubscribe_user }}')) {
-            const _this = $(this)
-            $.ajax({
-                type: "POST",
-                url: 'index.php?route=extension/module/mailing/unsubcribe&customer_id=' + $(this).data('customerId') + '&user_token={{ user_token }}',
-                success: function() {
-                    _this.parent().parent().parent().remove()
-                }
-            });
-        }
-    });
+    function unsub() {
+        $('.unsubscribe-customer').on('click', function(e) {
+            e.preventDefault();
+            if(confirm('{{ text_unsubscribe_user }}')) {
+                const _this = $(this)
+                $.ajax({
+                    type: "POST",
+                    url: 'index.php?route=extension/module/mailing/unsubcribe&customer_id=' + $(this).data('customerId') + '&user_token={{ user_token }}',
+                    success: function() {
+                        _this.parent().parent().parent().remove()
+                        getSubscribedCustomers()
+                    }
+                });
+            }
+        });
+    }
+
 </script>
 
 {{footer}}
