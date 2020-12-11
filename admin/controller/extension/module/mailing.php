@@ -189,6 +189,8 @@ class ControllerExtensionModuleMailing extends Controller {
             $data['success'] = '';
         }
 
+        $url = '';
+
         $data['user_token'] = $this->session->data['user_token'];
 
         $pagination = new Pagination();
