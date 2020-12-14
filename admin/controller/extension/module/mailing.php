@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 class ControllerExtensionModuleMailing extends Controller {
     private $error = array();
 
