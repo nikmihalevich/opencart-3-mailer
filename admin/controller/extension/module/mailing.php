@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 class ControllerExtensionModuleMailing extends Controller {
     private $error = array();
 
@@ -555,9 +555,9 @@ class ControllerExtensionModuleMailing extends Controller {
     }
 
     protected function getHtmlProducts($products) {
-        $html = '<div style="display: flex;">';
+        $html = '<div style="display: flex; flex-wrap: wrap;">';
         foreach ($products as $product) {
-            $html .= '<div style="max-width: 25%; border: 1px solid #ff7c7c; border-radius: 10px; margin-right: 5px; padding: 10px;"><div class="image">';
+            $html .= '<div style="max-width: 20%; border: 1px solid #ff7c7c; border-radius: 10px; margin-right: 5px; padding: 10px; margin-bottom: 10px;"><div class="image">';
 
             if(isset($product['image'])) {
                 $html .= '<a href="' . ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . 'index.php?route=product/product&product_id=' . $product['product_id'] . '"><img src="' . ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . 'image/' . $product['image'] . '" alt="' . $product['name'] . '" title="' . $product['name'] . '" class="img-responsive" style="width: 100%;" /></a>';
