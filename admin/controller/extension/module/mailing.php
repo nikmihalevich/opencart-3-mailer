@@ -58,7 +58,7 @@ class ControllerExtensionModuleMailing extends Controller {
 
         $this->load->model('extension/module/mailing');
 
-		if (isset($this->request->get['mailing_id'])) {
+		if (isset($this->request->get['mailing_id']) && $this->validateDelete()) {
 			$this->model_extension_module_mailing->delete($this->request->get['mailing_id']);
 
 			$this->session->data['success'] = $this->language->get('text_success');
@@ -75,6 +75,26 @@ class ControllerExtensionModuleMailing extends Controller {
 
 			$this->response->redirect($this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . $url, true));
 		}
+
+        if (isset($this->request->post['selected']) && $this->validateDelete()) {
+            foreach ($this->request->post['selected'] as $mailing_id) {
+                $this->model_extension_module_mailing->delete($mailing_id);
+            }
+
+            $this->session->data['success'] = $this->language->get('text_success');
+
+            $url = '';
+
+            if (isset($this->request->get['sort'])) {
+                $url .= '&sort=' . $this->request->get['sort'];
+            }
+
+            if (isset($this->request->get['order'])) {
+                $url .= '&order=' . $this->request->get['order'];
+            }
+
+            $this->response->redirect($this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . $url, true));
+        }
 
 		$this->getList();
 	}
@@ -664,14 +684,14 @@ class ControllerExtensionModuleMailing extends Controller {
     public function autocompleteMailings() {
         $json = array();
 
-        if (isset($this->request->get['filter_name']) || isset($this->request->get['filter_email'])) {
-            if (isset($this->request->get['filter_name'])) {
-                $filter_name = $this->request->get['filter_name'];
+        if (isset($this->request->get['filter_mailing_name'])) {
+            if (isset($this->request->get['filter_mailing_name'])) {
+                $filter_name = $this->request->get['filter_mailing_name'];
             } else {
                 $filter_name = '';
             }
 
-            $this->load->model('customer/customer');
+            $this->load->model('extension/module/mailing');
 
             $filter_data = array(
                 'filter_name'      => $filter_name,
@@ -679,7 +699,7 @@ class ControllerExtensionModuleMailing extends Controller {
                 'limit'            => 5
             );
 
-            $results = $this->model_customer_customer->getMailingsAutocomplete($filter_data);
+            $results = $this->model_extension_module_mailing->getMailingsAutocomplete($filter_data);
 
             foreach ($results as $result) {
                 $json[] = array(
@@ -734,6 +754,14 @@ class ControllerExtensionModuleMailing extends Controller {
 
             $this->response->redirect($this->url->link('design/layout', 'user_token=' . $this->session->data['user_token'], true));
         }
+    }
+
+    protected function validateDelete() {
+        if (!$this->user->hasPermission('modify', 'extension/module/mailing')) {
+            $this->error['warning'] = $this->language->get('error_permission');
+        }
+
+        return !$this->error;
     }
 
     protected function validateForm() {

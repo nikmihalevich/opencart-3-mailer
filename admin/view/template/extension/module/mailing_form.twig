@@ -159,7 +159,7 @@
                                     <input type="text" name="filter_name" value="" placeholder="Name" id="input-name" class="form-control"/>
                                 </div>
                                 <div class="col-sm-2">
-                                    <span onclick="resetFilter()" data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_reset }}" class="btn btn-danger"><i class="fa fa-refresh"></i></span>
+                                    <span onclick="resetFilter()" data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_reset }}" class="btn btn-danger"><i class="fa fa-refresh"></i>&nbsp;Очистить</span>
                                 </div>
                             </div>
                             <table class="table table-bordered table-hover mailing-users">
@@ -277,7 +277,7 @@
     $('input[name=\'filter_name\']').autocomplete({
         'source': function(request, response) {
             $.ajax({
-            url: 'index.php?route=extension/module/mailing/autocomplete&user_token={{ user_token }}&filter_name=' +  encodeURIComponent(request),
+            url: 'index.php?route=extension/module/mailing/autocompleteCustomers&user_token={{ user_token }}&filter_name=' +  encodeURIComponent(request),
             dataType: 'json',
             success: function(json) {
                 response($.map(json, function(item) {
@@ -300,7 +300,7 @@
     $('input[name=\'filter_email\']').autocomplete({
         'source': function(request, response) {
             $.ajax({
-            url: 'index.php?route=extension/module/mailing/autocomplete&user_token={{ user_token }}&filter_email=' +  encodeURIComponent(request),
+            url: 'index.php?route=extension/module/mailing/autocompleteCustomers&user_token={{ user_token }}&filter_email=' +  encodeURIComponent(request),
             dataType: 'json',
             success: function(json) {
                 response($.map(json, function(item) {
@@ -326,9 +326,9 @@
                         '<td class="text-center">';
 
         if(mailing_customers_ids.indexOf( item['value'] ) != -1)
-            html += '<input type="checkbox" name="mailing_customers[]" value="' + item['value'] + '" checked="checked" />';
+            html += '<input type="checkbox" disabled name="mailing_customers[]" value="' + item['value'] + '" checked="checked" />';
         else
-            html += '<input type="checkbox" name="mailing_customers[]" value="' + item['value'] + '"/>';
+            html += '<input type="checkbox" disabled name="mailing_customers[]" value="' + item['value'] + '"/>';
 
         html +=         '</td>' +
                         '<td class="text-left">' + item['email'] + '</td>' +
@@ -385,6 +385,7 @@
         )
         $('input[name=\'filter_name\']').val('');
         $('input[name=\'filter_email\']').val('');
+        unsub();
     }
 
     function addSocialField() {
