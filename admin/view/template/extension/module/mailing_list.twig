@@ -35,10 +35,21 @@
                     </ul>
                     <div class="tab-content">
                         <div class="tab-pane active" id="tab-templates">
-                            <div style="margin-bottom: 20px" class="pull-right">
-                                <a href="{{ add }}" data-toggle="tooltip" title="{{ button_add }}" class="btn btn-primary"><i class="fa fa-plus"></i></a>
-                                <button type="button" form="form-product" formaction="{{ delete }}" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger" onclick="confirm('{{ text_delete_mailings }}') ? $('#form-product').submit() : false;"><i class="fa fa-trash-o"></i></button>
+                            <div class="form-group">
+                                <div class="col-sm-5">
+                                    <input type="text" name="filter_mailing_name" value="" placeholder="Name" id="input-name" class="form-control"/>
+                                </div>
+                                <div class="col-sm-2">
+                                    <span onclick="resetMailingFilter()" data-toggle="tooltip" title="{{ button_reset }}" class="btn btn-danger"><i class="fa fa-refresh"></i></span>
+                                </div>
+                                <div class="col-sm-5">
+                                    <div style="margin-bottom: 20px" class="pull-right">
+                                        <a href="{{ add }}" data-toggle="tooltip" title="{{ button_add }}" class="btn btn-primary"><i class="fa fa-plus"></i></a>
+                                        <button type="button" form="form-product" formaction="{{ delete }}" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger" onclick="confirm('{{ text_delete_mailings }}') ? $('#form-product').submit() : false;"><i class="fa fa-trash-o"></i></button>
+                                    </div>
+                                </div>
                             </div>
+
                             <table class="table table-bordered table-hover">
                                 <thead>
                                 <tr>
@@ -118,7 +129,7 @@
                                                 {{ customer.name }}
                                                 <span class="pull-right">
                                                     <a href="index.php?route=customer/customer/edit&user_token={{ user_token }}&customer_id={{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>
-                                                    <a href="#" data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></a>
+                                                    <span data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></span>
                                                 </span>
                                             </td>
                                         </tr>
@@ -173,7 +184,7 @@
 </style>
 <script type="text/javascript">
     let subscribed_customers_ids;
-
+    unsub()
     function getSubscribedCustomers() {
         $.ajax({
             url: 'index.php?route=extension/module/mailing/subscribedCustomersId&user_token={{ user_token }}',
@@ -190,7 +201,7 @@
     $('input[name=\'filter_name\']').autocomplete({
         'source': function(request, response) {
             $.ajax({
-                url: 'index.php?route=extension/module/mailing/autocomplete&user_token={{ user_token }}&filter_name=' +  encodeURIComponent(request),
+                url: 'index.php?route=extension/module/mailing/autocompleteCustomers&user_token={{ user_token }}&filter_name=' +  encodeURIComponent(request),
                 dataType: 'json',
                 success: function(json) {
                     response($.map(json, function(item) {
@@ -211,10 +222,11 @@
                 CustomersHtml(item);
         }
     });
+
     $('input[name=\'filter_email\']').autocomplete({
         'source': function(request, response) {
             $.ajax({
-                url: 'index.php?route=extension/module/mailing/autocomplete&user_token={{ user_token }}&filter_email=' +  encodeURIComponent(request),
+                url: 'index.php?route=extension/module/mailing/autocompleteCustomers&user_token={{ user_token }}&filter_email=' +  encodeURIComponent(request),
                 dataType: 'json',
                 success: function(json) {
                     response($.map(json, function(item) {
@@ -248,7 +260,7 @@
             '<span class="pull-right">' +
             '<a href="index.php?route=customer/customer/edit&user_token={{ user_token }}&customer_id=' + item['value'] + '" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>';
 
-        html += '<a href="#" data-customer-id="' + item['value'] +'" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></a>';
+        html += '<span data-customer-id="' + item['value'] +'" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></span>';
 
         html +=             '</span>' +
             '</td>' +
@@ -277,7 +289,44 @@
                         '<span class="pull-right">' +
                         '<a href="index.php?route=customer/customer/edit&user_token={{ user_token }}&customer_id={{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>';
 
-                    html += '<a href="#" data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></a>';
+                    html += '<span data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></span>';
+
+                    html += '</span>' +
+                        '</td>' +
+                        '</tr>';
+                }
+            {% endfor %}
+        {% else %}
+            html =  '<tr>' +
+                '<td class="text-center" colspan="8">{{ text_no_results }}</td>' +
+                '</tr>';
+        {% endif %}
+
+        $('.subscribed-customers tbody').html(
+            html
+        )
+        $('input[name=\'filter_name\']').val('');
+        $('input[name=\'filter_email\']').val('');
+    }
+
+    function resetMailingFilter() {
+        let html
+        {% if customers %}
+            {% for customer in customers %}
+                if(subscribed_customers_ids.indexOf( '{{ customer.customer_id }}' ) !== -1 ) {
+                    html += '<tr>' +
+                        '<td class="text-center">';
+
+                    html += '<input type="checkbox" name="mailing_customers[]" value="{{ customer.customer_id }}" />';
+
+                    html += '</td>' +
+                        '<td class="text-left">{{ customer.email }}</td>' +
+                        '<td class="text-left">' +
+                        '{{ customer.name }}' +
+                        '<span class="pull-right">' +
+                        '<a href="index.php?route=customer/customer/edit&user_token={{ user_token }}&customer_id={{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>';
+
+                    html += '<span data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></span>';
 
                     html += '</span>' +
                         '</td>' +
@@ -340,7 +389,7 @@
     }
 
     function unsub() {
-        $('.unsubscribe-customer').on('click', function(e) {
+        $('span.unsubscribe-customer').on('click', function(e) {
             e.preventDefault();
             if(confirm('{{ text_unsubscribe_user }}')) {
                 const _this = $(this)

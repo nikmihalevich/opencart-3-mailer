@@ -106,20 +106,9 @@ class ControllerExtensionModuleMailing extends Controller {
 
         $url = '';
 
-        if ($order == 'ASC') {
-            $url .= '&order=DESC';
-        } else {
-            $url .= '&order=ASC';
+        if (isset($this->request->get['order'])) {
+            $url .= '&order=' . $this->request->get['order'];
         }
-
-
-        $data['sort_mname'] = $this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . '&sort=m.name' . $url, true);
-        $data['sort_date_added'] = $this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . '&sort=date_added' . $url, true);
-        $data['sort_date_start'] = $this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . '&sort=date_start' . $url, true);
-
-
-        $data['sort_name'] = $this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . '&sort=c.name' . $url, true);
-        $data['sort_email'] = $this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . '&sort=c.email' . $url, true);
 
         $data['breadcrumbs'] = array();
 
@@ -134,7 +123,6 @@ class ControllerExtensionModuleMailing extends Controller {
         );
 
         $data['add'] = $this->url->link('extension/module/mailing/add', 'user_token=' . $this->session->data['user_token'] . $url, true);
-        $data['copy'] = $this->url->link('extension/module/mailing/copy', 'user_token=' . $this->session->data['user_token'] . $url, true);
         $data['delete'] = $this->url->link('extension/module/mailing/delete', 'user_token=' . $this->session->data['user_token'] . $url, true);
 
         $filter_data = array(
@@ -191,6 +179,30 @@ class ControllerExtensionModuleMailing extends Controller {
 
         $url = '';
 
+        if ($order == 'ASC') {
+            $url .= '&order=DESC';
+        } else {
+            $url .= '&order=ASC';
+        }
+
+        $data['sort_mname'] = $this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . '&sort=m.name' . $url, true);
+        $data['sort_date_added'] = $this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . '&sort=date_added' . $url, true);
+        $data['sort_date_start'] = $this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . '&sort=date_start' . $url, true);
+
+
+        $data['sort_name'] = $this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . '&sort=c.name' . $url, true);
+        $data['sort_email'] = $this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . '&sort=c.email' . $url, true);
+
+        $url = '';
+
+        if (isset($this->request->get['sort'])) {
+            $url .= '&sort=' . $this->request->get['sort'];
+        }
+
+        if (isset($this->request->get['order'])) {
+            $url .= '&order=' . $this->request->get['order'];
+        }
+
         $data['user_token'] = $this->session->data['user_token'];
 
         $pagination = new Pagination();
@@ -227,12 +239,6 @@ class ControllerExtensionModuleMailing extends Controller {
 
         $url = '';
 
-        if ($order == 'ASC') {
-            $url .= '&order=DESC';
-        } else {
-            $url .= '&order=ASC';
-        }
-
 		if (isset($this->error['warning'])) {
 			$data['error_warning'] = $this->error['warning'];
 		} else {
@@ -256,7 +262,6 @@ class ControllerExtensionModuleMailing extends Controller {
 		} else {
 			$data['error_letter_text'] = '';
 		}
-
 
 		$data['breadcrumbs'] = array();
 
@@ -593,7 +598,7 @@ class ControllerExtensionModuleMailing extends Controller {
         return $html;
     }
 
-    public function autocomplete() {
+    public function autocompleteCustomers() {
         $json = array();
 
         if (isset($this->request->get['filter_name']) || isset($this->request->get['filter_email'])) {
@@ -640,6 +645,48 @@ class ControllerExtensionModuleMailing extends Controller {
                     'telephone'         => $result['telephone'],
                     'custom_field'      => json_decode($result['custom_field'], true),
                     'address'           => $this->model_customer_customer->getAddresses($result['customer_id'])
+                );
+            }
+        }
+
+        $sort_order = array();
+
+        foreach ($json as $key => $value) {
+            $sort_order[$key] = $value['name'];
+        }
+
+        array_multisort($sort_order, SORT_ASC, $json);
+
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+
+    public function autocompleteMailings() {
+        $json = array();
+
+        if (isset($this->request->get['filter_name']) || isset($this->request->get['filter_email'])) {
+            if (isset($this->request->get['filter_name'])) {
+                $filter_name = $this->request->get['filter_name'];
+            } else {
+                $filter_name = '';
+            }
+
+            $this->load->model('customer/customer');
+
+            $filter_data = array(
+                'filter_name'      => $filter_name,
+                'start'            => 0,
+                'limit'            => 5
+            );
+
+            $results = $this->model_customer_customer->getMailingsAutocomplete($filter_data);
+
+            foreach ($results as $result) {
+                $json[] = array(
+                    'mailing_id'       => $result['mailing_id'],
+                    'name'             => strip_tags(html_entity_decode($result['name'], ENT_QUOTES, 'UTF-8')),
+                    'date_start'       => $result['date_start'],
+                    'date_added'       => $result['date_added'],
                 );
             }
         }
