@@ -443,6 +443,13 @@ class ControllerExtensionModuleMailing extends Controller {
         }
     }
 
+    public function subcribeToMailing() {
+        if ($this->request->server['REQUEST_METHOD'] == 'POST') {
+            $this->load->model('extension/module/mailing');
+            $this->model_extension_module_mailing->subscribeToMailing($this->request->get['mailing_id'], $this->request->get['customer_id']);
+        }
+    }
+
     public function mailingCustomersId() {
         if ($this->request->server['REQUEST_METHOD'] == 'POST') {
             $this->load->model('extension/module/mailing');
