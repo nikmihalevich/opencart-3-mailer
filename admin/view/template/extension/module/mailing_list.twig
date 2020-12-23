@@ -57,6 +57,7 @@
                                     <td class="text-left">{% if sort == 'date_added' %} <a href="{{ sort_date_added }}" class="{{ order|lower }}">{{ column_date_added }}</a> {% else %} <a href="{{ sort_date_added }}">{{ column_date_added }}</a> {% endif %}</td>
                                     <td class="text-left">{% if sort == 'm.name' %} <a href="{{ sort_mname }}" class="{{ order|lower }}">{{ column_template_name }}</a> {% else %} <a href="{{ sort_mname }}">{{ column_template_name }}</a> {% endif %}</td>
                                     <td class="text-left">{% if sort == 'date_start' %} <a href="{{ sort_date_start }}" class="{{ order|lower }}">{{ column_date_start }}</a> {% else %} <a href="{{ sort_date_start }}">{{ column_date_start }}</a> {% endif %}</td>
+                                    <td class="text-left" style="width: fit-content;"></td>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -75,11 +76,13 @@
                                             <td class="text-left">{{ mailing.name }}</td>
                                             <td class="text-left">
                                                 {{ mailing.date_start }}
-                                                <span class="pull-right">
+                                            </td>
+                                            <td>
+                                                <span class="pull-right d-flex">
                                                     <span onclick="confirm('{{ text_start_mailing }}') ? startMailing({{mailing.mailing_id}}) : false;" data-toggle="tooltip" title="{{ button_start }}" class="btn btn-primary"><i class="fa fa-play-circle"></i></span>
                                                     <span onclick="confirm('{{ text_start_mailing_date }}') ? startMailingByDate({{mailing.mailing_id}}, '{{ mailing.date_start }}') : false;" data-toggle="tooltip" title="{{ button_start_by_date }}" class="btn btn-primary"><i class="fa fa-clock-o"></i></span>
                                                     <a href="index.php?route=extension/module/mailing/edit&user_token={{ user_token }}&mailing_id={{ mailing.mailing_id }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>
-                                                    <span onclick="confirm('{{ text_delete_mailing }}') ? location = '{{ delete }}&mailing_id={{mailing.mailing_id}}' : false;" title="{{ button_delete }}" class="btn btn-danger"><i class="fa fa-trash-o"></i></span>
+                                                    <span onclick="confirm('{{ text_delete_mailing }}') ? location = '{{ delete }}&mailing_id={{mailing.mailing_id}}' : false;" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger"><i class="fa fa-trash-o"></i></span>
                                                 </span>
                                             </td>
                                         </tr>
@@ -119,7 +122,7 @@
                                             <td class="text-left">{{ customer.email }}</td>
                                             <td class="text-left">
                                                 {{ customer.name }}
-                                                <span class="pull-right">
+                                                <span class="pull-right d-flex">
                                                     <a href="index.php?route=customer/customer/edit&user_token={{ user_token }}&customer_id={{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>
                                                     <span data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></span>
                                                 </span>
@@ -167,6 +170,12 @@
 </div>
 
 <style>
+    .d-flex {
+        display: flex;
+    }
+    table .btn {
+        margin: 2px;
+    }
     @media (min-width: 768px) {
         #button-register, #img_loading_register {
             position: relative;
@@ -214,7 +223,6 @@
         },
         'select': function(item) {
             $('input[name=\'filter_mailing_name\']').val(item['label']);
-            console.log(item)
             MailingsHtml(item);
         }
     });
@@ -274,7 +282,7 @@
 
         html += '<td class="text-left">' + item['email'] + '</td>' +
             '<td class="text-left">' + item['name'] +
-            '<span class="pull-right">' +
+            '<span class="pull-right d-flex">' +
             '<a href="index.php?route=customer/customer/edit&user_token={{ user_token }}&customer_id=' + item['value'] + '" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>';
 
         html += '<span data-customer-id="' + item['value'] +'" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></span>';
@@ -298,8 +306,9 @@
         html +=         '</td>' +
             '<td class="text-left">' + item['date_added'] + '</td>' +
             '<td class="text-left">' + item['name'] + '</td>' +
-            '<td class="text-left">' + item['date_start'] +
-            '<span class="pull-right">' +
+            '<td class="text-left">' + item['date_start'] + '</td>' +
+            '<td>' +
+            '<span class="pull-right d-flex">' +
             `<span onclick="confirm('{{ text_start_mailing }}') ? startMailing({{mailing.mailing_id}}) : false;" data-toggle="tooltip" title="{{ button_start }}" class="btn btn-primary"><i class="fa fa-play-circle"></i></span>` +
             `<span onclick="confirm('{{ text_start_mailing_date }}') ? startMailingByDate({{mailing.mailing_id}}, '{{ mailing.date_start }}') : false;" data-toggle="tooltip" title="{{ button_start_by_date }}" class="btn btn-primary"><i class="fa fa-clock-o"></i></span>` +
             '<a href="index.php?route=extension/module/mailing/edit&user_token={{ user_token }}&mailing_id=' + item['value'] + '" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>';
@@ -313,6 +322,7 @@
         $('.mailing-list tbody').html(
             html
         )
+        reloadTooltip()
     }
 
     function resetCustomerFilter() {
@@ -325,7 +335,7 @@
                     html += '<td class="text-left">{{ customer.email }}</td>' +
                         '<td class="text-left">' +
                         '{{ customer.name }}' +
-                        '<span class="pull-right">' +
+                        '<span class="pull-right d-flex">' +
                         '<a href="index.php?route=customer/customer/edit&user_token={{ user_token }}&customer_id={{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>';
 
                     html += '<span data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></span>';
@@ -347,6 +357,7 @@
         $('input[name=\'filter_name\']').val('');
         $('input[name=\'filter_email\']').val('');
         unsub();
+        reloadTooltip();
     }
 
     function resetMailingFilter() {
@@ -361,9 +372,9 @@
                 html += '</td>' +
                         '<td class="text-left">{{ mailing.date_added }}</td>' +
                         '<td class="text-left">{{ mailing.name }}</td>' +
+                        '<td class="text-left">' + '{{ mailing.date_start }}' + '</td>' +
                         '<td class="text-left">' +
-                        '{{ mailing.date_start }}' +
-                        '<span class="pull-right">' +
+                        '<span class="pull-right d-flex">' +
                             `<span onclick="confirm('{{ text_start_mailing }}') ? startMailing({{mailing.mailing_id}}) : false;" data-toggle="tooltip" title="{{ button_start }}" class="btn btn-primary"><i class="fa fa-play-circle"></i></span>` +
                             `<span onclick="confirm('{{ text_start_mailing_date }}') ? startMailingByDate({{mailing.mailing_id}}, '{{ mailing.date_start }}') : false;" data-toggle="tooltip" title="{{ button_start_by_date }}" class="btn btn-primary"><i class="fa fa-clock-o"></i></span>` +
                             `<a href="index.php?route=extension/module/mailing/edit&user_token={{ user_token }}&mailing_id={{ mailing.mailing_id }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>` +
@@ -382,6 +393,13 @@
             html
         )
         $('input[name=\'filter_mailing_name\']').val('');
+        reloadTooltip()
+    }
+
+    function reloadTooltip() {
+        $('[data-toggle="tooltip"]').each(function () {
+            $(this).tooltip();
+        })
     }
 
     function startMailing(mailing_id) {

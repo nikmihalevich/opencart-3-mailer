@@ -185,7 +185,7 @@
                                             <td class="text-left">{{ customer.email }}</td>
                                             <td class="text-left">
                                                 {{ customer.name }}
-                                                <span class="pull-right">
+                                                <span class="pull-right d-flex">
                                                     <a href="index.php?route=customer/customer/edit&user_token={{ user_token }}&customer_id={{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>
                                                     {% if customer.customer_id in mailing_customers %}
                                                         <span data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_delete_from_mailing }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></span>
@@ -218,7 +218,7 @@
                             <div class="form-group">
                                 <label class="col-sm-2 control-label" for="input-name">{{ entry_date_automailing }}</label>
                                 <div class="col-sm-10">
-                                    <input type="datetime-local" name="date_automailing" value="{% if mailing.date_start != '-0001-11-30T00:00' %}{{ mailing.date_start }}{% endif %}" placeholder="{{ entry_name }}" id="input-name{{ language.language_id }}" class="form-control"/>
+                                    <input type="datetime-local" name="date_automailing" value="{{ mailing.date_start }}" placeholder="{{ entry_name }}" id="datePicker" class="form-control"/>
                                 </div>
                             </div>
                         </div>
@@ -230,6 +230,12 @@
 </div>
 
 <style>
+    .d-flex {
+        display: flex;
+    }
+    table .btn {
+        margin: 2px;
+    }
     @media (min-width: 768px) {
         #button-register, #img_loading_register {
             position: relative;
@@ -243,8 +249,27 @@
 <script type="text/javascript" src="view/javascript/summernote/opencart.js"></script>
 
 <script type="text/javascript">
+
+    $(document).ready(function () {
+        getMailingCustomers()
+        unsub()
+        sub()
+        let date = new Date()
+        date.setHours(date.getHours() + 4);
+        date = date.toISOString().substr(0, new Date().toISOString().length - 8)
+        if(!'{{ mailing.date_start }}')
+            $('#datePicker').val(date);
+    })
+
+    function reloadTooltip() {
+        $('[data-toggle="tooltip"]').each(function () {
+            $(this).tooltip();
+        })
+    }
+
     let mailing_customers_ids
     function unsub() {
+        $('.unsubscribe-customer').unbind('click');
         $('.unsubscribe-customer').on('click', function(e) {
             e.preventDefault();
             if(confirm('{{ text_unsubscribe_user }}')) {
@@ -265,6 +290,7 @@
     }
 
     function sub() {
+        $('.subscribe-customer').unbind('click');
         $('.subscribe-customer').on('click', function(e) {
             e.preventDefault();
             if(confirm('{{ text_subscribe_user }}')) {
@@ -294,10 +320,6 @@
             }
         });
     }
-
-    getMailingCustomers()
-    unsub()
-    sub()
 
     $('input[name=\'filter_name\']').autocomplete({
         'source': function(request, response) {
@@ -376,6 +398,7 @@
         $('.mailing-users thead').find('input[type=\'checkbox\']').prop('disabled', true);
         unsub()
         sub()
+        reloadTooltip()
     }
 
     function resetFilter() { 
@@ -420,6 +443,7 @@
 
         unsub();
         sub();
+        reloadTooltip();
     }
 
     function addSocialField() {

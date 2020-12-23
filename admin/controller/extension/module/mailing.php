@@ -313,24 +313,30 @@ class ControllerExtensionModuleMailing extends Controller {
 
         $data['user_token'] = $this->session->data['user_token'];
 
-        if (isset($this->request->post['mailing'])) {
-			$data['mailing'] = $this->request->post['mailing'];
-		} elseif (isset($this->request->get['mailing_id'])) {
+        if (isset($this->request->get['mailing_id'])) {
             $data['mailing'] = $this->model_extension_module_mailing->getMailing($this->request->get['mailing_id']);
 		} else {
 			$data['mailing'] = array();
         }
 
-		if (isset($this->request->post['mailing_description'])) {
-			$data['mailing_description'] = $this->request->post['mailing_description'];
-		} elseif (isset($this->request->get['mailing_id'])) {
+        if(isset($data['mailing']['date_start']) && $data['mailing']['date_start'] == '-0001-11-30T00:00') {
+            $data['mailing']['date_start'] = '';
+        }
+
+		if (isset($this->request->get['mailing_id'])) {
 			$data['mailing_description'] = $this->model_extension_module_mailing->getMailingDescriptions($this->request->get['mailing_id']);
 		} else {
 			$data['mailing_description'] = array();
         }
 
-        if (isset($this->request->post['mailing_products'])) {
-            $data['mailing_products'] = $this->request->post['mailing_products'];
+        if (isset($this->request->post['added_products_id'])) {
+            $results = array();
+            $this->load->model('catalog/product');
+            foreach ($this->request->post['added_products_id'] as $product_id) {
+                $results[] = $this->model_catalog_product->getProduct($product_id);
+            }
+
+            $data['mailing_products'] = $results;
         } elseif (isset($this->request->get['mailing_id'])) {
             $data['mailing_products'] = $this->model_extension_module_mailing->getMailingProducts($this->request->get['mailing_id']);
         } else {
@@ -393,6 +399,18 @@ class ControllerExtensionModuleMailing extends Controller {
                 'category_id' => $category['category_id'],
                 'name'        => $category['name'],
             );
+        }
+
+        if (isset($this->request->post['template_name'])) {
+            $data['mailing']['name'] = $this->request->post['template_name'];
+        }
+
+        if (isset($this->request->post['letter_theme'])) {
+            $data['mailing_description']['letter_theme'] = $this->request->post['letter_theme'];
+        }
+
+        if (isset($this->request->post['letter_text'])) {
+            $data['mailing_description']['letter_text'] = $this->request->post['letter_text'];
         }
 
 		$this->load->model('design/layout');
@@ -784,7 +802,7 @@ class ControllerExtensionModuleMailing extends Controller {
             $this->error['letter_theme'] = $this->language->get('error_letter_theme');
         }
 
-        if (utf8_strlen($this->request->post['letter_text']) < 1) {
+        if (utf8_strlen($this->request->post['letter_text']) < 3) {
             $this->error['letter_text'] = $this->language->get('error_letter_text');
         }
 
