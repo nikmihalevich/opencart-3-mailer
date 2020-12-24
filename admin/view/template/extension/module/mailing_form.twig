@@ -312,10 +312,6 @@
         });
     }
 
-    $('button[form="form-mailing"]').on('click', function (e) {
-        resetFilter();
-    })
-
     function getMailingCustomers() {
         $.ajax({
             url: 'index.php?route=extension/module/mailing/mailingcustomersid&user_token={{ user_token }}&mailing_id={{ mailing.mailing_id }}',
