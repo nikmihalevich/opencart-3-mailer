@@ -283,6 +283,7 @@
                         _this.remove();
                         sub()
                         getMailingCustomers()
+                        alert('Пользователь успешно удален из рассылки!')
                     }
                 });
             }
@@ -304,11 +305,16 @@
                         _this.remove();
                         unsub()
                         getMailingCustomers()
+                        alert('Пользователь успешно добавлен в рассылку!')
                     }
                 });
             }
         });
     }
+
+    $('button[form="form-mailing"]').on('click', function (e) {
+        resetFilter();
+    })
 
     function getMailingCustomers() {
         $.ajax({
@@ -317,6 +323,7 @@
             dataType: 'json',
             success: function(json) {
                 mailing_customers_ids = json;
+                resetFilter()
             }
         });
     }

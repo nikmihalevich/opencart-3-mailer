@@ -1,4 +1,4 @@
-{{ header }}{{ column_left }}
+ {{ header }}{{ column_left }}
 <div id="content">
     <div class="page-header">
         <div class="container-fluid">
@@ -75,7 +75,9 @@
                                             <td class="text-left">{{ mailing.date_added }}</td>
                                             <td class="text-left">{{ mailing.name }}</td>
                                             <td class="text-left">
-                                                {{ mailing.date_start }}
+                                                {% if "now"|date("Y-m-d h:m:s") < mailing.date_start %}
+                                                    {{ mailing.date_start }}
+                                                {% endif %}
                                             </td>
                                             <td>
                                                 <span class="pull-right d-flex">
