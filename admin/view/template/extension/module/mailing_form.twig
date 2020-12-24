@@ -255,7 +255,7 @@
         unsub()
         sub()
         let date = new Date()
-        date.setHours(date.getHours() + 4);
+        date.setHours(date.getHours() + 27);
         date = date.toISOString().substr(0, new Date().toISOString().length - 8)
         if(!'{{ mailing.date_start }}')
             $('#datePicker').val(date);
