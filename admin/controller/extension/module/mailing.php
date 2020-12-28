@@ -103,7 +103,7 @@ class ControllerExtensionModuleMailing extends Controller {
         if (isset($this->request->get['sort'])) {
             $sort = $this->request->get['sort'];
         } else {
-            $sort = 'name';
+            $sort = 'date_added';
         }
 
         if (isset($this->request->get['order'])) {
@@ -454,17 +454,31 @@ class ControllerExtensionModuleMailing extends Controller {
         }
     }
 
-    public function unsubcribeFromMailing() {
+    public function unsubscribeFromMailing() {
         if ($this->request->server['REQUEST_METHOD'] == 'POST') {
             $this->load->model('extension/module/mailing');
             $this->model_extension_module_mailing->unsubscribeFromMailing($this->request->get['mailing_id'], $this->request->get['customer_id']);
         }
     }
 
-    public function subcribeToMailing() {
+    public function subscribeToMailing() {
         if ($this->request->server['REQUEST_METHOD'] == 'POST') {
             $this->load->model('extension/module/mailing');
             $this->model_extension_module_mailing->subscribeToMailing($this->request->get['mailing_id'], $this->request->get['customer_id']);
+        }
+    }
+
+    public function unsubscribeAllFromMailing() {
+        if ($this->request->server['REQUEST_METHOD'] == 'POST') {
+            $this->load->model('extension/module/mailing');
+            $this->model_extension_module_mailing->unsubscribeAllFromMailing($this->request->get['mailing_id']);
+        }
+    }
+
+    public function subscribeAllToMailing() {
+        if ($this->request->server['REQUEST_METHOD'] == 'POST') {
+            $this->load->model('extension/module/mailing');
+            $this->model_extension_module_mailing->subcribeAllToMailing($this->request->get['mailing_id']);
         }
     }
 

@@ -302,6 +302,17 @@ class ModelExtensionModuleMailing extends Model {
         $this->db->query("INSERT INTO " . DB_PREFIX . "customer_to_mailing SET mailing_id = '" . (int)$mailing_id . "', customer_id = '" . (int)$customer_id . "'");
     }
 
+    public function unsubscribeAllFromMailing($mailing_id) {
+        $this->db->query("DELETE FROM " . DB_PREFIX . "customer_to_mailing WHERE mailing_id = '" . (int)$mailing_id . "'");
+    }
+
+    public function subcribeAllToMailing($mailing_id) {
+        $query = $this->db->query("SELECT customer_id FROM " . DB_PREFIX . "customer WHERE newsletter = 1");
+        foreach ($query->rows as $row) {
+            $this->db->query("INSERT INTO " . DB_PREFIX . "customer_to_mailing SET mailing_id = '" . (int)$mailing_id . "', customer_id = '" . (int)$row['customer_id'] . "'");
+        }
+    }
+
     public function log($data) {
         // if ($this->config->has('payment_stripe_logging') && $this->config->get('payment_stripe_logging')) {
         $log = new Log('mailing.log');
