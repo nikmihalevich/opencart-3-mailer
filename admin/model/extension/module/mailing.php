@@ -119,12 +119,12 @@ class ModelExtensionModuleMailing extends Model {
             }
         }
 
-        $this->db->query("DELETE FROM " . DB_PREFIX . "customer_to_mailing WHERE mailing_id = '" . (int)$mailing_id . "'");
-        if(isset($data['mailing_customers'])) {
-            foreach ($data['mailing_customers'] as $customer_id) {
-                $this->db->query("INSERT INTO " . DB_PREFIX . "customer_to_mailing SET mailing_id = '" . (int)$mailing_id . "', customer_id = '" . (int)$customer_id . "'");
-            }
-        }
+//        $this->db->query("DELETE FROM " . DB_PREFIX . "customer_to_mailing WHERE mailing_id = '" . (int)$mailing_id . "'");
+//        if(isset($data['mailing_customers'])) {
+//            foreach ($data['mailing_customers'] as $customer_id) {
+//                $this->db->query("INSERT INTO " . DB_PREFIX . "customer_to_mailing SET mailing_id = '" . (int)$mailing_id . "', customer_id = '" . (int)$customer_id . "'");
+//            }
+//        }
 
         $this->cache->delete('mailing');
     }
