@@ -287,6 +287,12 @@
         })
     }
 
+    {% if not mailing.mailing_id %}
+    $('#form-mailing').on('submit', function () {
+        resetFilterAdd()
+    })
+    {% endif %}
+
     $(document).ready(function () {
         {% if mailing.mailing_id %}
         getMailingCustomers()
