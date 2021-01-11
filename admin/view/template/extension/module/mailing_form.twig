@@ -323,7 +323,7 @@
                 url: 'index.php?route=extension/module/mailing/subscribeAllToMailing&mailing_id={{ mailing.mailing_id }}' + '&user_token={{ user_token }}',
                 success: function() {
                     getMailingCustomers()
-                    alert('Пользователь успешно добавлен в рассылку!')
+                    alert('Пользователи успешно добавлены в рассылку!')
                 }
             });
         }
@@ -338,7 +338,7 @@
                 url: 'index.php?route=extension/module/mailing/unsubscribeAllFromMailing&customer_id=' + $(this).data('customerId') + '&mailing_id={{ mailing.mailing_id }}' + '&user_token={{ user_token }}',
                 success: function() {
                     getMailingCustomers()
-                    alert('Пользователь успешно удален из рассылки!')
+                    alert('Пользователи успешно удалены из рассылки!')
                 }
             });
         }
