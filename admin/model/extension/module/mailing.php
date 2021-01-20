@@ -143,6 +143,7 @@ class ModelExtensionModuleMailing extends Model {
         $sql = "SELECT * FROM " . DB_PREFIX . "mailing m LEFT JOIN " . DB_PREFIX . "mailing_description md ON (m.mailing_id = md.mailing_id) WHERE md.language_id = '" . (int)$this->config->get('config_language_id') . "'";
 
         $sort_data = array(
+            'm.mailing_id',
             'date_added',
             'm.name',
             'date_start'
@@ -151,7 +152,7 @@ class ModelExtensionModuleMailing extends Model {
         if (isset($data['sort']) && in_array($data['sort'], $sort_data)) {
 			$sql .= " ORDER BY " . $data['sort'];
 		} else {
-			$sql .= " ORDER BY name";
+			$sql .= " ORDER BY m.mailing_id";
 		}
 
 		if (isset($data['order']) && ($data['order'] == 'DESC')) {
@@ -292,6 +293,7 @@ class ModelExtensionModuleMailing extends Model {
 
     public function unsubscribe($customer_id) {
         $this->db->query("UPDATE " . DB_PREFIX . "customer SET newsletter = 0 WHERE customer_id = '" . (int)$customer_id . "'");
+        $this->db->query("DELETE FROM " . DB_PREFIX . "customer_to_mailing WHERE customer_id = '" . (int)$customer_id . "'");
     }
 
     public function unsubscribeFromMailing($mailing_id, $customer_id) {
@@ -308,8 +310,17 @@ class ModelExtensionModuleMailing extends Model {
 
     public function subcribeAllToMailing($mailing_id) {
         $query = $this->db->query("SELECT customer_id FROM " . DB_PREFIX . "customer WHERE newsletter = 1");
+        $queryy = $this->db->query("SELECT customer_id FROM " . DB_PREFIX . "customer_to_mailing WHERE mailing_id = '" . $mailing_id ."'");
+
+        $customers = array();
+        foreach ($queryy->rows as $key => $row) {
+            $customers[] = (int)$row['customer_id'];
+        }
+
         foreach ($query->rows as $row) {
-            $this->db->query("INSERT INTO " . DB_PREFIX . "customer_to_mailing SET mailing_id = '" . (int)$mailing_id . "', customer_id = '" . (int)$row['customer_id'] . "'");
+            if(!in_array($row['customer_id'], $customers)) {
+                $this->db->query("INSERT INTO " . DB_PREFIX . "customer_to_mailing SET mailing_id = '" . (int)$mailing_id . "', customer_id = '" . (int)$row['customer_id'] . "'");
+            }
         }
     }
 

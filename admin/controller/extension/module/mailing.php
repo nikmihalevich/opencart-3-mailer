@@ -103,7 +103,7 @@ class ControllerExtensionModuleMailing extends Controller {
         if (isset($this->request->get['sort'])) {
             $sort = $this->request->get['sort'];
         } else {
-            $sort = 'date_added';
+            $sort = 'mailing_id';
         }
 
         if (isset($this->request->get['order'])) {
