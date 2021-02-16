@@ -1,4 +1,54 @@
-{{ header }}{{ column_left }}
+{{ header }}
+<style>
+    .add-block-field, .select-grid-field {
+        border: 2px dashed #dadada;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .add-block-field-button, .select-grid-field-inner {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        margin: 50px 0;
+        cursor: pointer;
+    }
+    .add-block-field-button-icon {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #CF0D64;
+        padding: 12px;
+        width: fit-content;
+        border-radius: 50%;
+        color: #fff;
+        margin-bottom: 15px;
+        font-size: 13px;
+    }
+    .select-grid-field-inner {
+        width: 100%;
+    }
+    .select-grid-field-inner-content {
+        width: 100%;
+    }
+    .gray-bg {
+        background-color: gray;
+        height: 50px;
+        margin: 1px;
+    }
+    .select-grid-field-inner-content-item {
+        width: 200px;
+        display: flex;
+        flex-direction: row;
+    }
+    .select-grid-field-inner-content-row {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+</style>
+{{ column_left }}
 <div id="content">
     <div class="page-header">
         <div class="container-fluid">
@@ -55,100 +105,131 @@
                                     <input type="text" name="letter_theme" value="{{ mailing_description.letter_theme }}" placeholder="{{ entry_name }}" id="input-name{{ language.language_id }}" class="form-control"/>
                                     {% if error_letter_theme %}
                                         <div class="text-danger">{{ error_letter_theme }}</div>
-                                    {% endif %} 
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="form-group required">
-                                <label class="col-sm-2 control-label" for="input-name">{{ entry_letter_text }}</label>
-                                <div class="col-sm-10">
-                                    <div style="margin: 10px; padding: 10px;">
-                                        <span style="margin-right: 20px;"><b>[products]</b> - {{ help_products }}</span>
-                                        <span><b>[social]</b> - {{ help_social }}</span>
+                                <label class="col-sm-2 control-label" for="input-name">{{ entry_letter_content }}</label>
+                                <div class="col-sm-12">
+                                    <div class="add-block-field visible-xs">
+                                        <div class="add-block-field-button">
+                                            <div class="add-block-field-button-icon">
+                                                <i class="fa fa-plus"></i>
+                                            </div>
+                                            <div class="add-block-field-button-text">{{ button_add_block }}</div>
+                                        </div>
                                     </div>
-                                    <textarea name="letter_text" placeholder="{{ entry_description }}" id="input-description{{ language.language_id }}" data-toggle="summernote" data-lang="{{ summernote }}" class="form-control">{{ mailing_description.letter_text }}</textarea>
-                                    {% if error_letter_text %}
-                                        <div class="text-danger">{{ error_letter_text }}</div>
-                                    {% endif %} 
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-sm-2 control-label" for="input-tax-class">{{ entry_products }}</label>
-                                <div class="col-sm-10">
-                                    <select name="categories" id="input-product-categories" class="form-control">
-
-                                        {% for category in categories %}
-
-                                            <option value="{{ category.category_id }}">{{ category.name }}</option>
-
-                                        {% endfor %}
-
-                                    </select>
-
-                                    <div class="row products-list">
-
-                                    </div>
-
-
-                                </div>
-                                <label class="col-sm-2 control-label" for="input-name">{{ entry_added_products }}</label>
-                                <div class="col-sm-10">
-                                    <div class="row added-products-list">
-
-                                        {% for mailing_product in mailing_products %}
-
-                                        <div data-product-id="{{ mailing_product.product_id }}" class="product-layout product-list col-sm-3 col-xs-12" style="border: 1px solid #e3e3e3; border-radius: 10px; margin-left: 15px; margin-top: 15px; padding: 10px; width: 15%;">
-                                            <div class="product-thumb">
-                                                <div class="image">
-                                                    {% if mailing_product.image %}
-                                                        <img src="/image/{{ mailing_product.image }}" alt="{{ mailing_product.name }}" title="{{ mailing_product.name }}" class="img-responsive" />
-                                                    {% else %}
-                                                        <img src="/image/cache/no_image-100x100.png" alt="{{ mailing_product.name }}" title="{{ mailing_product.name }}" class="img-responsive" />
-                                                    {% endif %}
-                                                </div>
-                                                <div>
-                                                    <div class="caption">
-                                                        <p>{{ mailing_product.name }}</p>
-                                                        <p class="price">
-                                                            {{ mailing_product.price}}
-                                                        </p>
-                                                        <div class="button-group">
-                                                            <button type="button" onclick="deleteProductFromMailing({{ mailing_product.product_id }})">
-                                                                Удалить из рассылки
-                                                            </button>
-                                                            <input type="hidden" name="added_products_id[]" id="added-product-id" value="{{ mailing_product.product_id }}" />
-                                                        </div>
+                                    <div class="select-grid-field">
+                                        <div class="select-grid-field-inner">
+                                            <div class="select-grid-field-inner-header">
+                                                Выберите структуру
+                                            </div>
+                                            <div class="select-grid-field-inner-content">
+                                                <div class="select-grid-field-inner-content-row">
+                                                    <div class="select-grid-field-inner-content-item">
+                                                        <div class="gray-bg" style="width: 100%"></div>
+                                                    </div>
+                                                    <div class="select-grid-field-inner-content-item">
+                                                        <div class="gray-bg" style="width: 50%;"></div>
+                                                        <div class="gray-bg" style="width: 50%;"></div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-
-
-                                        {% endfor %}
-
                                     </div>
                                 </div>
-
                             </div>
-                            <div class="form-group">
-                                <label class="col-sm-2 control-label" for="input-name">{{ entry_social }}</label>
-                                <div class="col-sm-10">
+{#                            <div class="form-group required">#}
+{#                                <label class="col-sm-2 control-label" for="input-name">{{ entry_letter_text }}</label>#}
+{#                                <div class="col-sm-10">#}
+{#                                    <div style="margin: 10px; padding: 10px;">#}
+{#                                        <span style="margin-right: 20px;"><b>[products]</b> - {{ help_products }}</span>#}
+{#                                        <span><b>[social]</b> - {{ help_social }}</span>#}
+{#                                    </div>#}
+{#                                    <textarea name="letter_text" placeholder="{{ entry_description }}" id="input-description{{ language.language_id }}" data-toggle="summernote" data-lang="{{ summernote }}" class="form-control">{{ mailing_description.letter_text }}</textarea>#}
+{#                                    {% if error_letter_text %}#}
+{#                                        <div class="text-danger">{{ error_letter_text }}</div>#}
+{#                                    {% endif %} #}
+{#                                </div>#}
+{#                            </div>#}
+{#                            <div class="form-group">#}
+{#                                <label class="col-sm-2 control-label" for="input-tax-class">{{ entry_products }}</label>#}
+{#                                <div class="col-sm-10">#}
+{#                                    <select name="categories" id="input-product-categories" class="form-control">#}
 
-                                    {% for social_icon in social_icons %}
+{#                                        {% for category in categories %}#}
 
-                                    <div class="social-fields" style="display:flex; justify-content: center; align-items: center; margin-bottom: 10px;">
-                                        <div class="col-sm-2">
-                                            <img src="/image/{{ social_icon.image }}" style="width: 25px; height: 25px; margin-right: 5px;" alt="{{ social_icon.name }}">
-                                            <span>{{ social_icon.name }}</span>
-                                        </div>
-                                        <div class="col-sm-10">
-                                            <input type="text" name="social_link[]" value="{{ social_icon.link }}" placeholder="{{ entry_link }}" id="input-name{{ language.language_id }}" class="form-control"/>
-                                        </div>
-                                    </div>
+{#                                            <option value="{{ category.category_id }}">{{ category.name }}</option>#}
 
-                                    {% endfor %}
-                                </div>
+{#                                        {% endfor %}#}
 
-                            </div>
+{#                                    </select>#}
+
+{#                                    <div class="row products-list">#}
+
+{#                                    </div>#}
+
+
+{#                                </div>#}
+{#                                <label class="col-sm-2 control-label" for="input-name">{{ entry_added_products }}</label>#}
+{#                                <div class="col-sm-10">#}
+{#                                    <div class="row added-products-list">#}
+
+{#                                        {% for mailing_product in mailing_products %}#}
+
+{#                                        <div data-product-id="{{ mailing_product.product_id }}" class="product-layout product-list col-sm-3 col-xs-12" style="border: 1px solid #e3e3e3; border-radius: 10px; margin-left: 15px; margin-top: 15px; padding: 10px; width: 15%;">#}
+{#                                            <div class="product-thumb">#}
+{#                                                <div class="image">#}
+{#                                                    {% if mailing_product.image %}#}
+{#                                                        <img src="/image/{{ mailing_product.image }}" alt="{{ mailing_product.name }}" title="{{ mailing_product.name }}" class="img-responsive" />#}
+{#                                                    {% else %}#}
+{#                                                        <img src="/image/cache/no_image-100x100.png" alt="{{ mailing_product.name }}" title="{{ mailing_product.name }}" class="img-responsive" />#}
+{#                                                    {% endif %}#}
+{#                                                </div>#}
+{#                                                <div>#}
+{#                                                    <div class="caption">#}
+{#                                                        <p>{{ mailing_product.name }}</p>#}
+{#                                                        <p class="price">#}
+{#                                                            {{ mailing_product.price}}#}
+{#                                                        </p>#}
+{#                                                        <div class="button-group">#}
+{#                                                            <button type="button" onclick="deleteProductFromMailing({{ mailing_product.product_id }})">#}
+{#                                                                Удалить из рассылки#}
+{#                                                            </button>#}
+{#                                                            <input type="hidden" name="added_products_id[]" id="added-product-id" value="{{ mailing_product.product_id }}" />#}
+{#                                                        </div>#}
+{#                                                    </div>#}
+{#                                                </div>#}
+{#                                            </div>#}
+{#                                        </div>#}
+
+
+{#                                        {% endfor %}#}
+
+{#                                    </div>#}
+{#                                </div>#}
+
+{#                            </div>#}
+{#                            <div class="form-group">#}
+{#                                <label class="col-sm-2 control-label" for="input-name">{{ entry_social }}</label>#}
+{#                                <div class="col-sm-10">#}
+
+{#                                    {% for social_icon in social_icons %}#}
+
+{#                                    <div class="social-fields" style="display:flex; justify-content: center; align-items: center; margin-bottom: 10px;">#}
+{#                                        <div class="col-sm-2">#}
+{#                                            <img src="/image/{{ social_icon.image }}" style="width: 25px; height: 25px; margin-right: 5px;" alt="{{ social_icon.name }}">#}
+{#                                            <span>{{ social_icon.name }}</span>#}
+{#                                        </div>#}
+{#                                        <div class="col-sm-10">#}
+{#                                            <input type="text" name="social_link[]" value="{{ social_icon.link }}" placeholder="{{ entry_link }}" id="input-name{{ language.language_id }}" class="form-control"/>#}
+{#                                        </div>#}
+{#                                    </div>#}
+
+{#                                    {% endfor %}#}
+{#                                </div>#}
+
+{#                            </div>#}
                         </div>
                         <div class="tab-pane" id="tab-2"> {# 2 TAB USERS #}
                             <div class="form-group">
