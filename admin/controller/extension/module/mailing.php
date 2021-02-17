@@ -413,6 +413,9 @@ class ControllerExtensionModuleMailing extends Controller {
             $data['mailing_description']['letter_text'] = $this->request->post['letter_text'];
         }
 
+        $this->load->model('tool/image');
+        $data['img_placeholder'] = $this->model_tool_image->resize('no_image.png', 40, 40);
+
 		$this->load->model('design/layout');
 
 		$data['layouts'] = $this->model_design_layout->getLayouts();
@@ -434,6 +437,7 @@ class ControllerExtensionModuleMailing extends Controller {
             $json = array();
 
             foreach ($results as $result) {
+                $result['price'] = $this->currency->format($result['price'], $this->config->get('config_currency'));
                 if ($result['image']) {
                     $result['thumb'] = $this->model_tool_image->resize($result['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_height'));
                 } else {
@@ -814,10 +818,6 @@ class ControllerExtensionModuleMailing extends Controller {
 
         if ((utf8_strlen($this->request->post['letter_theme']) < 1) || (utf8_strlen($this->request->post['letter_theme']) > 64)) {
             $this->error['letter_theme'] = $this->language->get('error_letter_theme');
-        }
-
-        if (utf8_strlen($this->request->post['letter_text']) < 3) {
-            $this->error['letter_text'] = $this->language->get('error_letter_text');
         }
 
         if ($this->error && !isset($this->error['warning'])) {

@@ -12,6 +12,8 @@
         align-items: center;
         flex-direction: column;
         margin: 50px 0;
+    }
+    .add-block-field-button {
         cursor: pointer;
     }
     .add-block-field-button-icon {
@@ -19,15 +21,19 @@
         justify-content: center;
         align-items: center;
         background-color: #CF0D64;
-        padding: 12px;
         width: fit-content;
         border-radius: 50%;
         color: #fff;
         margin-bottom: 15px;
-        font-size: 13px;
+        padding: 13px 14px;
     }
     .select-grid-field-inner {
         width: 100%;
+    }
+    .select-grid-field-inner-header {
+        text-transform: uppercase;
+        margin-bottom: 15px;
+        font-size: 14px;
     }
     .select-grid-field-inner-content {
         width: 100%;
@@ -38,14 +44,77 @@
         margin: 1px;
     }
     .select-grid-field-inner-content-item {
-        width: 200px;
+        width: 100px;
         display: flex;
         flex-direction: row;
+        margin: 10px;
+        cursor: pointer;
     }
     .select-grid-field-inner-content-row {
         display: flex;
         justify-content: center;
         align-items: center;
+    }
+    .d-none {
+        display: none;
+    }
+    .flex-dir-col {
+        flex-direction: column;
+    }
+    .w-100 {
+        width: 100%;
+    }
+    .w-66 {
+        width: 66.77777%;
+    }
+    .w-50 {
+        width: 50%;
+    }
+    .w-33 {
+        width: 33.33333%;
+    }
+    .w-25 {
+        width: 25%;
+    }
+    .w-20 {
+        width: 20%;
+    }
+    .w-16 {
+        width: 16.66666%;
+    }
+    .block-data-row {
+        margin-top: 50px;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
+        position: relative;
+    }
+    .block-data-buttons {
+        position: absolute;
+        right: 0;
+        top: -30px;
+    }
+    .block-data-inner {
+        text-align: center;
+        border: 2px dashed #dadada;
+        padding: 5px;
+        display: flex;
+        align-items: center;
+        margin-right: 20px;
+    }
+    .block-data-inner span {
+        margin: 5px 30px;
+    }
+    .add-data-modal-footer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        border: none;
+    }
+    .mt-10 {
+        margin-top: 10px;
     }
 </style>
 {{ column_left }}
@@ -108,128 +177,121 @@
                                     {% endif %}
                                 </div>
                             </div>
-                            <div class="form-group required">
+                            <div class="form-group">
                                 <label class="col-sm-2 control-label" for="input-name">{{ entry_letter_content }}</label>
                                 <div class="col-sm-12">
-                                    <div class="add-block-field visible-xs">
-                                        <div class="add-block-field-button">
-                                            <div class="add-block-field-button-icon">
-                                                <i class="fa fa-plus"></i>
+                                    {% if mailing.mailing_id %}
+                                        <div class="block-data-row">
+                                            <div class="block-data-inner col-sm-2">
+                                                <span>{{ text_add_data }}</span>
+                                                <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
                                             </div>
-                                            <div class="add-block-field-button-text">{{ button_add_block }}</div>
+                                            <div class="block-data-inner col-sm-2">
+                                                <span>{{ text_add_data }}</span>
+                                                <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
+                                            </div>
+                                            <div class="block-data-inner col-sm-2">
+                                                <span>{{ text_add_data }}</span>
+                                                <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
+                                            </div>
+                                            <div class="block-data-inner col-sm-2">
+                                                <span>{{ text_add_data }}</span>
+                                                <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
+                                            </div>
+                                            <div class="block-data-buttons">
+                                                <button type="button" data-toggle="modal" data-target="#settingsBlockModal" data-tooltip="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></button>
+                                                <button type="button" data-tooltip="tooltip" title="{{ button_delete }}" class="btn btn-danger"><i class="fa fa-trash"></i></button>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="select-grid-field">
-                                        <div class="select-grid-field-inner">
-                                            <div class="select-grid-field-inner-header">
-                                                Выберите структуру
+                                        <div class="add-block-field">
+                                            <div class="add-block-field-button">
+                                                <div class="add-block-field-button-icon">
+                                                    <i class="fa fa-plus"></i>
+                                                </div>
+                                                <div class="add-block-field-button-text">{{ button_add_block }}</div>
                                             </div>
-                                            <div class="select-grid-field-inner-content">
-                                                <div class="select-grid-field-inner-content-row">
-                                                    <div class="select-grid-field-inner-content-item">
-                                                        <div class="gray-bg" style="width: 100%"></div>
+                                        </div>
+                                        <div class="select-grid-field d-none">
+                                            <div class="select-grid-field-inner">
+                                                <div class="select-grid-field-inner-header">
+                                                    {{ text_select_structure }}
+                                                </div>
+                                                <div class="select-grid-field-inner-content">
+                                                    <div class="select-grid-field-inner-content-row">
+                                                        <div class="select-grid-field-inner-content-item">
+                                                            <div class="gray-bg w-100"></div>
+                                                        </div>
+                                                        <div class="select-grid-field-inner-content-item">
+                                                            <div class="gray-bg w-50"></div>
+                                                            <div class="gray-bg w-50"></div>
+                                                        </div>
+                                                        <div class="select-grid-field-inner-content-item">
+                                                            <div class="gray-bg w-33"></div>
+                                                            <div class="gray-bg w-33"></div>
+                                                            <div class="gray-bg w-33"></div>
+                                                        </div>
+                                                        <div class="select-grid-field-inner-content-item">
+                                                            <div class="gray-bg w-25"></div>
+                                                            <div class="gray-bg w-25"></div>
+                                                            <div class="gray-bg w-25"></div>
+                                                            <div class="gray-bg w-25"></div>
+                                                        </div>
+                                                        <div class="select-grid-field-inner-content-item">
+                                                            <div class="gray-bg w-33"></div>
+                                                            <div class="gray-bg w-66"></div>
+                                                        </div>
+                                                        <div class="select-grid-field-inner-content-item">
+                                                            <div class="gray-bg w-66"></div>
+                                                            <div class="gray-bg w-33"></div>
+                                                        </div>
                                                     </div>
-                                                    <div class="select-grid-field-inner-content-item">
-                                                        <div class="gray-bg" style="width: 50%;"></div>
-                                                        <div class="gray-bg" style="width: 50%;"></div>
+                                                    <div class="select-grid-field-inner-content-row">
+                                                        <div class="select-grid-field-inner-content-item">
+                                                            <div class="gray-bg w-25"></div>
+                                                            <div class="gray-bg w-25"></div>
+                                                            <div class="gray-bg w-25"></div>
+                                                        </div>
+                                                        <div class="select-grid-field-inner-content-item">
+                                                            <div class="gray-bg w-50"></div>
+                                                            <div class="gray-bg w-25"></div>
+                                                            <div class="gray-bg w-25"></div>
+                                                        </div>
+                                                        <div class="select-grid-field-inner-content-item">
+                                                            <div class="gray-bg w-25"></div>
+                                                            <div class="gray-bg w-50"></div>
+                                                            <div class="gray-bg w-25"></div>
+                                                        </div>
+                                                        <div class="select-grid-field-inner-content-item">
+                                                            <div class="gray-bg w-20"></div>
+                                                            <div class="gray-bg w-20"></div>
+                                                            <div class="gray-bg w-20"></div>
+                                                            <div class="gray-bg w-20"></div>
+                                                            <div class="gray-bg w-20"></div>
+                                                        </div>
+                                                        <div class="select-grid-field-inner-content-item">
+                                                            <div class="gray-bg w-16"></div>
+                                                            <div class="gray-bg w-16"></div>
+                                                            <div class="gray-bg w-16"></div>
+                                                            <div class="gray-bg w-16"></div>
+                                                            <div class="gray-bg w-16"></div>
+                                                            <div class="gray-bg w-16"></div>
+                                                        </div>
+                                                        <div class="select-grid-field-inner-content-item">
+                                                            <div class="gray-bg w-16"></div>
+                                                            <div class="gray-bg w-66"></div>
+                                                            <div class="gray-bg w-16"></div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    {% else %}
+                                        <div class="text-center">
+                                            <span>{{ text_create_mailing }}</span>
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
-{#                            <div class="form-group required">#}
-{#                                <label class="col-sm-2 control-label" for="input-name">{{ entry_letter_text }}</label>#}
-{#                                <div class="col-sm-10">#}
-{#                                    <div style="margin: 10px; padding: 10px;">#}
-{#                                        <span style="margin-right: 20px;"><b>[products]</b> - {{ help_products }}</span>#}
-{#                                        <span><b>[social]</b> - {{ help_social }}</span>#}
-{#                                    </div>#}
-{#                                    <textarea name="letter_text" placeholder="{{ entry_description }}" id="input-description{{ language.language_id }}" data-toggle="summernote" data-lang="{{ summernote }}" class="form-control">{{ mailing_description.letter_text }}</textarea>#}
-{#                                    {% if error_letter_text %}#}
-{#                                        <div class="text-danger">{{ error_letter_text }}</div>#}
-{#                                    {% endif %} #}
-{#                                </div>#}
-{#                            </div>#}
-{#                            <div class="form-group">#}
-{#                                <label class="col-sm-2 control-label" for="input-tax-class">{{ entry_products }}</label>#}
-{#                                <div class="col-sm-10">#}
-{#                                    <select name="categories" id="input-product-categories" class="form-control">#}
-
-{#                                        {% for category in categories %}#}
-
-{#                                            <option value="{{ category.category_id }}">{{ category.name }}</option>#}
-
-{#                                        {% endfor %}#}
-
-{#                                    </select>#}
-
-{#                                    <div class="row products-list">#}
-
-{#                                    </div>#}
-
-
-{#                                </div>#}
-{#                                <label class="col-sm-2 control-label" for="input-name">{{ entry_added_products }}</label>#}
-{#                                <div class="col-sm-10">#}
-{#                                    <div class="row added-products-list">#}
-
-{#                                        {% for mailing_product in mailing_products %}#}
-
-{#                                        <div data-product-id="{{ mailing_product.product_id }}" class="product-layout product-list col-sm-3 col-xs-12" style="border: 1px solid #e3e3e3; border-radius: 10px; margin-left: 15px; margin-top: 15px; padding: 10px; width: 15%;">#}
-{#                                            <div class="product-thumb">#}
-{#                                                <div class="image">#}
-{#                                                    {% if mailing_product.image %}#}
-{#                                                        <img src="/image/{{ mailing_product.image }}" alt="{{ mailing_product.name }}" title="{{ mailing_product.name }}" class="img-responsive" />#}
-{#                                                    {% else %}#}
-{#                                                        <img src="/image/cache/no_image-100x100.png" alt="{{ mailing_product.name }}" title="{{ mailing_product.name }}" class="img-responsive" />#}
-{#                                                    {% endif %}#}
-{#                                                </div>#}
-{#                                                <div>#}
-{#                                                    <div class="caption">#}
-{#                                                        <p>{{ mailing_product.name }}</p>#}
-{#                                                        <p class="price">#}
-{#                                                            {{ mailing_product.price}}#}
-{#                                                        </p>#}
-{#                                                        <div class="button-group">#}
-{#                                                            <button type="button" onclick="deleteProductFromMailing({{ mailing_product.product_id }})">#}
-{#                                                                Удалить из рассылки#}
-{#                                                            </button>#}
-{#                                                            <input type="hidden" name="added_products_id[]" id="added-product-id" value="{{ mailing_product.product_id }}" />#}
-{#                                                        </div>#}
-{#                                                    </div>#}
-{#                                                </div>#}
-{#                                            </div>#}
-{#                                        </div>#}
-
-
-{#                                        {% endfor %}#}
-
-{#                                    </div>#}
-{#                                </div>#}
-
-{#                            </div>#}
-{#                            <div class="form-group">#}
-{#                                <label class="col-sm-2 control-label" for="input-name">{{ entry_social }}</label>#}
-{#                                <div class="col-sm-10">#}
-
-{#                                    {% for social_icon in social_icons %}#}
-
-{#                                    <div class="social-fields" style="display:flex; justify-content: center; align-items: center; margin-bottom: 10px;">#}
-{#                                        <div class="col-sm-2">#}
-{#                                            <img src="/image/{{ social_icon.image }}" style="width: 25px; height: 25px; margin-right: 5px;" alt="{{ social_icon.name }}">#}
-{#                                            <span>{{ social_icon.name }}</span>#}
-{#                                        </div>#}
-{#                                        <div class="col-sm-10">#}
-{#                                            <input type="text" name="social_link[]" value="{{ social_icon.link }}" placeholder="{{ entry_link }}" id="input-name{{ language.language_id }}" class="form-control"/>#}
-{#                                        </div>#}
-{#                                    </div>#}
-
-{#                                    {% endfor %}#}
-{#                                </div>#}
-
-{#                            </div>#}
                         </div>
                         <div class="tab-pane" id="tab-2"> {# 2 TAB USERS #}
                             <div class="form-group">
@@ -321,7 +383,160 @@
     </div>
 </div>
 
+<div class="modal fade bd-example-modal-lg" id="addBlockDataModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="#tab-text-data" data-toggle="tab">{{ tab_text_data }}</a></li>
+                    <li><a href="#tab-products" data-toggle="tab">{{ tab_products }}</a></li>
+                    <li class="pull-right"><a href="#tab-block-settings" data-toggle="tab">{{ tab_block_settings }}</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="tab-text-data">
+                        <div class="col-sm-12">
+                            <textarea name="letter_text" placeholder="{{ entry_description }}" id="input-description" data-toggle="summernote" data-lang="{{ summernote }}" class="form-control">{{ mailing_description.letter_text }}</textarea>
+                            <label class="pull-left control-label" for="input-name">{{ entry_position_data_in_block }}</label>
+                            <input type="text" name="position_data_in_block" value="" placeholder="{{ entry_position_data_in_block }}" id="position-data-in-block" class="form-control"/>
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="tab-products">
+                        <div class="col-sm-12">
+
+                            <label class="col-sm-2 control-label" for="input-product-categories">{{ entry_products }}</label>
+                            <div class="col-sm-10">
+                                <select name="categories" id="input-product-categories" class="form-control">
+
+                                    {% for category in categories %}
+
+                                        <option value="{{ category.category_id }}">{{ category.name }}</option>
+
+                                    {% endfor %}
+
+                                </select>
+
+                                <div class="row products-list">
+
+                                </div>
+
+                            </div>
+                            <label class="col-sm-2 control-label" for="input-name">{{ entry_added_products }}</label>
+                            <div class="col-sm-10">
+                                <div class="row added-products-list">
+
+                                    {% for mailing_product in mailing_products %}
+
+                                        <div data-product-id="{{ mailing_product.product_id }}" class="product-layout product-list col-sm-3 col-xs-12" style="border: 1px solid #e3e3e3; border-radius: 10px; margin-left: 15px; margin-top: 15px; padding: 10px; width: 15%;">
+                                            <div class="product-thumb">
+                                                <div class="image">
+                                                    {% if mailing_product.image %}
+                                                        <img src="/image/{{ mailing_product.image }}" alt="{{ mailing_product.name }}" title="{{ mailing_product.name }}" class="img-responsive" />
+                                                    {% else %}
+                                                        <img src="/image/cache/no_image-100x100.png" alt="{{ mailing_product.name }}" title="{{ mailing_product.name }}" class="img-responsive" />
+                                                    {% endif %}
+                                                </div>
+                                                <div>
+                                                    <div class="caption">
+                                                        <p>{{ mailing_product.name }}</p>
+                                                        <p class="price">
+                                                            {{ mailing_product.price}}
+                                                        </p>
+                                                        <div class="button-group">
+                                                            <button type="button" onclick="deleteProductFromMailing({{ mailing_product.product_id }})">
+                                                                Удалить из рассылки
+                                                            </button>
+                                                            <input type="hidden" name="added_products_id[]" id="added-product-id" value="{{ mailing_product.product_id }}" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                    {% endfor %}
+
+                                </div>
+                            </div>
+
+                        </div>
+                        <label class="control-label mt-10" for="input-name">{{ entry_position_data_in_block }}</label>
+                        <input type="text" name="position_data_in_block" value="" placeholder="{{ entry_position_data_in_block }}" id="position-data-in-block" class="form-control"/>
+                    </div>
+                    <div class="tab-pane" id="tab-block-settings">
+                        <div class="form-group">
+                            <label class="col-sm-12 control-label" for="input-name">{{ entry_bg_block }}</label>
+                            <div class="col-sm-12">
+                                <input type="text" name="letter_theme" value="" placeholder="#000" id="input-name{{ language.language_id }}" class="form-control"/>
+                                <a href="" id="thumb-image" data-toggle="image" class="img-thumbnail mt-10">
+                                    <img src="{{ img_placeholder }}" alt="" title="" data-placeholder="{{ img_placeholder }}"/>
+                                </a>
+                                <input type="hidden" name="menu_item" value="" id="input-image{{ language.language_id }}"/>
+                            </div>
+
+                            <label class="col-sm-12 control-label mt-10" for="input-name">{{ entry_width_block }}</label>
+                            <div class="col-sm-6">
+                                <input type="text" name="letter_theme" value="" placeholder="25" id="input-name{{ language.language_id }}" class="form-control"/>
+                            </div>
+                            <div class="col-sm-6">
+                                <select name="" id="" class="form-control">
+                                    <option value="0">{{ text_pixels }}</option>
+                                    <option value="1">{{ text_percents }}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer add-data-modal-footer">
+                <button type="button" class="btn btn-secondary w-20 mt-10" data-dismiss="modal">{{ button_close }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade bd-example-modal-lg" id="settingsBlockModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ text_settings }}</h5>
+            </div>
+            <div class="modal-body">
+
+                <div class="form-group">
+                    <label class="col-sm-12 control-label" for="input-name">{{ entry_bg_block }}</label>
+                    <div class="col-sm-12">
+                        <input type="text" name="letter_theme" value="" placeholder="#000" id="input-name{{ language.language_id }}" class="form-control"/>
+                        <a href="" id="thumb-image" data-toggle="image" class="img-thumbnail mt-10">
+                            <img src="{{ img_placeholder }}" alt="" title="" data-placeholder="{{ img_placeholder }}"/>
+                        </a>
+                        <input type="hidden" name="menu_item" value="" id="input-image{{ language.language_id }}"/>
+                    </div>
+
+                    <label class="col-sm-12 control-label mt-10" for="input-name">{{ entry_width_block }}</label>
+                    <div class="col-sm-6">
+                        <input type="text" name="letter_theme" value="" placeholder="25" id="input-name{{ language.language_id }}" class="form-control"/>
+                    </div>
+                    <div class="col-sm-6">
+                        <select name="" id="" class="form-control">
+                            <option value="0">{{ text_pixels }}</option>
+                            <option value="1">{{ text_percents }}</option>
+                        </select>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="modal-footer add-data-modal-footer">
+                <button type="button" class="btn btn-secondary w-20 mt-10" data-dismiss="modal">{{ button_close }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
+    .modal-header {
+        text-align: center;
+    }
     .d-flex {
         display: flex;
     }
@@ -341,6 +556,15 @@
 <script type="text/javascript" src="view/javascript/summernote/opencart.js"></script>
 
 <script type="text/javascript">
+    $('button[data-tooltip="tooltip"]').tooltip()
+    $('.select-grid-field-inner-content-item').on('click', function () {
+        $('.select-grid-field').hide()
+        $('.add-block-field').show()
+    })
+    $('.add-block-field-button').on('click', function () {
+        $('.select-grid-field').show()
+        $('.add-block-field').hide()
+    })
     function dateAutoMailingClear() {
         $('#datePicker').val('')
     }

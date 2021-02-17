@@ -70,7 +70,7 @@ class ModelExtensionModuleMailing extends Model {
 
         $mailing_id = $this->db->getLastId();
 
-        $this->db->query("INSERT INTO " . DB_PREFIX . "mailing_description SET mailing_id = '" . (int)$mailing_id . "', language_id = '" . (int)1 . "', theme = '" . $this->db->escape($data['letter_theme']) . "', text = '" . $this->db->escape($data['letter_text']) . "'");
+        $this->db->query("INSERT INTO " . DB_PREFIX . "mailing_description SET mailing_id = '" . (int)$mailing_id . "', language_id = '" . (int)1 . "', theme = '" . $this->db->escape($data['letter_theme']) . "', text = ' '");
 
         if(isset($data['added_products_id'])) {
 			foreach ($data['added_products_id'] as $added_product_id) {
