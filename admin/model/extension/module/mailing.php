@@ -14,7 +14,6 @@ class ModelExtensionModuleMailing extends Model {
             `mailing_id` INT(11) NOT NULL,
             `language_id` INT(11) NOT NULL DEFAULT 1,
             `theme` VARCHAR(50) NOT NULL,
-            `text` TEXT NOT NULL,
             PRIMARY KEY (`mailing_id`)
 		) ENGINE=MyISAM DEFAULT COLLATE=utf8_general_ci;");
         $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "product_to_mailing` (
@@ -43,6 +42,30 @@ class ModelExtensionModuleMailing extends Model {
             `image` VARCHAR(255) NOT NULL,
             PRIMARY KEY (`id`)
 		) ENGINE=MyISAM DEFAULT COLLATE=utf8_general_ci;");
+        $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "mailing_blocks` (
+            `id` INT(11) NOT NULL AUTO_INCREMENT,
+            `mailing_id` INT(11) NOT NULL,
+            `grid_id` INT(11) NOT NULL,
+            `bg_color` VARCHAR(10) DEFAULT NULL,
+            `bg_image` VARCHAR(255) DEFAULT NULL,
+            `width` INT(11) DEFAULT NULL,
+            `width_type` VARCHAR(10) DEFAULT NULL,
+            `sort_ordinal` INT(11) DEFAULT NULL,
+            PRIMARY KEY (`id`)
+		) ENGINE=MyISAM DEFAULT COLLATE=utf8_general_ci;");
+        $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "mailing_blocks_data` (
+            `id` INT(11) NOT NULL AUTO_INCREMENT,
+            `block_id` INT(11) NOT NULL,
+            `col_id` INT(11) NOT NULL,
+            `text` TEXT DEFAULT NULL,
+            `text_ordinal` INT(11) DEFAULT NULL,
+            `products_ordinal` INT(11) DEFAULT NULL,
+            `bg_color` VARCHAR(10) DEFAULT NULL,
+            `bg_image` VARCHAR(255) DEFAULT NULL,
+            `width` INT(11) DEFAULT NULL,
+            `width_type` VARCHAR(10) NOT NULL,
+            PRIMARY KEY (`id`)
+		) ENGINE=MyISAM DEFAULT COLLATE=utf8_general_ci;");
         $this->db->query("INSERT INTO " . DB_PREFIX . "social_icons SET `icon_id` = '1', `name` = 'Facebook', `image` = 'social/facebook.png'");
         $this->db->query("INSERT INTO " . DB_PREFIX . "social_icons SET `icon_id` = '2', `name` = 'Instagram', `image` = 'social/instagram.png'");
         $this->db->query("INSERT INTO " . DB_PREFIX . "social_icons SET `icon_id` = '3', `name` = 'OK', `image` = 'social/odnoklassniki.png'");
@@ -57,6 +80,8 @@ class ModelExtensionModuleMailing extends Model {
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "mailing_social_links`");
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "customer_to_mailing`");
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "social_icons`");
+        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "mailing_blocks`");
+        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "mailing_blocks_data`");
 
         $this->log('Module uninstalled');
     }
@@ -70,7 +95,7 @@ class ModelExtensionModuleMailing extends Model {
 
         $mailing_id = $this->db->getLastId();
 
-        $this->db->query("INSERT INTO " . DB_PREFIX . "mailing_description SET mailing_id = '" . (int)$mailing_id . "', language_id = '" . (int)1 . "', theme = '" . $this->db->escape($data['letter_theme']) . "', text = ' '");
+        $this->db->query("INSERT INTO " . DB_PREFIX . "mailing_description SET mailing_id = '" . (int)$mailing_id . "', language_id = '" . (int)1 . "', theme = '" . $this->db->escape($data['letter_theme']) . "'");
 
         if(isset($data['added_products_id'])) {
 			foreach ($data['added_products_id'] as $added_product_id) {
@@ -101,7 +126,7 @@ class ModelExtensionModuleMailing extends Model {
         $this->db->query("UPDATE " . DB_PREFIX . "mailing SET `name` = '" . $this->db->escape($data['template_name']) . "', counter_letters = '" . $this->db->escape($data['count_letters']) . "', date_start = '" . $this->db->escape($data['date_automailing']) . "' WHERE mailing_id = '" . (int)$mailing_id . "'");
 
         $this->db->query("DELETE FROM " . DB_PREFIX . "mailing_description WHERE mailing_id = '" . (int)$mailing_id . "'");
-        $this->db->query("INSERT INTO " . DB_PREFIX . "mailing_description SET mailing_id = '" . (int)$mailing_id . "', language_id = '" . (int)1 . "', theme = '" . $this->db->escape($data['letter_theme']) . "', text = '" . $this->db->escape($data['letter_text']) . "'");
+        $this->db->query("INSERT INTO " . DB_PREFIX . "mailing_description SET mailing_id = '" . (int)$mailing_id . "', language_id = '" . (int)1 . "', theme = '" . $this->db->escape($data['letter_theme']) . "'");
 
         $this->db->query("DELETE FROM " . DB_PREFIX . "product_to_mailing WHERE mailing_id = '" . (int)$mailing_id . "'");
         if(isset($data['added_products_id'])) {
@@ -135,9 +160,54 @@ class ModelExtensionModuleMailing extends Model {
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_to_mailing WHERE mailing_id = '" . (int)$mailing_id . "'");
 		$this->db->query("DELETE FROM " . DB_PREFIX . "mailing_social_links WHERE mailing_id = '" . (int)$mailing_id . "'");
 		$this->db->query("DELETE FROM " . DB_PREFIX . "customer_to_mailing WHERE mailing_id = '" . (int)$mailing_id . "'");
+		$this->db->query("DELETE FROM " . DB_PREFIX . "mailing_blocks WHERE mailing_id = '" . (int)$mailing_id . "'");
 
 		$this->cache->delete('mailing');
 	}
+
+    public function addBlock($mailing_id, $grid_id) {
+        $this->db->query("INSERT INTO " . DB_PREFIX . "mailing_blocks SET `mailing_id` = '" . (int)$mailing_id . "', `grid_id` = '" . (int)$grid_id . "'");
+
+        $block_id = $this->db->getLastId();
+
+        $this->cache->delete('mailing_blocks');
+
+        return $block_id;
+    }
+
+    public function editBlock($block_id, $data) {
+        $this->db->query("UPDATE " . DB_PREFIX . "mailing_blocks SET `bg_color` = '" . $this->db->escape($data['bg_color']) . "', `bg_image` = '" . $this->db->escape($data['bg_image']) . "', `width` = '" . (int)$data['width'] . "', `width_type` = '" . $this->db->escape($data['width_type']) . "', `sort_ordinal` = '" . (int)$data['sort_ordinal'] . "' WHERE `id` = '" . (int)$block_id . "'");
+
+        $this->cache->delete('mailing_blocks');
+    }
+
+    public function deleteBlock($block_id) {
+        $this->db->query("DELETE FROM " . DB_PREFIX . "mailing_blocks WHERE `id` = '" . (int)$block_id . "'");
+
+        $this->cache->delete('mailing_blocks');
+    }
+
+    public function getBlocks($mailing_id) {
+        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "mailing_blocks WHERE `mailing_id` = '" . (int)$mailing_id . "' ORDER BY `id` ASC");
+
+        return $query->rows;
+    }
+
+    public function getBlock($block_id) {
+        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "mailing_blocks WHERE `id` = '" . (int)$block_id . "'");
+
+        return $query->row;
+    }
+
+    public function addBlockData($data) {
+        $this->db->query("INSERT INTO " . DB_PREFIX . "mailing_blocks_data SET `block_id` = '" . (int)$data['block_id'] . "', `col_id` = '" . (int)$data['col_id'] . "', `text` = '" . $this->db->escape($data['text']) . "', `text_ordinal` = '" . (int)$data['text_ordinal'] . "', `products_ordinal` = '" . (int)$data['products_ordinal'] . "', `bg_color` = '" . $this->db->escape($data['bg_color']) . "', `bg_image` = '" . $this->db->escape($data['bg_image']) . "', `width` = '" . (int)$data['width'] . "'`width_type` = '" . $this->db->escape($data['width_type']) . "'");
+
+        $block_data_id = $this->db->getLastId();
+
+        $this->cache->delete('mailing_blocks_data');
+
+        return $block_data_id;
+    }
 
     public function getMailings($data = array()) {
         $sql = "SELECT * FROM " . DB_PREFIX . "mailing m LEFT JOIN " . DB_PREFIX . "mailing_description md ON (m.mailing_id = md.mailing_id) WHERE md.language_id = '" . (int)$this->config->get('config_language_id') . "'";
@@ -212,7 +282,6 @@ class ModelExtensionModuleMailing extends Model {
 		foreach ($query->rows as $result) {
 			$mailing_description_data = array(
 				'letter_theme'     => $result['theme'],
-				'letter_text'      => $result['text'],
 			);
 		}
 

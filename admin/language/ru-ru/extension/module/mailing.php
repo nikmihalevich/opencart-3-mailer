@@ -45,11 +45,15 @@ $_['entry_letter_content']  = 'Содержимое письма';
 $_['entry_position_data_in_block'] = 'Позиция данных в блоке';
 $_['entry_bg_block']        = 'ФОН БЛОКА - Введите код цвета или Загрузите картинку';
 $_['entry_width_block']     = 'ШИРИНА БЛОКА';
+$_['entry_block_sort_ordinal']= 'СОРТИРОВКА ДАННЫХ В СПИСКЕ';
 
 // Tabs
 $_['tab_text_data']         = 'Текстовые данные';
 $_['tab_products']          = 'Товары';
 $_['tab_block_settings']    = 'Настройки блока';
+
+// Confirms
+$_['confirm_delete_block']  = 'Вы уверены, что хотите удалить этот блок?';
 
 // Columns
 $_['column_email']          = 'E-mail пользов.';

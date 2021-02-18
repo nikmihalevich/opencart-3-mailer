@@ -309,6 +309,9 @@ class ControllerExtensionModuleMailing extends Controller {
         
         if (isset($this->request->get['mailing_id']) && ($this->request->server['REQUEST_METHOD'] != 'POST')) {
 			$mailing_info = $this->model_extension_module_mailing->getMailing($this->request->get['mailing_id']);
+			$blocks_info  = $this->model_extension_module_mailing->getBlocks($this->request->get['mailing_id']);
+			$data['blocks'] = $blocks_info;
+//			var_dump($blocks_info);
 		}
 
         $data['user_token'] = $this->session->data['user_token'];
@@ -425,6 +428,53 @@ class ControllerExtensionModuleMailing extends Controller {
 		$data['footer'] = $this->load->controller('common/footer');
 
 		$this->response->setOutput($this->load->view('extension/module/mailing_form', $data));
+    }
+
+    public function addBlock() {
+        if(isset($this->request->get['mailing_id']) && isset($this->request->get['grid_id']) && $this->request->server['REQUEST_METHOD'] == 'POST') {
+            $this->load->model('extension/module/mailing');
+            $block_id = $this->model_extension_module_mailing->addBlock($this->request->get['mailing_id'], $this->request->get['grid_id']);
+            $this->response->addHeader('Content-Type: application/json');
+            $this->response->setOutput(json_encode($block_id));
+        }
+    }
+
+    public function editBlock() {
+        if(isset($this->request->get['block_id']) && $this->request->server['REQUEST_METHOD'] == 'POST') {
+            $this->load->model('extension/module/mailing');
+            $formData = $_POST['block'];
+
+            $this->model_extension_module_mailing->editBlock($this->request->get['block_id'], $formData);
+        }
+    }
+
+    public function deleteBlock() {
+        if(isset($this->request->get['block_id']) && $this->request->server['REQUEST_METHOD'] == 'POST') {
+            $this->load->model('extension/module/mailing');
+
+            $this->model_extension_module_mailing->deleteBlock($this->request->get['block_id']);
+        }
+    }
+
+    public function getBlock() {
+        if(isset($this->request->get['block_id']) && $this->request->server['REQUEST_METHOD'] == 'GET') {
+            $this->load->model('extension/module/mailing');
+
+            $block = $this->model_extension_module_mailing->getBlock($this->request->get['block_id']);
+            $this->response->addHeader('Content-Type: application/json');
+            $this->response->setOutput(json_encode($block));
+        }
+    }
+
+    public function addBlockData() {
+        if(isset($this->request->get['block_id']) && isset($this->request->get['col_id']) && $this->request->server['REQUEST_METHOD'] == 'POST') {
+            $this->load->model('extension/module/mailing');
+            var_dump($_POST);
+            // end this 
+//            $block_id = $this->model_extension_module_mailing->addBlock($this->request->get['mailing_id'], $this->request->get['grid_id']);
+//            $this->response->addHeader('Content-Type: application/json');
+//            $this->response->setOutput(json_encode($block_id));
+        }
     }
 
     public function getProducts() {

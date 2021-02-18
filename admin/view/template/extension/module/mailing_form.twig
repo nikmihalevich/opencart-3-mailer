@@ -109,8 +109,8 @@
     }
     .add-data-modal-footer {
         display: flex;
-        flex-direction: column;
-        align-items: center;
+        flex-direction: row;
+        justify-content: center;
         border: none;
     }
     .mt-10 {
@@ -181,27 +181,106 @@
                                 <label class="col-sm-2 control-label" for="input-name">{{ entry_letter_content }}</label>
                                 <div class="col-sm-12">
                                     {% if mailing.mailing_id %}
-                                        <div class="block-data-row">
-                                            <div class="block-data-inner col-sm-2">
-                                                <span>{{ text_add_data }}</span>
-                                                <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
-                                            </div>
-                                            <div class="block-data-inner col-sm-2">
-                                                <span>{{ text_add_data }}</span>
-                                                <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
-                                            </div>
-                                            <div class="block-data-inner col-sm-2">
-                                                <span>{{ text_add_data }}</span>
-                                                <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
-                                            </div>
-                                            <div class="block-data-inner col-sm-2">
-                                                <span>{{ text_add_data }}</span>
-                                                <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
-                                            </div>
-                                            <div class="block-data-buttons">
-                                                <button type="button" data-toggle="modal" data-target="#settingsBlockModal" data-tooltip="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></button>
-                                                <button type="button" data-tooltip="tooltip" title="{{ button_delete }}" class="btn btn-danger"><i class="fa fa-trash"></i></button>
-                                            </div>
+                                        <div class="block-data-rows">
+                                            {% for block in blocks %}
+                                                <div class="block-data-row" {% if block.bg_color %}style="background: {{ block.bg_color }};"{% endif%} data-block-id="{{ block.id }}">
+                                                    {% if block.grid_id == "1" %}
+                                                        <div class="block-data-inner col-sm-2">
+                                                            <span>{{ text_add_data }}</span>
+                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="1" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
+                                                        </div>
+                                                    {% elseif block.grid_id == "2" or block.grid_id == "5" or block.grid_id == "6" %}
+                                                        <div class="block-data-inner col-sm-2">
+                                                            <span>{{ text_add_data }}</span>
+                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="1" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
+                                                        </div>
+                                                        <div class="block-data-inner col-sm-2">
+                                                            <span>{{ text_add_data }}</span>
+                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="2" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
+                                                        </div>
+                                                    {% elseif block.grid_id == "3" or block.grid_id == "7" or block.grid_id == "8" or block.grid_id == "9" or block.grid_id == "12" %}
+                                                        <div class="block-data-inner col-sm-2">
+                                                            <span>{{ text_add_data }}</span>
+                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="1" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
+                                                        </div>
+                                                        <div class="block-data-inner col-sm-2">
+                                                            <span>{{ text_add_data }}</span>
+                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="2" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
+                                                        </div>
+                                                        <div class="block-data-inner col-sm-2">
+                                                            <span>{{ text_add_data }}</span>
+                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="3" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
+                                                        </div>
+                                                    {% elseif block.grid_id == "4" %}
+                                                        <div class="block-data-inner col-sm-2">
+                                                            <span>{{ text_add_data }}</span>
+                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="1" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
+                                                        </div>
+                                                        <div class="block-data-inner col-sm-2">
+                                                            <span>{{ text_add_data }}</span>
+                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="2" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
+                                                        </div>
+                                                        <div class="block-data-inner col-sm-2">
+                                                            <span>{{ text_add_data }}</span>
+                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="3" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
+                                                        </div>
+                                                        <div class="block-data-inner col-sm-2">
+                                                            <span>{{ text_add_data }}</span>
+                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="4" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
+                                                        </div>
+                                                    {% elseif block.grid_id == "10" %}
+                                                        <div class="block-data-inner col-sm-2">
+                                                            <span>{{ text_add_data }}</span>
+                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="1" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
+                                                        </div>
+                                                        <div class="block-data-inner col-sm-2">
+                                                            <span>{{ text_add_data }}</span>
+                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="2" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
+                                                        </div>
+                                                        <div class="block-data-inner col-sm-2">
+                                                            <span>{{ text_add_data }}</span>
+                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="3" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
+                                                        </div>
+                                                        <div class="block-data-inner col-sm-2">
+                                                            <span>{{ text_add_data }}</span>
+                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="4" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
+                                                        </div>
+                                                        <div class="block-data-inner col-sm-2">
+                                                            <span>{{ text_add_data }}</span>
+                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="5" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
+                                                        </div>
+                                                    {% elseif block.grid_id == "11" %}
+                                                        <div class="block-data-inner col-sm-2">
+                                                            <span>{{ text_add_data }}</span>
+                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="1" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
+                                                        </div>
+                                                        <div class="block-data-inner col-sm-2">
+                                                            <span>{{ text_add_data }}</span>
+                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="2" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
+                                                        </div>
+                                                        <div class="block-data-inner col-sm-2">
+                                                            <span>{{ text_add_data }}</span>
+                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="3" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
+                                                        </div>
+                                                        <div class="block-data-inner col-sm-2">
+                                                            <span>{{ text_add_data }}</span>
+                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="4" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
+                                                        </div>
+                                                        <div class="block-data-inner col-sm-2">
+                                                            <span>{{ text_add_data }}</span>
+                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="5" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
+                                                        </div>
+                                                        <div class="block-data-inner col-sm-2">
+                                                            <span>{{ text_add_data }}</span>
+                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="6" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
+                                                        </div>
+                                                    {% endif %}
+                                                    <div class="block-data-buttons">
+                                                        <button type="button" data-toggle="modal" data-target="#settingsBlockModal" data-tooltip="tooltip" title="{{ button_edit }}" data-block-id="{{ block.id }}" class="btn btn-primary edit-block-settings-btn"><i class="fa fa-pencil"></i></button>
+                                                        <button type="button" data-tooltip="tooltip" title="{{ button_delete }}" data-block-id="{{ block.id }}" class="btn btn-danger delete-block-btn"><i class="fa fa-trash"></i></button>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
                                         </div>
                                         <div class="add-block-field">
                                             <div class="add-block-field-button">
@@ -218,57 +297,57 @@
                                                 </div>
                                                 <div class="select-grid-field-inner-content">
                                                     <div class="select-grid-field-inner-content-row">
-                                                        <div class="select-grid-field-inner-content-item">
+                                                        <div class="select-grid-field-inner-content-item" data-grid-id="1">
                                                             <div class="gray-bg w-100"></div>
                                                         </div>
-                                                        <div class="select-grid-field-inner-content-item">
+                                                        <div class="select-grid-field-inner-content-item" data-grid-id="2">
                                                             <div class="gray-bg w-50"></div>
                                                             <div class="gray-bg w-50"></div>
                                                         </div>
-                                                        <div class="select-grid-field-inner-content-item">
+                                                        <div class="select-grid-field-inner-content-item" data-grid-id="3">
                                                             <div class="gray-bg w-33"></div>
                                                             <div class="gray-bg w-33"></div>
                                                             <div class="gray-bg w-33"></div>
                                                         </div>
-                                                        <div class="select-grid-field-inner-content-item">
+                                                        <div class="select-grid-field-inner-content-item" data-grid-id="4">
                                                             <div class="gray-bg w-25"></div>
                                                             <div class="gray-bg w-25"></div>
                                                             <div class="gray-bg w-25"></div>
                                                             <div class="gray-bg w-25"></div>
                                                         </div>
-                                                        <div class="select-grid-field-inner-content-item">
+                                                        <div class="select-grid-field-inner-content-item" data-grid-id="5">
                                                             <div class="gray-bg w-33"></div>
                                                             <div class="gray-bg w-66"></div>
                                                         </div>
-                                                        <div class="select-grid-field-inner-content-item">
+                                                        <div class="select-grid-field-inner-content-item" data-grid-id="6">
                                                             <div class="gray-bg w-66"></div>
                                                             <div class="gray-bg w-33"></div>
                                                         </div>
                                                     </div>
                                                     <div class="select-grid-field-inner-content-row">
-                                                        <div class="select-grid-field-inner-content-item">
+                                                        <div class="select-grid-field-inner-content-item" data-grid-id="7">
                                                             <div class="gray-bg w-25"></div>
                                                             <div class="gray-bg w-25"></div>
                                                             <div class="gray-bg w-25"></div>
                                                         </div>
-                                                        <div class="select-grid-field-inner-content-item">
+                                                        <div class="select-grid-field-inner-content-item" data-grid-id="8">
                                                             <div class="gray-bg w-50"></div>
                                                             <div class="gray-bg w-25"></div>
                                                             <div class="gray-bg w-25"></div>
                                                         </div>
-                                                        <div class="select-grid-field-inner-content-item">
+                                                        <div class="select-grid-field-inner-content-item" data-grid-id="9">
                                                             <div class="gray-bg w-25"></div>
                                                             <div class="gray-bg w-50"></div>
                                                             <div class="gray-bg w-25"></div>
                                                         </div>
-                                                        <div class="select-grid-field-inner-content-item">
+                                                        <div class="select-grid-field-inner-content-item" data-grid-id="10">
                                                             <div class="gray-bg w-20"></div>
                                                             <div class="gray-bg w-20"></div>
                                                             <div class="gray-bg w-20"></div>
                                                             <div class="gray-bg w-20"></div>
                                                             <div class="gray-bg w-20"></div>
                                                         </div>
-                                                        <div class="select-grid-field-inner-content-item">
+                                                        <div class="select-grid-field-inner-content-item" data-grid-id="11">
                                                             <div class="gray-bg w-16"></div>
                                                             <div class="gray-bg w-16"></div>
                                                             <div class="gray-bg w-16"></div>
@@ -276,7 +355,7 @@
                                                             <div class="gray-bg w-16"></div>
                                                             <div class="gray-bg w-16"></div>
                                                         </div>
-                                                        <div class="select-grid-field-inner-content-item">
+                                                        <div class="select-grid-field-inner-content-item" data-grid-id="12">
                                                             <div class="gray-bg w-16"></div>
                                                             <div class="gray-bg w-66"></div>
                                                             <div class="gray-bg w-16"></div>
@@ -395,9 +474,9 @@
                 <div class="tab-content">
                     <div class="tab-pane active" id="tab-text-data">
                         <div class="col-sm-12">
-                            <textarea name="letter_text" placeholder="{{ entry_description }}" id="input-description" data-toggle="summernote" data-lang="{{ summernote }}" class="form-control">{{ mailing_description.letter_text }}</textarea>
-                            <label class="pull-left control-label" for="input-name">{{ entry_position_data_in_block }}</label>
-                            <input type="text" name="position_data_in_block" value="" placeholder="{{ entry_position_data_in_block }}" id="position-data-in-block" class="form-control"/>
+                            <textarea name="block_data[text]" placeholder="{{ entry_description }}" id="input-block-data-text" data-toggle="summernote" data-lang="{{ summernote }}" class="form-control"></textarea>
+                            <label class="pull-left control-label" for="input-block-data-text-ordinal">{{ entry_position_data_in_block }}</label>
+                            <input type="text" name="block_data[text_ordinal]" value="" placeholder="{{ entry_position_data_in_block }}" id="input-block-data-text-ordinal" class="form-control"/>
                         </div>
                     </div>
                     <div class="tab-pane" id="tab-products">
@@ -459,26 +538,26 @@
                             </div>
 
                         </div>
-                        <label class="control-label mt-10" for="input-name">{{ entry_position_data_in_block }}</label>
-                        <input type="text" name="position_data_in_block" value="" placeholder="{{ entry_position_data_in_block }}" id="position-data-in-block" class="form-control"/>
+                        <label class="control-label mt-10" for="input-block-data-products-ordinal">{{ entry_position_data_in_block }}</label>
+                        <input type="text" name="block_data[products_ordinal]" value="" placeholder="{{ entry_position_data_in_block }}" id="input-block-data-products-ordinal" class="form-control"/>
                     </div>
                     <div class="tab-pane" id="tab-block-settings">
                         <div class="form-group">
-                            <label class="col-sm-12 control-label" for="input-name">{{ entry_bg_block }}</label>
+                            <label class="col-sm-12 control-label" for="input-block-data-bg-color">{{ entry_bg_block }}</label>
                             <div class="col-sm-12">
-                                <input type="text" name="letter_theme" value="" placeholder="#000" id="input-name{{ language.language_id }}" class="form-control"/>
-                                <a href="" id="thumb-image" data-toggle="image" class="img-thumbnail mt-10">
+                                <input type="text" name="block_data[bg_color]" value="" placeholder="#000" id="input-block-data-bg-color" class="form-control"/>
+                                <a href="" id="thumb-image1" data-toggle="image" class="img-thumbnail mt-10">
                                     <img src="{{ img_placeholder }}" alt="" title="" data-placeholder="{{ img_placeholder }}"/>
                                 </a>
-                                <input type="hidden" name="menu_item" value="" id="input-image{{ language.language_id }}"/>
+                                <input type="hidden" name="block_data[bg_image]" value="" id="input-image1"/>
                             </div>
 
-                            <label class="col-sm-12 control-label mt-10" for="input-name">{{ entry_width_block }}</label>
+                            <label class="col-sm-12 control-label mt-10" for="input-block-data-width">{{ entry_width_block }}</label>
                             <div class="col-sm-6">
-                                <input type="text" name="letter_theme" value="" placeholder="25" id="input-name{{ language.language_id }}" class="form-control"/>
+                                <input type="text" name="block_data[width]" value="" placeholder="25" id="input-block-data-width" class="form-control"/>
                             </div>
                             <div class="col-sm-6">
-                                <select name="" id="" class="form-control">
+                                <select name="block_data[width_type]" id="select-block-data-width-type" class="form-control">
                                     <option value="0">{{ text_pixels }}</option>
                                     <option value="1">{{ text_percents }}</option>
                                 </select>
@@ -488,7 +567,8 @@
                 </div>
             </div>
             <div class="modal-footer add-data-modal-footer">
-                <button type="button" class="btn btn-secondary w-20 mt-10" data-dismiss="modal">{{ button_close }}</button>
+                <button type="button" class="btn btn-info w-20 mt-10 add-block-data-modal-btn">{{ button_save }}</button>
+                <button type="button" class="btn btn-secondary w-20 mt-10" data-dismiss="modal">{{ button_cancel }}</button>
             </div>
         </div>
     </div>
@@ -503,31 +583,38 @@
             <div class="modal-body">
 
                 <div class="form-group">
-                    <label class="col-sm-12 control-label" for="input-name">{{ entry_bg_block }}</label>
+                    <label class="col-sm-12 control-label" for="input-block-bg-color">{{ entry_bg_block }}</label>
                     <div class="col-sm-12">
-                        <input type="text" name="letter_theme" value="" placeholder="#000" id="input-name{{ language.language_id }}" class="form-control"/>
-                        <a href="" id="thumb-image" data-toggle="image" class="img-thumbnail mt-10">
+                        <input type="text" name="block[bg_color]" value="" placeholder="#000 or black" id="input-block-bg-color" class="form-control"/>
+                    </div>
+                    <div class="col-sm-12">
+                        <a href="" id="thumb-image2" data-toggle="image" class="img-thumbnail mt-10">
                             <img src="{{ img_placeholder }}" alt="" title="" data-placeholder="{{ img_placeholder }}"/>
                         </a>
-                        <input type="hidden" name="menu_item" value="" id="input-image{{ language.language_id }}"/>
+                        <input type="hidden" name="block[bg_image]" value="" id="input-image2"/>
                     </div>
 
-                    <label class="col-sm-12 control-label mt-10" for="input-name">{{ entry_width_block }}</label>
+                    <label class="col-sm-12 control-label mt-10" for="input-block-width">{{ entry_width_block }}</label>
                     <div class="col-sm-6">
-                        <input type="text" name="letter_theme" value="" placeholder="25" id="input-name{{ language.language_id }}" class="form-control"/>
+                        <input type="text" name="block[width]" value="" placeholder="25" id="input-block-width" class="form-control"/>
                     </div>
                     <div class="col-sm-6">
-                        <select name="" id="" class="form-control">
+                        <select name="block[width_type]" id="select-block-width-type" class="form-control">
                             <option value="0">{{ text_pixels }}</option>
                             <option value="1">{{ text_percents }}</option>
                         </select>
+                    </div>
+                    <label class="col-sm-12 control-label mt-10" for="input-block-width">{{ entry_block_sort_ordinal }}</label>
+                    <div class="col-sm-12">
+                        <input type="text" name="block[sort_ordinal]" value="" placeholder="{{ entry_block_sort_ordinal }}" id="input-block-sort-ordinal" class="form-control"/>
                     </div>
                 </div>
 
 
             </div>
             <div class="modal-footer add-data-modal-footer">
-                <button type="button" class="btn btn-secondary w-20 mt-10" data-dismiss="modal">{{ button_close }}</button>
+                <button type="button" class="btn btn-info w-20 mt-10 edit-block-settings-modal-btn">{{ button_save }}</button>
+                <button type="button" class="btn btn-secondary w-20 mt-10" data-dismiss="modal">{{ button_cancel }}</button>
             </div>
         </div>
     </div>
@@ -558,16 +645,138 @@
 <script type="text/javascript">
     $('button[data-tooltip="tooltip"]').tooltip()
     $('.select-grid-field-inner-content-item').on('click', function () {
-        $('.select-grid-field').hide()
-        $('.add-block-field').show()
+        let grid_id = $(this).attr('data-grid-id');
+        $.ajax({
+            type: "POST",
+            url: 'index.php?route=extension/module/mailing/addBlock&mailing_id={{ mailing.mailing_id }}' + '&grid_id=' + grid_id + '&user_token={{ user_token }}',
+            success: function(block_id) {
+                $('.block-data-rows').append(BlockDataRowHTML(block_id, grid_id))
+                editBlockSettings()
+                deleteBlock()
+                $('.select-grid-field').hide()
+                $('.add-block-field').show()
+            }
+        })
     })
     $('.add-block-field-button').on('click', function () {
         $('.select-grid-field').show()
         $('.add-block-field').hide()
     })
+
+    // Save blocks row settings
+    $('.edit-block-settings-modal-btn').on('click', function () {
+        let block_id = $(this).attr('data-block-id')
+        $.ajax({
+            type: "POST",
+            dataType: 'html',
+            data: $( "#settingsBlockModal :input[name*='block']" ).serialize(),
+            url: 'index.php?route=extension/module/mailing/editBlock&block_id=' + block_id + '&user_token={{ user_token }}',
+            success: function (res) {
+                $('#settingsBlockModal').modal('hide')
+            }
+        })
+    })
     function dateAutoMailingClear() {
         $('#datePicker').val('')
     }
+    function BlockDataRowHTML(block_id, grid_id) {
+        let html = '';
+        let cols;
+
+        if(grid_id === "1") {
+            cols = 1;
+        } else if(grid_id === "2" || grid_id === "5" || grid_id === "6") {
+            cols = 2;
+        } else if(grid_id === "3" || grid_id === "7" || grid_id === "8" || grid_id === "9" || grid_id === "12") {
+            cols = 3;
+        } else if(grid_id === "4") {
+            cols = 4;
+        } else if(grid_id === "10") {
+            cols = 5;
+        } else if(grid_id === "11") {
+            cols = 6;
+        }
+
+        html += '<div class="block-data-row" data-block-id="' + block_id + '">'
+
+        for (let i = 0; i < cols; i++) {
+            html += '<div class="block-data-inner col-sm-2">\n' +
+                        '<span>{{ text_add_data }}</span>\n' +
+                        '<button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" class="btn btn-success pull-right add-block-data-btn" data-col-id="' + (i + 1) + '"><i class="fa fa-plus"></i></button>\n' +
+                    '</div>'
+        }
+
+        html += '<div class="block-data-buttons">\n' +
+                    '<button type="button" data-toggle="modal" data-target="#settingsBlockModal" data-tooltip="tooltip" title="{{ button_edit }}" data-block-id="' + block_id + '" class="btn btn-primary edit-block-settings-btn"><i class="fa fa-pencil"></i></button>\n' +
+                    '<button type="button" data-tooltip="tooltip" title="{{ button_delete }}" data-block-id="' + block_id + '" class="btn btn-danger delete-block-btn"><i class="fa fa-trash"></i></button>\n' +
+                '</div>'
+        html += '</div>'
+
+        return html;
+    }
+    editBlockSettings()
+    function editBlockSettings() {
+        $('.edit-block-settings-btn').unbind('click');
+        $('.edit-block-settings-btn').on('click', function () {
+            let block_id = $(this).attr('data-block-id')
+            $('.edit-block-settings-modal-btn').attr('data-block-id', block_id)
+            $.ajax({
+                type: "GET",
+                url: 'index.php?route=extension/module/mailing/getBlock&block_id=' + block_id + '&user_token={{ user_token }}',
+                success: function(response) {
+                    let keys = Object.keys(response)
+                    for (let i = 0; i < keys.length; i++) {
+                        $( ":input[name='block[" + keys[i] + "]']" ).val(response[keys[i]])
+                    }
+                }
+            })
+        })
+    }
+    deleteBlock()
+    function deleteBlock() {
+        $('.delete-block-btn').unbind('click');
+        $('.delete-block-btn').on('click', function () {
+            let block_id = $(this).attr('data-block-id')
+            let blockRow = $(this).parents('.block-data-row')
+            if (confirm("{{ confirm_delete_block }}")) {
+                $.ajax({
+                    type: "POST",
+                    url: 'index.php?route=extension/module/mailing/deleteBlock&block_id=' + block_id + '&user_token={{ user_token }}',
+                    success: function() {
+                        blockRow.remove()
+                    }
+                })
+            }
+        })
+    }
+
+    addBlockData()
+    function addBlockData() {
+        $('.add-block-data-btn').unbind('click');
+        $('.add-block-data-btn').on('click', function () {
+            let block_id = $(this).parents('.block-data-row').attr('data-block-id')
+            let col_id   = $(this).attr('data-col-id')
+            $('.add-block-data-modal-btn').attr('data-block-id', block_id)
+            $('.add-block-data-modal-btn').attr('data-col-id', col_id)
+            console.log()
+        })
+    }
+
+    // Save block data
+    $('.add-block-data-modal-btn').on('click', function () {
+        let block_id = $(this).attr('data-block-id')
+        let col_id = $(this).attr('data-col-id')
+        console.log($( "#addBlockDataModal :input" ).serializeArray())
+        $.ajax({
+            type: "POST",
+            dataType: 'html',
+            data: $( "#addBlockDataModal :input" ).serialize(),
+            url: 'index.php?route=extension/module/mailing/addBlockData&block_id=' + block_id + '&col_id=' + col_id + '&user_token={{ user_token }}',
+            success: function (res) {
+                $('#addBlockDataModal').modal('hide')
+            }
+        })
+    })
 
     let sel, selects = [];
     let flag = true;
