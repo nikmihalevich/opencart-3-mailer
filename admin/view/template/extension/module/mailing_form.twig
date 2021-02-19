@@ -5,6 +5,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        position: relative;
     }
     .add-block-field-button, .select-grid-field-inner {
         display: flex;
@@ -38,6 +39,15 @@
     .select-grid-field-inner-content {
         width: 100%;
     }
+    .close-select-gid-field {
+        border: none;
+        background: none;
+        position: absolute;
+        font-size: 35px;
+        top: 10%;
+        right: 5%;
+        outline: none;
+    }
     .gray-bg {
         background-color: gray;
         height: 50px;
@@ -69,18 +79,23 @@
     }
     .w-50 {
         width: 50%;
+        float: left;
     }
     .w-33 {
         width: 33.33333%;
+        float: left;
     }
     .w-25 {
         width: 25%;
+        float: left;
     }
     .w-20 {
         width: 20%;
+        float: left;
     }
     .w-16 {
         width: 16.66666%;
+        float: left;
     }
     .block-data-row {
         margin-top: 50px;
@@ -115,6 +130,39 @@
     }
     .mt-10 {
         margin-top: 10px;
+    }
+    .block-data-table {
+        position: relative;
+    }
+    .overlay {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 100%;
+        width: 100%;
+        opacity: 0;
+        transition: .3s ease;
+        background-color: black;
+    }
+    .block-data-table:hover .overlay {
+        opacity: 0.5;
+    }
+    .overlay-buttons {
+        opacity: 0;
+        color: white;
+        font-size: 100px;
+        position: absolute;
+        top: 35%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
+        text-align: center;
+        transition: .3s ease;
+    }
+    .block-data-table:hover .overlay-buttons {
+        opacity: 1;
     }
 </style>
 {{ column_left }}
@@ -183,34 +231,110 @@
                                     {% if mailing.mailing_id %}
                                         <div class="block-data-rows">
                                             {% for block in blocks %}
-                                                <div class="block-data-row" {% if block.bg_color %}style="background: {{ block.bg_color }};"{% endif%} data-block-id="{{ block.id }}">
+                                                <div class="block-data-row" style="{% if block.bg_color %}background: {{ block.bg_color }};{% endif%} border: 1px solid #dadada;" data-block-id="{{ block.id }}">
                                                     {% if block.grid_id == "1" %}
-                                                        <div class="block-data-inner col-sm-2">
-                                                            <span>{{ text_add_data }}</span>
-                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="1" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
-                                                        </div>
+                                                        {% if block.blocks_data %}
+                                                            {% for block_data in block.blocks_data %}
+                                                                <table class="w-100 block-data-table">
+                                                                    <tr>
+                                                                        <td>
+                                                                            <div class="overlay"></div>
+                                                                            <div class="overlay-buttons">
+                                                                                <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_edit }}" data-block-data-id="{{ block_data.id }}" class="btn btn-primary edit-block-data-btn"><i class="fa fa-pencil"></i></button>
+                                                                                <button type="button" data-tooltip="tooltip" title="{{ button_delete }}" data-block-data-id="{{ block_data.id }}" class="btn btn-danger delete-block-data-btn"><i class="fa fa-trash"></i></button>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>
+                                                                            {{ block_data.text }}
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            {% endfor %}
+                                                        {% else %}
+                                                            <div class="block-data-inner col-sm-2">
+                                                                <span>{{ text_add_data }}</span>
+                                                                <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="1" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
+                                                            </div>
+                                                        {% endif %}
+
                                                     {% elseif block.grid_id == "2" or block.grid_id == "5" or block.grid_id == "6" %}
-                                                        <div class="block-data-inner col-sm-2">
-                                                            <span>{{ text_add_data }}</span>
-                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="1" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
-                                                        </div>
-                                                        <div class="block-data-inner col-sm-2">
-                                                            <span>{{ text_add_data }}</span>
-                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="2" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
-                                                        </div>
+                                                        {% if block.blocks_data %}
+                                                            <table class="w-100" cellspacing="0" cellpadding="0" >
+                                                                <tr>
+                                                                    <td class="w-100">
+                                                                        {% for block_data in block.blocks_data %}
+                                                                            <table class="w-50 block-data-table" cellspacing="0" cellpadding="0">
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <div class="overlay"></div>
+                                                                                        <div class="overlay-buttons">
+                                                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_edit }}" data-block-data-id="{{ block_data.id }}" class="btn btn-primary edit-block-settings-btn"><i class="fa fa-pencil"></i></button>
+                                                                                            <button type="button" data-tooltip="tooltip" title="{{ button_delete }}" data-block-data-id="{{ block_data.id }}" class="btn btn-danger delete-block-btn"><i class="fa fa-trash"></i></button>
+                                                                                        </div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        {{ block_data.text }}
+                                                                                    </td>
+                                                                                </tr>
+                                                                            </table>
+                                                                        {% endfor %}
+                                                                    </td>
+                                                                </tr>
+                                                            </table>
+                                                        {% else %}
+                                                            <div class="block-data-inner col-sm-2">
+                                                                <span>{{ text_add_data }}</span>
+                                                                <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="1" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
+                                                            </div>
+                                                            <div class="block-data-inner col-sm-2">
+                                                                <span>{{ text_add_data }}</span>
+                                                                <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="2" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
+                                                            </div>
+                                                        {% endif %}
                                                     {% elseif block.grid_id == "3" or block.grid_id == "7" or block.grid_id == "8" or block.grid_id == "9" or block.grid_id == "12" %}
-                                                        <div class="block-data-inner col-sm-2">
-                                                            <span>{{ text_add_data }}</span>
-                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="1" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
-                                                        </div>
-                                                        <div class="block-data-inner col-sm-2">
-                                                            <span>{{ text_add_data }}</span>
-                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="2" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
-                                                        </div>
-                                                        <div class="block-data-inner col-sm-2">
-                                                            <span>{{ text_add_data }}</span>
-                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="3" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
-                                                        </div>
+                                                        {% if block.blocks_data %}
+                                                            <table class="w-100" cellspacing="0" cellpadding="0" >
+                                                                <tr>
+                                                                    <td class="w-100">
+                                                                        {% for block_data in block.blocks_data %}
+                                                                            <table class="{% if block.grid_id == "3" %}w-33{% endif%} block-data-table" cellspacing="0" cellpadding="0">
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <div class="overlay"></div>
+                                                                                        <div class="overlay-buttons">
+                                                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_edit }}" data-block-data-id="{{ block_data.id }}" class="btn btn-primary edit-block-settings-btn"><i class="fa fa-pencil"></i></button>
+                                                                                            <button type="button" data-tooltip="tooltip" title="{{ button_delete }}" data-block-data-id="{{ block_data.id }}" class="btn btn-danger delete-block-btn"><i class="fa fa-trash"></i></button>
+                                                                                        </div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        {{ block_data.text }}
+                                                                                    </td>
+                                                                                </tr>
+                                                                            </table>
+                                                                        {% endfor %}
+                                                                    </td>
+                                                                </tr>
+                                                            </table>
+                                                        {% else %}
+                                                            <div class="block-data-inner col-sm-2">
+                                                                <span>{{ text_add_data }}</span>
+                                                                <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="1" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
+                                                            </div>
+                                                            <div class="block-data-inner col-sm-2">
+                                                                <span>{{ text_add_data }}</span>
+                                                                <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="2" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
+                                                            </div>
+                                                            <div class="block-data-inner col-sm-2">
+                                                                <span>{{ text_add_data }}</span>
+                                                                <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="3" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
+                                                            </div>
+                                                        {% endif %}
                                                     {% elseif block.grid_id == "4" %}
                                                         <div class="block-data-inner col-sm-2">
                                                             <span>{{ text_add_data }}</span>
@@ -282,7 +406,7 @@
                                                 </div>
                                             {% endfor %}
                                         </div>
-                                        <div class="add-block-field">
+                                        <div class="add-block-field mt-10">
                                             <div class="add-block-field-button">
                                                 <div class="add-block-field-button-icon">
                                                     <i class="fa fa-plus"></i>
@@ -362,6 +486,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
+                                                <button type="button" class="close-select-gid-field">&times;</button>
                                             </div>
                                         </div>
                                     {% else %}
@@ -651,6 +776,7 @@
             url: 'index.php?route=extension/module/mailing/addBlock&mailing_id={{ mailing.mailing_id }}' + '&grid_id=' + grid_id + '&user_token={{ user_token }}',
             success: function(block_id) {
                 $('.block-data-rows').append(BlockDataRowHTML(block_id, grid_id))
+                addBlockData()
                 editBlockSettings()
                 deleteBlock()
                 $('.select-grid-field').hide()
@@ -661,6 +787,10 @@
     $('.add-block-field-button').on('click', function () {
         $('.select-grid-field').show()
         $('.add-block-field').hide()
+    })
+    $('.close-select-gid-field').on('click', function () {
+        $('.select-grid-field').hide()
+        $('.add-block-field').show()
     })
 
     // Save blocks row settings
@@ -758,24 +888,70 @@
             let col_id   = $(this).attr('data-col-id')
             $('.add-block-data-modal-btn').attr('data-block-id', block_id)
             $('.add-block-data-modal-btn').attr('data-col-id', col_id)
-            console.log()
+        })
+    }
+
+    editBlockData()
+    function editBlockData() {
+        $('.edit-block-data-btn').unbind('click');
+        $('.edit-block-data-btn').on('click', function () {
+            let block_data_id = $(this).attr('data-block-data-id')
+            $('.add-block-data-modal-btn').attr('data-block-data-id', block_data_id)
+            $.ajax({
+                type: "GET",
+                url: 'index.php?route=extension/module/mailing/getBlockData&block_data_id=' + block_data_id + '&user_token={{ user_token }}',
+                success: function(response) {
+                    console.log(response)
+                    let keys = Object.keys(response)
+                    for (let i = 0; i < keys.length; i++) {
+                        $( ":input[name='block_data[" + keys[i] + "]']" ).val(response[keys[i]])
+                        $('.summernote').eq(1).summernote('code')
+                        $('#input-block-data-text').summernote("code", response['text']);
+                    }
+                }
+            })
+        })
+    }
+
+    deleteBlockData()
+    function deleteBlockData() {
+        $('.delete-block-data-btn').unbind('click');
+        $('.delete-block-data-btn').on('click', function () {
+            let block_data_id = $(this).attr('data-block-data-id')
+            if (confirm("{{ confirm_delete_block_data }}")) {
+                $.ajax({
+                    type: "POST",
+                    url: 'index.php?route=extension/module/mailing/deleteBlockData&block_data_id=' + block_data_id + '&user_token={{ user_token }}',
+                    success: function() {
+
+                    }
+                })
+            }
         })
     }
 
     // Save block data
     $('.add-block-data-modal-btn').on('click', function () {
         let block_id = $(this).attr('data-block-id')
+        let block_data_id = $(this).attr('data-block-data-id')
         let col_id = $(this).attr('data-col-id')
-        console.log($( "#addBlockDataModal :input" ).serializeArray())
-        $.ajax({
-            type: "POST",
-            dataType: 'html',
-            data: $( "#addBlockDataModal :input" ).serialize(),
-            url: 'index.php?route=extension/module/mailing/addBlockData&block_id=' + block_id + '&col_id=' + col_id + '&user_token={{ user_token }}',
-            success: function (res) {
-                $('#addBlockDataModal').modal('hide')
-            }
-        })
+        let that = $(this)
+        if (block_data_id) {
+            console.log($( "#addBlockDataModal :input" ).serializeArray())
+        } else {
+            {#$.ajax({#}
+            {#    type: "POST",#}
+            {#    dataType: 'html',#}
+            {#    data: $( "#addBlockDataModal :input" ).serialize(),#}
+            {#    url: 'index.php?route=extension/module/mailing/addBlockData&block_id=' + block_id + '&col_id=' + col_id + '&user_token={{ user_token }}',#}
+            {#    success: function (res) {#}
+            {#        $('#addBlockDataModal').modal('hide')#}
+            {#        that.removeAttr('data-block-id')#}
+            {#        that.removeAttr('data-block-data-id')#}
+            {#        that.removeAttr('data-col-id')#}
+            {#    }#}
+            {#})#}
+        }
     })
 
     let sel, selects = [];

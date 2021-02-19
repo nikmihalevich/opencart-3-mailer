@@ -19,7 +19,7 @@ class ModelExtensionModuleMailing extends Model {
         $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "product_to_mailing` (
             `id` INT(11) NOT NULL AUTO_INCREMENT,
             `product_id` INT(11) NOT NULL,
-            `mailing_id` INT(11) NOT NULL,
+            `block_data_id` INT(11) NOT NULL,
             PRIMARY KEY (`id`)
 		) ENGINE=MyISAM DEFAULT COLLATE=utf8_general_ci;");
         $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "mailing_social_links` (
@@ -128,13 +128,6 @@ class ModelExtensionModuleMailing extends Model {
         $this->db->query("DELETE FROM " . DB_PREFIX . "mailing_description WHERE mailing_id = '" . (int)$mailing_id . "'");
         $this->db->query("INSERT INTO " . DB_PREFIX . "mailing_description SET mailing_id = '" . (int)$mailing_id . "', language_id = '" . (int)1 . "', theme = '" . $this->db->escape($data['letter_theme']) . "'");
 
-        $this->db->query("DELETE FROM " . DB_PREFIX . "product_to_mailing WHERE mailing_id = '" . (int)$mailing_id . "'");
-        if(isset($data['added_products_id'])) {
-            foreach ($data['added_products_id'] as $added_product_id) {
-                $this->db->query("INSERT INTO " . DB_PREFIX . "product_to_mailing SET product_id = '" . (int)$added_product_id . "', mailing_id = '" . (int)$mailing_id . "'");
-            }
-        }
-
         $this->db->query("DELETE FROM " . DB_PREFIX . "mailing_social_links WHERE mailing_id = '" . (int)$mailing_id . "'");
         if(isset($data['social_link'])) {
             foreach ($data['social_link'] as $key => $value) {
@@ -166,7 +159,10 @@ class ModelExtensionModuleMailing extends Model {
 	}
 
     public function addBlock($mailing_id, $grid_id) {
-        $this->db->query("INSERT INTO " . DB_PREFIX . "mailing_blocks SET `mailing_id` = '" . (int)$mailing_id . "', `grid_id` = '" . (int)$grid_id . "'");
+        $query = $this->db->query("SELECT MAX(`sort_ordinal`) as max_ordinal FROM " . DB_PREFIX . "mailing_blocks WHERE `mailing_id` = '" . (int)$mailing_id . "'");
+        $max_ordinal = (int)$query->row['max_ordinal'] + 1;
+
+        $this->db->query("INSERT INTO " . DB_PREFIX . "mailing_blocks SET `mailing_id` = '" . (int)$mailing_id . "', `grid_id` = '" . (int)$grid_id . "', `sort_ordinal` = '" . $max_ordinal . "'");
 
         $block_id = $this->db->getLastId();
 
@@ -200,13 +196,51 @@ class ModelExtensionModuleMailing extends Model {
     }
 
     public function addBlockData($data) {
-        $this->db->query("INSERT INTO " . DB_PREFIX . "mailing_blocks_data SET `block_id` = '" . (int)$data['block_id'] . "', `col_id` = '" . (int)$data['col_id'] . "', `text` = '" . $this->db->escape($data['text']) . "', `text_ordinal` = '" . (int)$data['text_ordinal'] . "', `products_ordinal` = '" . (int)$data['products_ordinal'] . "', `bg_color` = '" . $this->db->escape($data['bg_color']) . "', `bg_image` = '" . $this->db->escape($data['bg_image']) . "', `width` = '" . (int)$data['width'] . "'`width_type` = '" . $this->db->escape($data['width_type']) . "'");
+        $this->db->query("INSERT INTO " . DB_PREFIX . "mailing_blocks_data SET `block_id` = '" . (int)$data['block_id'] . "', `col_id` = '" . (int)$data['col_id'] . "', `text` = '" . $this->db->escape($data['block_data']['text']) . "', `text_ordinal` = '" . (int)$data['block_data']['text_ordinal'] . "', `products_ordinal` = '" . (int)$data['block_data']['products_ordinal'] . "', `bg_color` = '" . $this->db->escape($data['block_data']['bg_color']) . "', `bg_image` = '" . $this->db->escape($data['block_data']['bg_image']) . "', `width` = '" . (int)$data['block_data']['width'] . "', `width_type` = '" . $this->db->escape($data['block_data']['width_type']) . "'");
 
         $block_data_id = $this->db->getLastId();
 
+//        $this->db->query("DELETE FROM " . DB_PREFIX . "product_to_mailing WHERE mailing_id = '" . (int)$mailing_id . "'");
+        if(isset($data['added_products_id'])) {
+            foreach ($data['added_products_id'] as $added_product_id) {
+                $this->db->query("INSERT INTO " . DB_PREFIX . "product_to_mailing SET product_id = '" . (int)$added_product_id . "', block_data_id = '" . (int)$block_data_id . "'");
+            }
+        }
+
         $this->cache->delete('mailing_blocks_data');
+        $this->cache->delete('product_to_mailing');
 
         return $block_data_id;
+    }
+
+    public function deleteBlockData($block_data_id) {
+        $this->db->query("DELETE FROM " . DB_PREFIX . "mailing_blocks_data WHERE `id` = '" . (int)$block_data_id . "'");
+
+        $this->cache->delete('mailing_blocks_data');
+    }
+
+    public function getBlockData($block_id) {
+        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "mailing_blocks_data WHERE `block_id` = '" . (int)$block_id . "'");
+
+        $block_data_info = $query->rows;
+
+        foreach ($block_data_info as $k => $block_data) {
+            $query2 = $this->db->query("SELECT `product_id` FROM " . DB_PREFIX . "product_to_mailing WHERE `block_data_id` = '" . (int)$block_data['id'] . "'");
+            $block_data_info[$k]['products'] = $query2->rows;
+        }
+
+        return $block_data_info;
+    }
+
+    public function getBlockDataByBlockDataId($block_data_id) {
+        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "mailing_blocks_data WHERE `id` = '" . (int)$block_data_id . "'");
+
+        $block_data_info = $query->row;
+
+        $query2 = $this->db->query("SELECT `product_id` FROM " . DB_PREFIX . "product_to_mailing WHERE `block_data_id` = '" . (int)$block_data_id . "'");
+        $block_data_info['products'] = $query2->rows;
+
+        return $block_data_info;
     }
 
     public function getMailings($data = array()) {

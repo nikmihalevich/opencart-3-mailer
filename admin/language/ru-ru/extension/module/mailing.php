@@ -54,6 +54,7 @@ $_['tab_block_settings']    = 'Настройки блока';
 
 // Confirms
 $_['confirm_delete_block']  = 'Вы уверены, что хотите удалить этот блок?';
+$_['confirm_delete_block_data'] = 'Вы уверены, что хотите удалить эти данные?';
 
 // Columns
 $_['column_email']          = 'E-mail пользов.';
