@@ -179,12 +179,14 @@ class ModelExtensionModuleMailing extends Model {
 
     public function deleteBlock($block_id) {
         $this->db->query("DELETE FROM " . DB_PREFIX . "mailing_blocks WHERE `id` = '" . (int)$block_id . "'");
+        $this->db->query("DELETE FROM " . DB_PREFIX . "mailing_blocks_data WHERE `block_id` = '" . (int)$block_id . "'");
 
         $this->cache->delete('mailing_blocks');
+        $this->cache->delete('mailing_blocks_data');
     }
 
     public function getBlocks($mailing_id) {
-        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "mailing_blocks WHERE `mailing_id` = '" . (int)$mailing_id . "' ORDER BY `id` ASC");
+        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "mailing_blocks WHERE `mailing_id` = '" . (int)$mailing_id . "' ORDER BY `sort_ordinal` ASC");
 
         return $query->rows;
     }
@@ -211,6 +213,20 @@ class ModelExtensionModuleMailing extends Model {
         $this->cache->delete('product_to_mailing');
 
         return $block_data_id;
+    }
+
+    public function editBlockData($data) {
+        $this->db->query("UPDATE " . DB_PREFIX . "mailing_blocks_data SET `text` = '" . $this->db->escape($data['block_data']['text']) . "', `text_ordinal` = '" . (int)$data['block_data']['text_ordinal'] . "', `products_ordinal` = '" . (int)$data['block_data']['products_ordinal'] . "', `bg_color` = '" . $this->db->escape($data['block_data']['bg_color']) . "', `bg_image` = '" . $this->db->escape($data['block_data']['bg_image']) . "', `width` = '" . (int)$data['block_data']['width'] . "', `width_type` = '" . $this->db->escape($data['block_data']['width_type']) . "' WHERE `id` = '" . (int)$data['block_data_id'] . "'");
+
+        $this->db->query("DELETE FROM " . DB_PREFIX . "product_to_mailing WHERE `block_data_id` = '" . (int)$data['block_data_id'] . "'");
+        if(isset($data['added_products_id'])) {
+            foreach ($data['added_products_id'] as $added_product_id) {
+                $this->db->query("INSERT INTO " . DB_PREFIX . "product_to_mailing SET product_id = '" . (int)$added_product_id . "', block_data_id = '" . (int)$data['block_data_id'] . "'");
+            }
+        }
+
+        $this->cache->delete('mailing_blocks_data');
+        $this->cache->delete('product_to_mailing');
     }
 
     public function deleteBlockData($block_data_id) {

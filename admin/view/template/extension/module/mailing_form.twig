@@ -164,6 +164,12 @@
     .block-data-table:hover .overlay-buttons {
         opacity: 1;
     }
+    .added-product-image img {
+        height: auto;
+        width: auto;
+        max-width: 100px;
+        max-height: 100px;
+    }
 </style>
 {{ column_left }}
 <div id="content">
@@ -231,16 +237,118 @@
                                     {% if mailing.mailing_id %}
                                         <div class="block-data-rows">
                                             {% for block in blocks %}
-                                                <div class="block-data-row" style="{% if block.bg_color %}background: {{ block.bg_color }};{% endif%} border: 1px solid #dadada;" data-block-id="{{ block.id }}">
+                                                <div class="block-data-row" style="{% if block.width != "0" %}margin: 50px auto 0; max-width: 100%; width: {{ block.width }}{% if block.width_type == "0" %}px{% else %}%{% endif %};{% endif %} {% if block.bg_image %}background: no-repeat url('{{ block.background_image }}') {{ block.bg_color }};{% endif %} border: 1px solid #dadada;" data-block-id="{{ block.id }}">
                                                     {% if block.grid_id == "1" %}
                                                         {% if block.blocks_data %}
                                                             {% for block_data in block.blocks_data %}
-                                                                <table class="w-100 block-data-table">
+                                                                <table class="w-100 block-data-table" data-col-id="{{ block_data.col_id }}" style="{% if block_data.bg_color %}background: {{ block_data.bg_color }};{% endif %} {% if block_data.width %}width: {{ block_data.width }}{% if block_data.width_type == "0" %}px{% else %}%{% endif %}; margin: 0 auto;{% endif %} ">
+                                                                    {% if block_data.text_ordinal <= block_data.products_ordinal %}
+                                                                        {% if block_data.text %}
+                                                                            <tr>
+                                                                                <td>
+                                                                                    {{ block_data.text }}
+                                                                                </td>
+                                                                            </tr>
+                                                                        {% endif %}
+                                                                        {% if block_data.products %}
+                                                                            <tr>
+                                                                                <td style="display:flex; justify-content:center; text-align: center">
+
+                                                                                    {% for product in block_data.products %}
+
+                                                                                        <table data-product-id="{{ product.product_id }}" class="product-layout product-list col-sm-3 col-xs-12" style="margin-left: 15px; margin-top: 15px; padding: 10px; width: fit-content;">
+                                                                                            <tr>
+                                                                                                <td class="added-product-image">
+                                                                                                    {% if product.image %}
+                                                                                                        <img src="{{ product.thumb }}" alt="{{ product.name }}" title="{{ product.name }}" class="img-responsive" />
+                                                                                                    {% else %}
+                                                                                                        <img src="/image/cache/no_image-100x100.png" alt="{{ product.name }}" title="{{ product.name }}" class="img-responsive" />
+                                                                                                    {% endif %}
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                            <tr>
+                                                                                                <td class="caption">
+                                                                                                    <p>{{ product.name }}</p>
+                                                                                                    <p class="price">{{ product.price}}</p>
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                        </table>
+
+                                                                                    {% endfor %}
+
+                                                                                </td>
+                                                                            </tr>
+                                                                        {% endif %}
+                                                                    {% else %}
+                                                                        {% if block_data.products %}
+                                                                            <tr>
+                                                                                <td style="display:flex; justify-content:center; text-align: center">
+
+                                                                                    {% for product in block_data.products %}
+
+                                                                                        <div data-product-id="{{ product.product_id }}" class="product-layout product-list col-sm-3 col-xs-12" style="margin-left: 15px; margin-top: 15px; padding: 10px; width: fit-content;">
+                                                                                            <div class="product-thumb">
+                                                                                                <div class="image">
+                                                                                                    {% if product.image %}
+                                                                                                        <img src="/image/{{ product.image }}" alt="{{ product.name }}" title="{{ product.name }}" class="img-responsive" />
+                                                                                                    {% else %}
+                                                                                                        <img src="/image/cache/no_image-100x100.png" alt="{{ product.name }}" title="{{ product.name }}" class="img-responsive" />
+                                                                                                    {% endif %}
+                                                                                                </div>
+                                                                                                <div>
+                                                                                                    <div class="caption">
+                                                                                                        <p>{{ product.name }}</p>
+                                                                                                        <p class="price">
+                                                                                                            {{ product.price}}
+                                                                                                        </p>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+
+                                                                                    {% endfor %}
+
+                                                                                </td>
+                                                                            </tr>
+                                                                        {% endif %}
+                                                                        {% if block_data.text %}
+                                                                            <tr>
+                                                                                <td>
+                                                                                    <div>
+                                                                                        {{ block_data.text }}
+                                                                                    </div>
+                                                                                </td>
+                                                                            </tr>
+                                                                        {% endif %}
+                                                                    {% endif %}
                                                                     <tr>
                                                                         <td>
                                                                             <div class="overlay"></div>
                                                                             <div class="overlay-buttons">
                                                                                 <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_edit }}" data-block-data-id="{{ block_data.id }}" class="btn btn-primary edit-block-data-btn"><i class="fa fa-pencil"></i></button>
+                                                                                <button type="button" data-tooltip="tooltip" title="{{ button_delete }}" data-block-data-id="{{ block_data.id }}" class="btn btn-danger delete-block-data-btn"><i class="fa fa-trash"></i></button>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+
+                                                            {% endfor %}
+                                                        {% else %}
+                                                            <div class="block-data-inner col-sm-2">
+                                                                <span>{{ text_add_data }}</span>
+                                                                <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="1" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
+                                                            </div>
+                                                        {% endif %}
+
+                                                    {% elseif block.grid_id == "2" or block.grid_id == "5" or block.grid_id == "6" %}
+                                                        {% if block.blocks_data %}
+                                                            {% for block_data in block.blocks_data %}
+                                                                <table class="w-50 block-data-table" cellspacing="0" cellpadding="0">
+                                                                    <tr>
+                                                                        <td>
+                                                                            <div class="overlay"></div>
+                                                                            <div class="overlay-buttons">
+                                                                                <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_edit }}" data-block-data-id="{{ block_data.id }}" class="btn btn-primary edit-block-settings-btn"><i class="fa fa-pencil"></i></button>
                                                                                 <button type="button" data-tooltip="tooltip" title="{{ button_delete }}" data-block-data-id="{{ block_data.id }}" class="btn btn-danger delete-block-data-btn"><i class="fa fa-trash"></i></button>
                                                                             </div>
                                                                         </td>
@@ -252,39 +360,6 @@
                                                                     </tr>
                                                                 </table>
                                                             {% endfor %}
-                                                        {% else %}
-                                                            <div class="block-data-inner col-sm-2">
-                                                                <span>{{ text_add_data }}</span>
-                                                                <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="1" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
-                                                            </div>
-                                                        {% endif %}
-
-                                                    {% elseif block.grid_id == "2" or block.grid_id == "5" or block.grid_id == "6" %}
-                                                        {% if block.blocks_data %}
-                                                            <table class="w-100" cellspacing="0" cellpadding="0" >
-                                                                <tr>
-                                                                    <td class="w-100">
-                                                                        {% for block_data in block.blocks_data %}
-                                                                            <table class="w-50 block-data-table" cellspacing="0" cellpadding="0">
-                                                                                <tr>
-                                                                                    <td>
-                                                                                        <div class="overlay"></div>
-                                                                                        <div class="overlay-buttons">
-                                                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_edit }}" data-block-data-id="{{ block_data.id }}" class="btn btn-primary edit-block-settings-btn"><i class="fa fa-pencil"></i></button>
-                                                                                            <button type="button" data-tooltip="tooltip" title="{{ button_delete }}" data-block-data-id="{{ block_data.id }}" class="btn btn-danger delete-block-btn"><i class="fa fa-trash"></i></button>
-                                                                                        </div>
-                                                                                    </td>
-                                                                                </tr>
-                                                                                <tr>
-                                                                                    <td>
-                                                                                        {{ block_data.text }}
-                                                                                    </td>
-                                                                                </tr>
-                                                                            </table>
-                                                                        {% endfor %}
-                                                                    </td>
-                                                                </tr>
-                                                            </table>
                                                         {% else %}
                                                             <div class="block-data-inner col-sm-2">
                                                                 <span>{{ text_add_data }}</span>
@@ -628,37 +703,6 @@
                             <div class="col-sm-10">
                                 <div class="row added-products-list">
 
-                                    {% for mailing_product in mailing_products %}
-
-                                        <div data-product-id="{{ mailing_product.product_id }}" class="product-layout product-list col-sm-3 col-xs-12" style="border: 1px solid #e3e3e3; border-radius: 10px; margin-left: 15px; margin-top: 15px; padding: 10px; width: 15%;">
-                                            <div class="product-thumb">
-                                                <div class="image">
-                                                    {% if mailing_product.image %}
-                                                        <img src="/image/{{ mailing_product.image }}" alt="{{ mailing_product.name }}" title="{{ mailing_product.name }}" class="img-responsive" />
-                                                    {% else %}
-                                                        <img src="/image/cache/no_image-100x100.png" alt="{{ mailing_product.name }}" title="{{ mailing_product.name }}" class="img-responsive" />
-                                                    {% endif %}
-                                                </div>
-                                                <div>
-                                                    <div class="caption">
-                                                        <p>{{ mailing_product.name }}</p>
-                                                        <p class="price">
-                                                            {{ mailing_product.price}}
-                                                        </p>
-                                                        <div class="button-group">
-                                                            <button type="button" onclick="deleteProductFromMailing({{ mailing_product.product_id }})">
-                                                                Удалить из рассылки
-                                                            </button>
-                                                            <input type="hidden" name="added_products_id[]" id="added-product-id" value="{{ mailing_product.product_id }}" />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-
-                                    {% endfor %}
-
                                 </div>
                             </div>
 
@@ -671,6 +715,9 @@
                             <label class="col-sm-12 control-label" for="input-block-data-bg-color">{{ entry_bg_block }}</label>
                             <div class="col-sm-12">
                                 <input type="text" name="block_data[bg_color]" value="" placeholder="#000" id="input-block-data-bg-color" class="form-control"/>
+                            </div>
+
+                            <div class="col-sm-12">
                                 <a href="" id="thumb-image1" data-toggle="image" class="img-thumbnail mt-10">
                                     <img src="{{ img_placeholder }}" alt="" title="" data-placeholder="{{ img_placeholder }}"/>
                                 </a>
@@ -768,6 +815,7 @@
 <script type="text/javascript" src="view/javascript/summernote/opencart.js"></script>
 
 <script type="text/javascript">
+    $('.summernote').eq(1).summernote('code')
     $('button[data-tooltip="tooltip"]').tooltip()
     $('.select-grid-field-inner-content-item').on('click', function () {
         let grid_id = $(this).attr('data-grid-id');
@@ -857,6 +905,9 @@
                     let keys = Object.keys(response)
                     for (let i = 0; i < keys.length; i++) {
                         $( ":input[name='block[" + keys[i] + "]']" ).val(response[keys[i]])
+                        if(response['bg_image']) {
+                            $("#thumb-image2 img").attr('src', response['background_image'])
+                        }
                     }
                 }
             })
@@ -886,6 +937,13 @@
         $('.add-block-data-btn').on('click', function () {
             let block_id = $(this).parents('.block-data-row').attr('data-block-id')
             let col_id   = $(this).attr('data-col-id')
+            $( ":input[name*='block_data']" ).each(function (i, item) {
+                $(item).val('')
+            })
+            $('#input-block-data-text').summernote("code", '');
+            $("#thumb-image1 img").attr('src', $("#thumb-image1 img").attr('placeholder'))
+            $('.added-products-list').html('')
+            $('.add-block-data-modal-btn').removeAttr('data-block-data-id')
             $('.add-block-data-modal-btn').attr('data-block-id', block_id)
             $('.add-block-data-modal-btn').attr('data-col-id', col_id)
         })
@@ -901,16 +959,52 @@
                 type: "GET",
                 url: 'index.php?route=extension/module/mailing/getBlockData&block_data_id=' + block_data_id + '&user_token={{ user_token }}',
                 success: function(response) {
-                    console.log(response)
                     let keys = Object.keys(response)
                     for (let i = 0; i < keys.length; i++) {
                         $( ":input[name='block_data[" + keys[i] + "]']" ).val(response[keys[i]])
-                        $('.summernote').eq(1).summernote('code')
                         $('#input-block-data-text').summernote("code", response['text']);
+                        if(response['bg_image']) {
+                            $("#thumb-image1 img").attr('src', response['background_image'])
+                        }
                     }
+                    $('.added-products-list').html(addedProductsToBlockDataHTML(response['products']))
                 }
             })
         })
+    }
+
+    function addedProductsToBlockDataHTML(products) {
+        let html = '';
+
+        for (let i = 0; i < products.length; i++) {
+            html += '<div data-product-id="' + products[i]['product_id'] + '" class="product-layout product-list col-sm-3 col-xs-12" style="border: 1px solid #e3e3e3; border-radius: 10px; margin-left: 15px; margin-top: 15px; padding: 10px; width: 15%;">\n' +
+                        '<div class="product-thumb">\n' +
+                            '<div class="image">\n';
+                                if(products[i]['image']) {
+                                    html += '<img src="/image/' + products[i]['image'] + '" alt="' + products[i]['name'] + '" title="' + products[i]['name'] + '" class="img-responsive" />\n';
+                                } else {
+                                    html += '<img src="/image/cache/no_image-100x100.png" alt="' + products[i]['name'] + '" title="' + products[i]['name'] + '" class="img-responsive" />\n';
+                                }
+                    html += '</div>\n' +
+                            '<div>\n' +
+                                '<div class="caption">\n' +
+                                    '<p>' + products[i]['name'] + '</p>\n' +
+                                    '<p class="price">\n' +
+                                        products[i]['price'] +
+                                    '</p>\n' +
+                                    '<div class="button-group">\n' +
+                                        '<button type="button" onclick="deleteProductFromMailing(' + products[i]['product_id'] + ')">\n' +
+                                            '{{ button_delete_from_block_data }}\n' +
+                                        '</button>\n' +
+                                        '<input type="hidden" name="added_products_id[]" id="added-product-id" value="' + products[i]['product_id'] + '" />\n' +
+                                    '</div>\n' +
+                                '</div>\n' +
+                            '</div>\n' +
+                        '</div>\n' +
+                    '</div>\n'
+        }
+
+        return html;
     }
 
     deleteBlockData()
@@ -918,16 +1012,28 @@
         $('.delete-block-data-btn').unbind('click');
         $('.delete-block-data-btn').on('click', function () {
             let block_data_id = $(this).attr('data-block-data-id')
+            let blockDataTable = $(this).parents('.block-data-row').find('.block-data-table');
+            let col_id = blockDataTable.attr('data-col-id')
             if (confirm("{{ confirm_delete_block_data }}")) {
                 $.ajax({
                     type: "POST",
                     url: 'index.php?route=extension/module/mailing/deleteBlockData&block_data_id=' + block_data_id + '&user_token={{ user_token }}',
                     success: function() {
-
+                        blockDataTable.replaceWith(emptyBlockDataHTML(col_id))
+                        addBlockData()
                     }
                 })
             }
         })
+    }
+
+    function emptyBlockDataHTML(col_id) {
+        let html = '<div class="block-data-inner col-sm-2">\n' +
+                       '<span>{{ text_add_data }}</span>\n' +
+                       '<button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="' + col_id + '" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>\n' +
+                   '</div>'
+
+        return html;
     }
 
     // Save block data
@@ -937,20 +1043,32 @@
         let col_id = $(this).attr('data-col-id')
         let that = $(this)
         if (block_data_id) {
-            console.log($( "#addBlockDataModal :input" ).serializeArray())
+            // console.log($( "#addBlockDataModal :input" ).serializeArray())
+            $.ajax({
+                type: "POST",
+                dataType: 'html',
+                data: $( "#addBlockDataModal :input" ).serialize(),
+                url: 'index.php?route=extension/module/mailing/editBlockData&block_data_id=' + block_data_id + '&user_token={{ user_token }}',
+                success: function (res) {
+                    $('#addBlockDataModal').modal('hide')
+                    that.removeAttr('data-block-id')
+                    that.removeAttr('data-block-data-id')
+                    that.removeAttr('data-col-id')
+                }
+            })
         } else {
-            {#$.ajax({#}
-            {#    type: "POST",#}
-            {#    dataType: 'html',#}
-            {#    data: $( "#addBlockDataModal :input" ).serialize(),#}
-            {#    url: 'index.php?route=extension/module/mailing/addBlockData&block_id=' + block_id + '&col_id=' + col_id + '&user_token={{ user_token }}',#}
-            {#    success: function (res) {#}
-            {#        $('#addBlockDataModal').modal('hide')#}
-            {#        that.removeAttr('data-block-id')#}
-            {#        that.removeAttr('data-block-data-id')#}
-            {#        that.removeAttr('data-col-id')#}
-            {#    }#}
-            {#})#}
+            $.ajax({
+                type: "POST",
+                dataType: 'html',
+                data: $( "#addBlockDataModal :input" ).serialize(),
+                url: 'index.php?route=extension/module/mailing/addBlockData&block_id=' + block_id + '&col_id=' + col_id + '&user_token={{ user_token }}',
+                success: function (res) {
+                    $('#addBlockDataModal').modal('hide')
+                    that.removeAttr('data-block-id')
+                    that.removeAttr('data-block-data-id')
+                    that.removeAttr('data-col-id')
+                }
+            })
         }
     })
 

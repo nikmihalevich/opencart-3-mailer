@@ -311,10 +311,28 @@ class ControllerExtensionModuleMailing extends Controller {
 			$mailing_info = $this->model_extension_module_mailing->getMailing($this->request->get['mailing_id']);
 			$blocks_info  = $this->model_extension_module_mailing->getBlocks($this->request->get['mailing_id']);
 //			echo "<pre>";
+            $this->load->model('catalog/product');
+            $this->load->model('tool/image');
             foreach ($blocks_info as $k => $block) {
+                $blocks_info[$k]['background_image'] = ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . "image/" . $block['bg_image'];
                 $block_data_info = $this->model_extension_module_mailing->getBlockData($block['id']);
+                foreach ($block_data_info as $kk => $block_data) {
+                    $results = array();
+                    foreach ($block_data['products'] as $product) {
+                        $results[] = $this->model_catalog_product->getProduct($product['product_id']);
+                    }
+                    foreach ($results as $kkk => $result) {
+                        $results[$kkk]['price'] = $this->currency->format($result['price'], $this->config->get('config_currency'));
+                        if ($results[$kkk]['image']) {
+                            $results[$kkk]['thumb'] = $this->model_tool_image->resize($result['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_height'));
+                        } else {
+                            $results[$kkk]['thumb'] = '';
+                        }
+                    }
+                    $block_data_info[$kk]['products'] = $results;
+                }
+
                 $blocks_info[$k]['blocks_data'] = $block_data_info;
-//                print_r($block_data_info);
 			}
 
 			$data['blocks'] = $blocks_info;
@@ -469,6 +487,9 @@ class ControllerExtensionModuleMailing extends Controller {
             $this->load->model('extension/module/mailing');
 
             $block = $this->model_extension_module_mailing->getBlock($this->request->get['block_id']);
+
+            $block['background_image'] = ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . "image/" . $block['bg_image'];
+
             $this->response->addHeader('Content-Type: application/json');
             $this->response->setOutput(json_encode($block));
         }
@@ -487,6 +508,15 @@ class ControllerExtensionModuleMailing extends Controller {
         }
     }
 
+    public function editBlockData() {
+        if(isset($this->request->get['block_data_id']) && $this->request->server['REQUEST_METHOD'] == 'POST') {
+            $this->load->model('extension/module/mailing');
+            $formData = $_POST;
+            $formData['block_data_id'] = $this->request->get['block_data_id'];
+            $this->model_extension_module_mailing->editBlockData($formData);
+        }
+    }
+
     public function deleteBlockData() {
         if(isset($this->request->get['block_data_id']) && $this->request->server['REQUEST_METHOD'] == 'POST') {
             $this->load->model('extension/module/mailing');
@@ -500,6 +530,34 @@ class ControllerExtensionModuleMailing extends Controller {
             $this->load->model('extension/module/mailing');
 
             $block_data = $this->model_extension_module_mailing->getBlockDataByBlockDataId($this->request->get['block_data_id']);
+
+            $block_data['background_image'] = ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . "image/" . $block_data['bg_image'];
+
+            // TODO add products info
+
+            if (isset($block_data['products'])) {
+                $results = array();
+                $this->load->model('catalog/product');
+                foreach ($block_data['products'] as $product) {
+                    $results[] = $this->model_catalog_product->getProduct($product['product_id']);
+                }
+
+                $json = array();
+                $this->load->model('tool/image');
+
+                foreach ($results as $result) {
+                    $result['price'] = $this->currency->format($result['price'], $this->config->get('config_currency'));
+                    if ($result['image']) {
+                        $result['thumb'] = $this->model_tool_image->resize($result['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_height'));
+                    } else {
+                        $result['thumb'] = '';
+                    }
+                    $json[] = $result;
+                }
+
+                $block_data['products'] = $json;
+            }
+
             $this->response->addHeader('Content-Type: application/json');
             $this->response->setOutput(json_encode($block_data));
         }
