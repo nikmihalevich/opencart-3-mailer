@@ -103,7 +103,7 @@
         flex-direction: row;
         justify-content: center;
         align-items: center;
-        padding: 10px;
+        /*padding: 10px;*/
         position: relative;
     }
     .block-data-buttons {
@@ -117,7 +117,7 @@
         padding: 5px;
         display: flex;
         align-items: center;
-        margin-right: 20px;
+        margin: 10px;
     }
     .block-data-inner span {
         margin: 5px 30px;
@@ -237,243 +237,127 @@
                                     {% if mailing.mailing_id %}
                                         <div class="block-data-rows">
                                             {% for block in blocks %}
-                                                <div class="block-data-row" style="{% if block.width != "0" %}margin: 50px auto 0; max-width: 100%; width: {{ block.width }}{% if block.width_type == "0" %}px{% else %}%{% endif %};{% endif %} {% if block.bg_image %}background: no-repeat url('{{ block.background_image }}') {{ block.bg_color }};{% endif %} border: 1px solid #dadada;" data-block-id="{{ block.id }}">
+                                                <div class="block-data-row" style="{% if block.width != "0" %}margin: 50px auto 0; max-width: 100%; width: {{ block.width }}{% if block.width_type == "0" %}px{% else %}%{% endif %};{% endif %}{% if block.bg_color %}background-color: {{ block.bg_color }};{% endif %}{% if block.bg_image %}background: no-repeat url('{{ block.background_image }}') {{ block.bg_color }};{% endif %}{% if block.padding %}padding: {{ block.padding }};{% endif %}border: 1px solid #dadada;" data-block-id="{{ block.id }}">
+
                                                     {% if block.grid_id == "1" %}
-                                                        {% if block.blocks_data %}
-                                                            {% for block_data in block.blocks_data %}
-                                                                <table class="w-100 block-data-table" data-col-id="{{ block_data.col_id }}" style="{% if block_data.bg_color %}background: {{ block_data.bg_color }};{% endif %} {% if block_data.width %}width: {{ block_data.width }}{% if block_data.width_type == "0" %}px{% else %}%{% endif %}; margin: 0 auto;{% endif %} ">
-                                                                    {% if block_data.text_ordinal <= block_data.products_ordinal %}
-                                                                        {% if block_data.text %}
-                                                                            <tr>
-                                                                                <td>
-                                                                                    {{ block_data.text }}
-                                                                                </td>
-                                                                            </tr>
-                                                                        {% endif %}
-                                                                        {% if block_data.products %}
-                                                                            <tr>
-                                                                                <td style="display:flex; justify-content:center; text-align: center">
+                                                        {% set colCounts = 1 %}
+                                                    {% elseif block.grid_id == "2" or block.grid_id == "5" or block.grid_id == "6" %}
+                                                        {% set colCounts = 2 %}
+                                                    {% elseif block.grid_id == "3" or block.grid_id == "7" or block.grid_id == "8" or block.grid_id == "9" or block.grid_id == "12" %}
+                                                        {% set colCounts = 3 %}
+                                                    {% elseif block.grid_id == "4" %}
+                                                        {% set colCounts = 4 %}
+                                                    {% elseif block.grid_id == "10" %}
+                                                        {% set colCounts = 5 %}
+                                                    {% elseif block.grid_id == "11" %}
+                                                        {% set colCounts = 6 %}
+                                                    {% endif %}
 
-                                                                                    {% for product in block_data.products %}
+                                                    {% set ignoredCols = [] %}
 
-                                                                                        <table data-product-id="{{ product.product_id }}" class="product-layout product-list col-sm-3 col-xs-12" style="margin-left: 15px; margin-top: 15px; padding: 10px; width: fit-content;">
-                                                                                            <tr>
-                                                                                                <td class="added-product-image">
-                                                                                                    {% if product.image %}
-                                                                                                        <img src="{{ product.thumb }}" alt="{{ product.name }}" title="{{ product.name }}" class="img-responsive" />
-                                                                                                    {% else %}
-                                                                                                        <img src="/image/cache/no_image-100x100.png" alt="{{ product.name }}" title="{{ product.name }}" class="img-responsive" />
-                                                                                                    {% endif %}
-                                                                                                </td>
-                                                                                            </tr>
-                                                                                            <tr>
-                                                                                                <td class="caption">
+                                                    {% for colId in 1..colCounts %}
+                                                        {% for block_data in block.blocks_data if block_data.col_id == colId %}
+
+                                                            <table class="{{ block_data.block_grid_width }} block-data-table" data-col-id="{{ block_data.col_id }}" style="{% if block_data.bg_color %}background: {{ block_data.bg_color }};{% endif %} {% if block_data.width %}width: {{ block_data.width }}{% if block_data.width_type == "0" %}px{% else %}%{% endif %}; margin: 0 auto;{% endif %} ">
+                                                                {% if block_data.text_ordinal <= block_data.products_ordinal %}
+                                                                    {% if block_data.text %}
+                                                                        <tr>
+                                                                            <td>
+                                                                                {{ block_data.text }}
+                                                                            </td>
+                                                                        </tr>
+                                                                    {% endif %}
+                                                                    {% if block_data.products %}
+                                                                        <tr>
+                                                                            <td style="display:flex; justify-content:center; text-align: center">
+
+                                                                                {% for product in block_data.products %}
+
+                                                                                    <table data-product-id="{{ product.product_id }}" class="product-layout product-list col-sm-3 col-xs-12" style="margin-left: 15px; margin-top: 15px; padding: 10px; width: fit-content;">
+                                                                                        <tr>
+                                                                                            <td class="added-product-image">
+                                                                                                {% if product.image %}
+                                                                                                    <img src="{{ product.thumb }}" alt="{{ product.name }}" title="{{ product.name }}" class="img-responsive" />
+                                                                                                {% else %}
+                                                                                                    <img src="/image/cache/no_image-100x100.png" alt="{{ product.name }}" title="{{ product.name }}" class="img-responsive" />
+                                                                                                {% endif %}
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                        <tr>
+                                                                                            <td class="caption">
+                                                                                                <p>{{ product.name }}</p>
+                                                                                                <p class="price">{{ product.price}}</p>
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                    </table>
+
+                                                                                {% endfor %}
+
+                                                                            </td>
+                                                                        </tr>
+                                                                    {% endif %}
+                                                                {% else %}
+                                                                    {% if block_data.products %}
+                                                                        <tr>
+                                                                            <td style="display:flex; justify-content:center; text-align: center">
+
+                                                                                {% for product in block_data.products %}
+
+                                                                                    <div data-product-id="{{ product.product_id }}" class="product-layout product-list col-sm-3 col-xs-12" style="margin-left: 15px; margin-top: 15px; padding: 10px; width: fit-content;">
+                                                                                        <div class="product-thumb">
+                                                                                            <div class="image">
+                                                                                                {% if product.image %}
+                                                                                                    <img src="/image/{{ product.image }}" alt="{{ product.name }}" title="{{ product.name }}" class="img-responsive" />
+                                                                                                {% else %}
+                                                                                                    <img src="/image/cache/no_image-100x100.png" alt="{{ product.name }}" title="{{ product.name }}" class="img-responsive" />
+                                                                                                {% endif %}
+                                                                                            </div>
+                                                                                            <div>
+                                                                                                <div class="caption">
                                                                                                     <p>{{ product.name }}</p>
-                                                                                                    <p class="price">{{ product.price}}</p>
-                                                                                                </td>
-                                                                                            </tr>
-                                                                                        </table>
-
-                                                                                    {% endfor %}
-
-                                                                                </td>
-                                                                            </tr>
-                                                                        {% endif %}
-                                                                    {% else %}
-                                                                        {% if block_data.products %}
-                                                                            <tr>
-                                                                                <td style="display:flex; justify-content:center; text-align: center">
-
-                                                                                    {% for product in block_data.products %}
-
-                                                                                        <div data-product-id="{{ product.product_id }}" class="product-layout product-list col-sm-3 col-xs-12" style="margin-left: 15px; margin-top: 15px; padding: 10px; width: fit-content;">
-                                                                                            <div class="product-thumb">
-                                                                                                <div class="image">
-                                                                                                    {% if product.image %}
-                                                                                                        <img src="/image/{{ product.image }}" alt="{{ product.name }}" title="{{ product.name }}" class="img-responsive" />
-                                                                                                    {% else %}
-                                                                                                        <img src="/image/cache/no_image-100x100.png" alt="{{ product.name }}" title="{{ product.name }}" class="img-responsive" />
-                                                                                                    {% endif %}
-                                                                                                </div>
-                                                                                                <div>
-                                                                                                    <div class="caption">
-                                                                                                        <p>{{ product.name }}</p>
-                                                                                                        <p class="price">
-                                                                                                            {{ product.price}}
-                                                                                                        </p>
-                                                                                                    </div>
+                                                                                                    <p class="price">
+                                                                                                        {{ product.price}}
+                                                                                                    </p>
                                                                                                 </div>
                                                                                             </div>
                                                                                         </div>
-
-                                                                                    {% endfor %}
-
-                                                                                </td>
-                                                                            </tr>
-                                                                        {% endif %}
-                                                                        {% if block_data.text %}
-                                                                            <tr>
-                                                                                <td>
-                                                                                    <div>
-                                                                                        {{ block_data.text }}
                                                                                     </div>
-                                                                                </td>
-                                                                            </tr>
-                                                                        {% endif %}
+
+                                                                                {% endfor %}
+
+                                                                            </td>
+                                                                        </tr>
                                                                     {% endif %}
-                                                                    <tr>
-                                                                        <td>
-                                                                            <div class="overlay"></div>
-                                                                            <div class="overlay-buttons">
-                                                                                <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_edit }}" data-block-data-id="{{ block_data.id }}" class="btn btn-primary edit-block-data-btn"><i class="fa fa-pencil"></i></button>
-                                                                                <button type="button" data-tooltip="tooltip" title="{{ button_delete }}" data-block-data-id="{{ block_data.id }}" class="btn btn-danger delete-block-data-btn"><i class="fa fa-trash"></i></button>
-                                                                            </div>
-                                                                        </td>
-                                                                    </tr>
-                                                                </table>
-
-                                                            {% endfor %}
-                                                        {% else %}
-                                                            <div class="block-data-inner col-sm-2">
-                                                                <span>{{ text_add_data }}</span>
-                                                                <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="1" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
-                                                            </div>
-                                                        {% endif %}
-
-                                                    {% elseif block.grid_id == "2" or block.grid_id == "5" or block.grid_id == "6" %}
-                                                        {% if block.blocks_data %}
-                                                            {% for block_data in block.blocks_data %}
-                                                                <table class="w-50 block-data-table" cellspacing="0" cellpadding="0">
-                                                                    <tr>
-                                                                        <td>
-                                                                            <div class="overlay"></div>
-                                                                            <div class="overlay-buttons">
-                                                                                <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_edit }}" data-block-data-id="{{ block_data.id }}" class="btn btn-primary edit-block-settings-btn"><i class="fa fa-pencil"></i></button>
-                                                                                <button type="button" data-tooltip="tooltip" title="{{ button_delete }}" data-block-data-id="{{ block_data.id }}" class="btn btn-danger delete-block-data-btn"><i class="fa fa-trash"></i></button>
-                                                                            </div>
-                                                                        </td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td>
-                                                                            {{ block_data.text }}
-                                                                        </td>
-                                                                    </tr>
-                                                                </table>
-                                                            {% endfor %}
-                                                        {% else %}
-                                                            <div class="block-data-inner col-sm-2">
-                                                                <span>{{ text_add_data }}</span>
-                                                                <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="1" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
-                                                            </div>
-                                                            <div class="block-data-inner col-sm-2">
-                                                                <span>{{ text_add_data }}</span>
-                                                                <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="2" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
-                                                            </div>
-                                                        {% endif %}
-                                                    {% elseif block.grid_id == "3" or block.grid_id == "7" or block.grid_id == "8" or block.grid_id == "9" or block.grid_id == "12" %}
-                                                        {% if block.blocks_data %}
-                                                            <table class="w-100" cellspacing="0" cellpadding="0" >
+                                                                    {% if block_data.text %}
+                                                                        <tr>
+                                                                            <td>
+                                                                                <div>
+                                                                                    {{ block_data.text }}
+                                                                                </div>
+                                                                            </td>
+                                                                        </tr>
+                                                                    {% endif %}
+                                                                {% endif %}
                                                                 <tr>
-                                                                    <td class="w-100">
-                                                                        {% for block_data in block.blocks_data %}
-                                                                            <table class="{% if block.grid_id == "3" %}w-33{% endif%} block-data-table" cellspacing="0" cellpadding="0">
-                                                                                <tr>
-                                                                                    <td>
-                                                                                        <div class="overlay"></div>
-                                                                                        <div class="overlay-buttons">
-                                                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_edit }}" data-block-data-id="{{ block_data.id }}" class="btn btn-primary edit-block-settings-btn"><i class="fa fa-pencil"></i></button>
-                                                                                            <button type="button" data-tooltip="tooltip" title="{{ button_delete }}" data-block-data-id="{{ block_data.id }}" class="btn btn-danger delete-block-btn"><i class="fa fa-trash"></i></button>
-                                                                                        </div>
-                                                                                    </td>
-                                                                                </tr>
-                                                                                <tr>
-                                                                                    <td>
-                                                                                        {{ block_data.text }}
-                                                                                    </td>
-                                                                                </tr>
-                                                                            </table>
-                                                                        {% endfor %}
+                                                                    <td>
+                                                                        <div class="overlay"></div>
+                                                                        <div class="overlay-buttons">
+                                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_edit }}" data-block-data-id="{{ block_data.id }}" class="btn btn-primary edit-block-data-btn"><i class="fa fa-pencil"></i></button>
+                                                                            <button type="button" data-tooltip="tooltip" title="{{ button_delete }}" data-block-data-id="{{ block_data.id }}" class="btn btn-danger delete-block-data-btn"><i class="fa fa-trash"></i></button>
+                                                                        </div>
                                                                     </td>
                                                                 </tr>
                                                             </table>
                                                         {% else %}
                                                             <div class="block-data-inner col-sm-2">
                                                                 <span>{{ text_add_data }}</span>
-                                                                <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="1" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
+                                                                <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="{{ colId }}" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
                                                             </div>
-                                                            <div class="block-data-inner col-sm-2">
-                                                                <span>{{ text_add_data }}</span>
-                                                                <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="2" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
-                                                            </div>
-                                                            <div class="block-data-inner col-sm-2">
-                                                                <span>{{ text_add_data }}</span>
-                                                                <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="3" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
-                                                            </div>
-                                                        {% endif %}
-                                                    {% elseif block.grid_id == "4" %}
-                                                        <div class="block-data-inner col-sm-2">
-                                                            <span>{{ text_add_data }}</span>
-                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="1" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
-                                                        </div>
-                                                        <div class="block-data-inner col-sm-2">
-                                                            <span>{{ text_add_data }}</span>
-                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="2" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
-                                                        </div>
-                                                        <div class="block-data-inner col-sm-2">
-                                                            <span>{{ text_add_data }}</span>
-                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="3" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
-                                                        </div>
-                                                        <div class="block-data-inner col-sm-2">
-                                                            <span>{{ text_add_data }}</span>
-                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="4" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
-                                                        </div>
-                                                    {% elseif block.grid_id == "10" %}
-                                                        <div class="block-data-inner col-sm-2">
-                                                            <span>{{ text_add_data }}</span>
-                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="1" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
-                                                        </div>
-                                                        <div class="block-data-inner col-sm-2">
-                                                            <span>{{ text_add_data }}</span>
-                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="2" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
-                                                        </div>
-                                                        <div class="block-data-inner col-sm-2">
-                                                            <span>{{ text_add_data }}</span>
-                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="3" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
-                                                        </div>
-                                                        <div class="block-data-inner col-sm-2">
-                                                            <span>{{ text_add_data }}</span>
-                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="4" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
-                                                        </div>
-                                                        <div class="block-data-inner col-sm-2">
-                                                            <span>{{ text_add_data }}</span>
-                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="5" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
-                                                        </div>
-                                                    {% elseif block.grid_id == "11" %}
-                                                        <div class="block-data-inner col-sm-2">
-                                                            <span>{{ text_add_data }}</span>
-                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="1" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
-                                                        </div>
-                                                        <div class="block-data-inner col-sm-2">
-                                                            <span>{{ text_add_data }}</span>
-                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="2" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
-                                                        </div>
-                                                        <div class="block-data-inner col-sm-2">
-                                                            <span>{{ text_add_data }}</span>
-                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="3" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
-                                                        </div>
-                                                        <div class="block-data-inner col-sm-2">
-                                                            <span>{{ text_add_data }}</span>
-                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="4" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
-                                                        </div>
-                                                        <div class="block-data-inner col-sm-2">
-                                                            <span>{{ text_add_data }}</span>
-                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="5" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
-                                                        </div>
-                                                        <div class="block-data-inner col-sm-2">
-                                                            <span>{{ text_add_data }}</span>
-                                                            <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="6" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
-                                                        </div>
-                                                    {% endif %}
+
+                                                        {% endfor %}
+
+                                                    {% endfor %}
+
                                                     <div class="block-data-buttons">
                                                         <button type="button" data-toggle="modal" data-target="#settingsBlockModal" data-tooltip="tooltip" title="{{ button_edit }}" data-block-id="{{ block.id }}" class="btn btn-primary edit-block-settings-btn"><i class="fa fa-pencil"></i></button>
                                                         <button type="button" data-tooltip="tooltip" title="{{ button_delete }}" data-block-id="{{ block.id }}" class="btn btn-danger delete-block-btn"><i class="fa fa-trash"></i></button>
@@ -527,7 +411,7 @@
                                                         <div class="select-grid-field-inner-content-item" data-grid-id="7">
                                                             <div class="gray-bg w-25"></div>
                                                             <div class="gray-bg w-25"></div>
-                                                            <div class="gray-bg w-25"></div>
+                                                            <div class="gray-bg w-50"></div>
                                                         </div>
                                                         <div class="select-grid-field-inner-content-item" data-grid-id="8">
                                                             <div class="gray-bg w-50"></div>
@@ -730,7 +614,7 @@
                             </div>
                             <div class="col-sm-6">
                                 <select name="block_data[width_type]" id="select-block-data-width-type" class="form-control">
-                                    <option value="0">{{ text_pixels }}</option>
+                                    <option value="0" selected>{{ text_pixels }}</option>
                                     <option value="1">{{ text_percents }}</option>
                                 </select>
                             </div>
@@ -772,9 +656,16 @@
                     </div>
                     <div class="col-sm-6">
                         <select name="block[width_type]" id="select-block-width-type" class="form-control">
-                            <option value="0">{{ text_pixels }}</option>
+                            <option value="0" selected>{{ text_pixels }}</option>
                             <option value="1">{{ text_percents }}</option>
                         </select>
+                    </div>
+                    <label class="col-sm-12 control-label mt-10" for="input-block-width">{{ entry_padding_block }}</label>
+                    <div class="col-sm-6">
+                        <input type="text" name="block[padding]" value="" placeholder="{{ entry_padding_block }}" id="input-block-padding" class="form-control"/>
+                    </div>
+                    <div class="col-sm-6">
+                        {{ help_padding }}
                     </div>
                     <label class="col-sm-12 control-label mt-10" for="input-block-width">{{ entry_block_sort_ordinal }}</label>
                     <div class="col-sm-12">
@@ -851,6 +742,7 @@
             url: 'index.php?route=extension/module/mailing/editBlock&block_id=' + block_id + '&user_token={{ user_token }}',
             success: function (res) {
                 $('#settingsBlockModal').modal('hide')
+                document.location.href = window.location;
             }
         })
     })
@@ -1012,7 +904,7 @@
         $('.delete-block-data-btn').unbind('click');
         $('.delete-block-data-btn').on('click', function () {
             let block_data_id = $(this).attr('data-block-data-id')
-            let blockDataTable = $(this).parents('.block-data-row').find('.block-data-table');
+            let blockDataTable = $(this).parents('.block-data-table');
             let col_id = blockDataTable.attr('data-col-id')
             if (confirm("{{ confirm_delete_block_data }}")) {
                 $.ajax({
@@ -1042,8 +934,8 @@
         let block_data_id = $(this).attr('data-block-data-id')
         let col_id = $(this).attr('data-col-id')
         let that = $(this)
+        console.log($( "#addBlockDataModal :input" ).serializeArray())
         if (block_data_id) {
-            // console.log($( "#addBlockDataModal :input" ).serializeArray())
             $.ajax({
                 type: "POST",
                 dataType: 'html',
@@ -1054,6 +946,7 @@
                     that.removeAttr('data-block-id')
                     that.removeAttr('data-block-data-id')
                     that.removeAttr('data-col-id')
+                    document.location.href = window.location;
                 }
             })
         } else {
@@ -1061,12 +954,13 @@
                 type: "POST",
                 dataType: 'html',
                 data: $( "#addBlockDataModal :input" ).serialize(),
-                url: 'index.php?route=extension/module/mailing/addBlockData&block_id=' + block_id + '&col_id=' + col_id + '&user_token={{ user_token }}',
+                url: 'index.php?route=extension/module/mailing/addBlockData&block_id=' + block_id + '&col_id=' + col_id + '&user_token={{ user_token }}&mailing_id={{ mailing.mailing_id }}',
                 success: function (res) {
                     $('#addBlockDataModal').modal('hide')
                     that.removeAttr('data-block-id')
                     that.removeAttr('data-block-data-id')
                     that.removeAttr('data-col-id')
+                    document.location.href = window.location;
                 }
             })
         }

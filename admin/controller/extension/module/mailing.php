@@ -471,6 +471,8 @@ class ControllerExtensionModuleMailing extends Controller {
             $formData = $_POST['block'];
 
             $this->model_extension_module_mailing->editBlock($this->request->get['block_id'], $formData);
+
+
         }
     }
 
@@ -502,6 +504,74 @@ class ControllerExtensionModuleMailing extends Controller {
             $formData = $_POST;
             $formData['block_id'] = $this->request->get['block_id'];
             $formData['col_id'] = $this->request->get['col_id'];
+            $block = $this->model_extension_module_mailing->getBlock($this->request->get['block_id']);
+            $block_grid_width = '';
+            switch ($block['grid_id']) {
+                case '1':
+                    $block_grid_width = 'w-100';
+                    break;
+                case '2':
+                    $block_grid_width = 'w-50';
+                    break;
+                case '3':
+                    $block_grid_width = 'w-33';
+                    break;
+                case '4':
+                    $block_grid_width = 'w-25';
+                    break;
+                case '5':
+                    if($formData['col_id'] == '1') {
+                        $block_grid_width = 'w-33';
+                    } else {
+                        $block_grid_width = 'w-66';
+                    }
+                    break;
+                case '6':
+                    if($formData['col_id'] == '1') {
+                        $block_grid_width = 'w-66';
+                    } else {
+                        $block_grid_width = 'w-33';
+                    }
+                    break;
+                case '7':
+                    if($formData['col_id'] == '3') {
+                        $block_grid_width = 'w-50';
+                    } else {
+                        $block_grid_width = 'w-25';
+                    }
+                    break;
+                case '8':
+                    if($formData['col_id'] == '1') {
+                        $block_grid_width = 'w-50';
+                    } else {
+                        $block_grid_width = 'w-25';
+                    }
+                    break;
+                case '9':
+                    if($formData['col_id'] == '2') {
+                        $block_grid_width = 'w-50';
+                    } else {
+                        $block_grid_width = 'w-25';
+                    }
+                    break;
+                case '10':
+                    $block_grid_width = 'w-20';
+                    break;
+                case '11':
+                    $block_grid_width = 'w-16';
+                    break;
+                case '12':
+                    if($formData['col_id'] == '2') {
+                        $block_grid_width = 'w-66';
+                    } else {
+                        $block_grid_width = 'w-16';
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+            $formData['block_grid_width'] = $block_grid_width;
             $block_data_id = $this->model_extension_module_mailing->addBlockData($formData);
             $this->response->addHeader('Content-Type: application/json');
             $this->response->setOutput(json_encode($block_data_id));
