@@ -317,6 +317,11 @@ class ControllerExtensionModuleMailing extends Controller {
                 $blocks_info[$k]['background_image'] = ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . "image/" . $block['bg_image'];
                 $block_data_info = $this->model_extension_module_mailing->getBlockData($block['id']);
                 foreach ($block_data_info as $kk => $block_data) {
+                    if ($block_data['bg_image']) {
+                        $block_data_info[$kk]['thumb'] = $this->model_tool_image->resize($block_data['bg_image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_height'));
+                    } else {
+                        $block_data_info[$kk]['thumb'] = '';
+                    }
                     $results = array();
                     foreach ($block_data['products'] as $product) {
                         $results[] = $this->model_catalog_product->getProduct($product['product_id']);
@@ -326,7 +331,7 @@ class ControllerExtensionModuleMailing extends Controller {
                         if ($results[$kkk]['image']) {
                             $results[$kkk]['thumb'] = $this->model_tool_image->resize($result['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_height'));
                         } else {
-                            $results[$kkk]['thumb'] = '';
+                            $results[$kkk]['thumb'] = $this->model_tool_image->resize('no_image.png', 100, 100);;
                         }
                     }
                     $block_data_info[$kk]['products'] = $results;
@@ -357,20 +362,6 @@ class ControllerExtensionModuleMailing extends Controller {
 		} else {
 			$data['mailing_description'] = array();
         }
-
-//        if (isset($this->request->post['added_products_id'])) {
-//            $results = array();
-//            $this->load->model('catalog/product');
-//            foreach ($this->request->post['added_products_id'] as $product_id) {
-//                $results[] = $this->model_catalog_product->getProduct($product_id);
-//            }
-//
-//            $data['mailing_products'] = $results;
-//        } elseif (isset($this->request->get['mailing_id'])) {
-//            $data['mailing_products'] = $this->model_extension_module_mailing->getMailingProducts($this->request->get['mailing_id']);
-//        } else {
-//            $data['mailing_products'] = array();
-//        }
 
         if (isset($this->request->post['mailing_social_links'])) {
             $data['mailing_social_links'] = $this->request->post['mailing_social_links'];
@@ -603,8 +594,6 @@ class ControllerExtensionModuleMailing extends Controller {
 
             $block_data['background_image'] = ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . "image/" . $block_data['bg_image'];
 
-            // TODO add products info
-
             if (isset($block_data['products'])) {
                 $results = array();
                 $this->load->model('catalog/product');
@@ -758,44 +747,46 @@ class ControllerExtensionModuleMailing extends Controller {
 
             $mailing = $this->model_extension_module_mailing->getMailing($mailing_id);
             $mailing_description = $this->model_extension_module_mailing->getMailingDescriptions($mailing_id);
-//            $mailing_products = $this->model_extension_module_mailing->getMailingProducts($mailing_id); TODO
-            $mailing_social = $this->model_extension_module_mailing->getMailingSocialLinks($mailing_id);
             $mailing_customers = $this->model_extension_module_mailing->getMailingCustomersId($mailing_id);
             $customers_mails = $this->model_extension_module_mailing->getCustomersMail($mailing_customers);
 
-            $social_icons = $this->model_extension_module_mailing->getSocialIcons();
+            $blocks_info  = $this->model_extension_module_mailing->getBlocks($mailing_id);
 
-            foreach ($mailing_social as $k => $link) {
-                foreach ($social_icons as $icon) {
-                    if($link['icon_id'] == $icon['icon_id']) {
-                        $mailing_social[$k]['image'] = $icon['image'];
+            $this->load->model('catalog/product');
+            $this->load->model('tool/image');
+            foreach ($blocks_info as $k => $block) {
+                $blocks_info[$k]['background_image'] = ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . "image/" . $block['bg_image'];
+                $block_data_info = $this->model_extension_module_mailing->getBlockData($block['id']);
+                foreach ($block_data_info as $kk => $block_data) {
+                    if ($block_data['bg_image']) {
+                        $block_data_info[$kk]['thumb'] = $this->model_tool_image->resize($block_data['bg_image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_height'));
+                    } else {
+                        $block_data_info[$kk]['thumb'] = '';
                     }
+                    $results = array();
+                    foreach ($block_data['products'] as $product) {
+                        $results[] = $this->model_catalog_product->getProduct($product['product_id']);
+                    }
+                    foreach ($results as $kkk => $result) {
+                        $results[$kkk]['price'] = $this->currency->format($result['price'], $this->config->get('config_currency'));
+                        if ($results[$kkk]['image']) {
+                            $results[$kkk]['thumb'] = $this->model_tool_image->resize($result['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_height'));
+                        } else {
+                            $results[$kkk]['thumb'] = $this->model_tool_image->resize('no_image.png', 100, 100);
+                        }
+                    }
+                    $block_data_info[$kk]['products'] = $results;
                 }
+
+                $blocks_info[$k]['blocks_data'] = $block_data_info;
             }
 
-            $matches = array();
-            // get shortcode from text
-            preg_match_all('/\[(.*?)\\]/s', $mailing_description["letter_text"], $matches);
+            $mailing_blocks['blocks'] = $blocks_info;
+            $mailing_blocks['title'] = $mailing_description['letter_theme'];
 
-            // shortcodes analysis
-            if(isset($matches[1])) {
-                foreach ($matches[1] as $match) {
-                    $snippet_txt = '['. $match . ']';
-                    switch ($match) {
-                        case "products":
-                            $snippet_output = htmlspecialchars($this->getHtmlProducts($mailing_products));
-                            $mailing_description["letter_text"] = str_replace($snippet_txt, $snippet_output , $mailing_description["letter_text"]);
-                            break;
-                        case "social":
-                            $snippet_output = htmlspecialchars($this->getHtmlSocial($mailing_social));
-                            $mailing_description["letter_text"] = str_replace($snippet_txt, $snippet_output , $mailing_description["letter_text"]);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-
+//            echo "<pre>";
+//            print_r($mailing_blocks);
+//            echo "</pre>";
 
             $count_letters = intval($mailing['counter_letters']);
 
@@ -803,7 +794,7 @@ class ControllerExtensionModuleMailing extends Controller {
                 for($j = $i; $j < $i + $count_letters; $j++) {
                     if(isset($customers_mails[$j])) {
                         // send mail
-                        $this->sendMail($customers_mails[$j], $mailing_description);
+                        $this->sendMail($customers_mails[$j], $mailing_description, $mailing_blocks);
                     }
                 }
                 sleep(1);
@@ -811,60 +802,23 @@ class ControllerExtensionModuleMailing extends Controller {
         }
     }
 
-    protected function sendMail($to, $message_info) {
-        $message = htmlspecialchars_decode(
-        	'<html>
-                <body>' .
-                    $message_info["letter_text"] .
-                '</body>
-               </html>'
-            );
+    protected function sendMail($to, $message_info, $data) {
+        $from = $this->config->get('config_email');
 
-        // FIXME email from DB
-        $headers  = "Content-type: text/html; charset=utf-8 \r\n"; 
-        $headers .= "From: От кого письмо <shop@opencart.com>\r\n";
-        $headers .= "Reply-To: shop@opencart.com\r\n";
+        $mail = new Mail($this->config->get('config_mail_engine'));
+        $mail->parameter = $this->config->get('config_mail_parameter');
+        $mail->smtp_hostname = $this->config->get('config_mail_smtp_hostname');
+        $mail->smtp_username = $this->config->get('config_mail_smtp_username');
+        $mail->smtp_password = html_entity_decode($this->config->get('config_mail_smtp_password'), ENT_QUOTES, 'UTF-8');
+        $mail->smtp_port = $this->config->get('config_mail_smtp_port');
+        $mail->smtp_timeout = $this->config->get('config_mail_smtp_timeout');
 
-        mail($to, $message_info["letter_theme"], $message, $headers);
-    }
-
-    protected function getHtmlProducts($products) {
-        $html = '<div style="display: flex; flex-wrap: wrap;">';
-        foreach ($products as $product) {
-            $html .= '<div style="max-width: 20%; border: 1px solid #ff7c7c; border-radius: 10px; margin-right: 5px; padding: 10px; margin-bottom: 10px;"><div class="image">';
-
-            if(isset($product['image'])) {
-                $html .= '<a href="' . ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . 'index.php?route=product/product&product_id=' . $product['product_id'] . '"><img src="' . ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . 'image/' . $product['image'] . '" alt="' . $product['name'] . '" title="' . $product['name'] . '" class="img-responsive" style="width: 100%;" /></a>';
-            } else {
-                $html .= '<a href="' . ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . 'index.php?route=product/product&product_id=' . $product['product_id'] . '"><img src="' . ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . 'image/cache/no_image-100x100.png" alt="' . $product['name'] . '" title="' . $product['name'] . '" class="img-responsive" style="width: 100%;" /></a>';
-            }
-
-            $html .= '</div>
-                    <div>
-                        <div class="caption">
-                            <p><a target="_blank" href="' . ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . 'index.php?route=product/product&product_id=' . $product['product_id'] . '">' . $product['name'] . '</a></p>
-                            <p class="price">
-                                ' . $this->currency->format($product['price'], $this->config->get('config_currency')) . ' 
-                            </p>
-                        </div>
-                    </div>
-                </div>';
-        }
-        $html .= '</div>';
-        return $html;
-    }
-
-    protected function getHtmlSocial($social_links) {
-        $html = '<span>Мы в соц сетях:</span>';
-
-        $html .= '<div style="display:flex;">';
-
-        foreach ($social_links as $social_link) {
-            $html .= '<a href="' . $social_link["link"] . '" style="margin-right: 15px;"><img src="' . ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . "image/" . $social_link['image'] . '" style="width: 25px; height: 25px;" alt=""></a>';
-        }
-        
-        $html .= '</div>';
-        return $html;
+        $mail->setTo($to);
+        $mail->setFrom($from);
+        $mail->setSender(html_entity_decode($this->config->get('config_name'), ENT_QUOTES, 'UTF-8'));
+        $mail->setSubject(html_entity_decode(sprintf($message_info["letter_theme"]), ENT_QUOTES, 'UTF-8'));
+        $mail->setHtml($this->load->view('mail/mailing_template', $data));
+        $mail->send();
     }
 
     public function autocompleteCustomers() {
