@@ -81,6 +81,7 @@
                                             </td>
                                             <td>
                                                 <span class="pull-right d-flex">
+                                                    <a href="index.php?route=extension/module/mailing/copy&user_token={{ user_token }}&mailing_id={{ mailing.mailing_id }}" data-toggle="tooltip" title="{{ button_copy }}" class="btn btn-default"><i class="fa fa-copy"></i></a>
                                                     <span onclick="confirm('{{ text_start_mailing }}') ? startMailing({{mailing.mailing_id}}) : false;" data-toggle="tooltip" title="{{ button_start }}" class="btn btn-primary"><i class="fa fa-play-circle"></i></span>
                                                     <a href="index.php?route=extension/module/mailing/edit&user_token={{ user_token }}&mailing_id={{ mailing.mailing_id }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>
                                                     <span onclick="confirm('{{ text_delete_mailing }}') ? location = '{{ delete }}&mailing_id={{mailing.mailing_id}}' : false;" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger"><i class="fa fa-trash-o"></i></span>

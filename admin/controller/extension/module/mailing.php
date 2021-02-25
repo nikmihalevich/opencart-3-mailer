@@ -51,6 +51,27 @@ class ControllerExtensionModuleMailing extends Controller {
         $this->getForm("edit");
     }
 
+    public function copy() {
+        $this->load->language('extension/module/mailing');
+
+        $this->document->setTitle($this->language->get('heading_title'));
+
+        $this->load->model('extension/module/mailing');
+
+        if (isset($this->request->get['mailing_id']) && $this->validateCopy()) {
+            $this->model_extension_module_mailing->copyMailing($this->request->get['mailing_id']);
+
+            $this->session->data['success'] = $this->language->get('text_success');
+
+            $url = '';
+
+
+            $this->response->redirect($this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . $url, true));
+        }
+
+        $this->getList();
+    }
+
     public function delete() {
 		$this->load->language('extension/module/mailing');
 
@@ -994,6 +1015,14 @@ class ControllerExtensionModuleMailing extends Controller {
 
         if ($this->error && !isset($this->error['warning'])) {
             $this->error['warning'] = $this->language->get('error_warning');
+        }
+
+        return !$this->error;
+    }
+
+    protected function validateCopy() {
+        if (!$this->user->hasPermission('modify', 'extension/module/mailing')) {
+            $this->error['warning'] = $this->language->get('error_permission');
         }
 
         return !$this->error;

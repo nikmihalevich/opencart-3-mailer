@@ -56,6 +56,7 @@ $_['tab_block_settings']    = 'Настройки блока';
 // Confirms
 $_['confirm_delete_block']  = 'Вы уверены, что хотите удалить этот блок?';
 $_['confirm_delete_block_data'] = 'Вы уверены, что хотите удалить эти данные?';
+$_['confirm_copy_mailing']  = 'Вы уверены, что хотите создать дубликат этого шаблона рассылки?';
 
 // Columns
 $_['column_email']          = 'E-mail пользов.';
@@ -98,3 +99,4 @@ $_['button_add_to_mailing'] = 'Добавить в текущую рассылк
 $_['button_add_all_to_mailing'] = 'Добавить всех в текущую рассылку';
 $_['button_add_block']      = 'Добавить блок';
 $_['button_delete_from_block_data'] = 'Удалить из данных блока';
+$_['button_copy']           = 'Копировать';
