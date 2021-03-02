@@ -51,7 +51,7 @@ class ControllerExtensionModuleMailing extends Controller {
         $this->getForm("edit");
     }
 
-    public function copy() {
+    public function copyMailing() {
         $this->load->language('extension/module/mailing');
 
         $this->document->setTitle($this->language->get('heading_title'));
@@ -60,7 +60,6 @@ class ControllerExtensionModuleMailing extends Controller {
 
         if (isset($this->request->get['mailing_id']) && $this->validateCopy()) {
             $this->model_extension_module_mailing->copyMailing($this->request->get['mailing_id']);
-
             $this->session->data['success'] = $this->language->get('text_success');
 
             $url = '';

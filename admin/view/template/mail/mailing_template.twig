@@ -107,7 +107,7 @@
       {% for colId in 1..colCounts %}
         {% for block_data in block.blocks_data if block_data.col_id == colId %}
 
-          <table class="{{ block_data.block_grid_width }} block-data-table" style="{% if block_data.bg_color %}background: {{ block_data.bg_color }};{% endif %}{% if block_data.bg_image %}background: no-repeat url('{{ block_data.thumb }}') {{ block_data.bg_color }}; background-size: cover;{% endif %}{% if block_data.width %}width: {{ block_data.width }}{% if block_data.width_type == "0" %}px{% else %}%{% endif %}; margin: 0 auto;{% endif %} ">
+          <table class="{{ block_data.block_grid_width }} block-data-table" style="{% if block_data.bg_color %}background: {{ block_data.bg_color }};{% endif %}{% if block_data.bg_image %}background: no-repeat url('{{ block_data.thumb }}') {{ block_data.bg_color }}; background-size: cover;{% endif %}{% if block_data.width %}width: {{ block_data.width }}{% if block_data.width_type == "0" %}px{% else %}%{% endif %}; margin: 0 auto;{% endif %}{% if block_data.padding %}padding: {{ block_data.padding }}; display: block;{% endif %}">
             {% if block_data.text_ordinal <= block_data.products_ordinal %}
               {% if block_data.text %}
                 <tr>
