@@ -789,6 +789,12 @@ class ControllerExtensionModuleMailing extends Controller {
                     }
                     foreach ($results as $kkk => $result) {
                         $results[$kkk]['price'] = $this->currency->format($result['price'], $this->config->get('config_currency'));
+                        $link = $this->url->link('product/product', 'product_id=' . $results[$kkk]['product_id']);
+                        $link_arr = explode('/', $link);
+                        if(($key = array_search('admin', $link_arr)) !== false){
+                            unset($link_arr[$key]);
+                        }
+                        $results[$kkk]['link'] = implode('/', $link_arr);
                         if ($results[$kkk]['image']) {
                             $results[$kkk]['thumb'] = $this->model_tool_image->resize($result['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_height'));
                         } else {
