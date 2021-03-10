@@ -93,8 +93,10 @@
 
   {% for block in blocks %}
   <tr>
-    <td style="{% if block.width %}margin: 50px auto 0; max-width: 100%; width: {{ block.width }}{% if block.width_type == "0" %}px{% else %}%{% endif %};{% endif %}{% if block.bg_color %}background-color: {{ block.bg_color }};{% endif %}{% if block.bg_image %}background: no-repeat url('{{ block.background_image }}') {{ block.bg_color }}; background-size: cover;{% endif %}{% if block.padding %}padding: {{ block.padding }};{% endif %}display: flex;flex-wrap: wrap;justify-content: center;">
-
+    <td style="{% if block.bg_color %}background-color: {{ block.bg_color }};{% endif %}{% if block.bg_image %}background: no-repeat url('{{ block.background_image }}') {{ block.bg_color }}; background-size: cover;{% endif %}{% if block.padding %}padding: {{ block.padding }};{% endif %}display: flex;flex-wrap: wrap;justify-content: center;">
+      <table style="{% if block.width %}margin: 0 auto; max-width: 100%; width: {{ block.width }}{% if block.width_type == "0" %}px{% else %}%{% endif %};{% endif %}">
+        <tr>
+          <td>
       {% if block.grid_id == "1" %}
         {% set colCounts = 1 %}
       {% elseif block.grid_id == "2" or block.grid_id == "5" or block.grid_id == "6" %}
@@ -137,15 +139,17 @@
                                   <table class="product-layout product-list" style="margin-left: 15px; margin-top: 15px; padding: 10px; width: fit-content;">
                                     <tr>
                                       <td class="added-product-image">
-                                        <img src="{{ product.thumb }}" alt="{{ product.name }}" title="{{ product.name }}" class="img-responsive" />
+                                        <a href="{{ product.link }}">
+                                          <img src="{{ product.thumb }}" alt="{{ product.name }}" title="{{ product.name }}" class="img-responsive" />
+                                        </a>
                                       </td>
                                     </tr>
                                     <tr>
                                       <td class="caption">
                                         <a href="{{ product.link }}">
-                                          <p>{{ product.name }}</p>
-                                          <p class="price">{{ product.price}}</p>
+                                          {{ product.name }}
                                         </a>
+                                        <p class="price">{{ product.price}}</p>
                                       </td>
                                     </tr>
                                   </table>
@@ -207,6 +211,9 @@
         {% endfor %}
 
       {% endfor %}
+          </td>
+        </tr>
+      </table>
     </td>
   </tr>
   {% endfor %}

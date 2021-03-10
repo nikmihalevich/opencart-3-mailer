@@ -44,7 +44,7 @@ $_['entry_link']            = 'Вставить ссылку';
 $_['entry_letter_content']  = 'Содержимое письма';
 $_['entry_position_data_in_block'] = 'Позиция данных в блоке';
 $_['entry_bg_block']        = 'ФОН БЛОКА - Введите код цвета или Загрузите картинку';
-$_['entry_width_block']     = 'ШИРИНА БЛОКА';
+$_['entry_width_block']     = 'ШИРИНА ВНУТРЕННЕГО КОНТЕНТА';
 $_['entry_padding_block']   = 'ОТСТУПЫ ВНУТРИ БЛОКА';
 $_['entry_block_sort_ordinal']= 'СОРТИРОВКА ДАННЫХ В СПИСКЕ';
 
