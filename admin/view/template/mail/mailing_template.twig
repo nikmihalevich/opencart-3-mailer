@@ -94,7 +94,7 @@
   {% for block in blocks %}
   <tr>
     <td style="{% if block.bg_color %}background-color: {{ block.bg_color }};{% endif %}{% if block.bg_image %}background: no-repeat url('{{ block.background_image }}') {{ block.bg_color }}; background-size: cover;{% endif %}{% if block.padding %}padding: {{ block.padding }};{% endif %}display: flex;flex-wrap: wrap;justify-content: center;">
-      <table style="{% if block.width %}margin: 0 auto; max-width: 100%; width: {{ block.width }}{% if block.width_type == "0" %}px{% else %}%{% endif %};{% endif %}">
+      <table style="{% if block.width %}margin: 0 auto; max-width: 100%; width: {{ block.width }}{% if block.width_type == "0" %}px{% else %}%{% endif %};{% else %}width: 100%;{% endif %}">
         <tr>
           <td>
       {% if block.grid_id == "1" %}

@@ -260,7 +260,7 @@
                                         <div class="block-data-rows">
                                             {% for block in blocks %}
                                                 <div class="block-data-row" style="{% if block.bg_color %}background-color: {{ block.bg_color }};{% endif %}{% if block.bg_image %}background: no-repeat url('{{ block.background_image }}') {{ block.bg_color }}; background-size: cover;{% endif %}{% if block.padding %}padding: {{ block.padding }};{% endif %}border: 1px solid #dadada;" data-block-id="{{ block.id }}">
-                                                    <div class="block-data-row-inner" style="{% if block.width %}margin: 0 auto; max-width: 100%; width: {{ block.width }}{% if block.width_type == "0" %}px{% else %}%{% endif %};{% endif %}">
+                                                    <div class="block-data-row-inner" style="{% if block.width %}margin: 0 auto; max-width: 100%; width: {{ block.width }}{% if block.width_type == "0" %}px{% else %}%{% endif %};{% else %}width: 100%;{% endif %}">
                                                     {% if block.grid_id == "1" %}
                                                         {% set colCounts = 1 %}
                                                     {% elseif block.grid_id == "2" or block.grid_id == "5" or block.grid_id == "6" %}
