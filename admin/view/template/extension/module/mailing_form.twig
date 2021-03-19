@@ -97,6 +97,10 @@
         width: 16.6%;
         float: left;
     }
+    .w-12 {
+        width: 12%;
+        float: left;
+    }
     .block-data-row {
         margin-top: 50px;
         display: flex;
@@ -104,6 +108,13 @@
         justify-content: center;
         /*align-items: center;*/
         /*padding: 10px;*/
+        position: relative;
+    }
+    .block-data-row-inner {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
         position: relative;
     }
     .block-data-buttons {
@@ -379,7 +390,7 @@
                                                                 </tr>
                                                             </table>
                                                         {% else %}
-                                                            <div class="block-data-inner col-sm-2">
+                                                            <div class="block-data-inner w-12">
                                                                 <span>{{ text_add_data }}</span>
                                                                 <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="{{ colId }}" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
                                                             </div>
@@ -744,6 +755,7 @@
 <script type="text/javascript" src="view/javascript/summernote/opencart.js"></script>
 
 <script type="text/javascript">
+
     $('.summernote').eq(1).summernote('code')
     $('button[data-tooltip="tooltip"]').tooltip()
     $('.select-grid-field-inner-content-item').on('click', function () {
@@ -808,7 +820,7 @@
         html += '<div class="block-data-row" data-block-id="' + block_id + '">'
 
         for (let i = 0; i < cols; i++) {
-            html += '<div class="block-data-inner col-sm-2">\n' +
+            html += '<div class="block-data-inner w-12">\n' +
                         '<span>{{ text_add_data }}</span>\n' +
                         '<button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" class="btn btn-success pull-right add-block-data-btn" data-col-id="' + (i + 1) + '"><i class="fa fa-plus"></i></button>\n' +
                     '</div>'
