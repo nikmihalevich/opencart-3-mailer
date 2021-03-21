@@ -482,8 +482,6 @@ class ControllerExtensionModuleMailing extends Controller {
             $formData = $_POST['block'];
 
             $this->model_extension_module_mailing->editBlock($this->request->get['block_id'], $formData);
-
-
         }
     }
 

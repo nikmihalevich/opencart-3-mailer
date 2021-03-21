@@ -125,13 +125,14 @@
     .block-data-inner {
         text-align: center;
         border: 2px dashed #dadada;
-        padding: 5px;
+        padding: 8px;
         display: flex;
         align-items: center;
         margin: 10px;
     }
     .block-data-inner span {
-        margin: 5px 30px;
+        /*margin: 5px 30px;*/
+        margin-right: 4px;
     }
     .add-data-modal-footer {
         display: flex;
@@ -166,8 +167,9 @@
     .overlay-buttons {
         opacity: 0;
         color: white;
-        font-size: 100px;
+        /*font-size: 100px;*/
         position: absolute;
+        width: 100%;
         top: 35%;
         left: 50%;
         transform: translate(-50%, -50%);
@@ -270,7 +272,7 @@
                                     {% if mailing.mailing_id %}
                                         <div class="block-data-rows">
                                             {% for block in blocks %}
-                                                <div class="block-data-row" style="{% if block.bg_color %}background-color: {{ block.bg_color }};{% endif %}{% if block.bg_image %}background: no-repeat url('{{ block.background_image }}') {{ block.bg_color }}; background-size: cover;{% endif %}{% if block.padding %}padding: {{ block.padding }};{% endif %}border: 1px solid #dadada;" data-block-id="{{ block.id }}">
+                                                <div class="block-data-row" id="block-data-row-{{ block.id }}" style="{% if block.bg_color %}background-color: {{ block.bg_color }};{% endif %}{% if block.bg_image %}background: no-repeat url('{{ block.background_image }}') {{ block.bg_color }}; background-size: cover;{% endif %}{% if block.padding %}padding: {{ block.padding }};{% endif %}border: 1px solid #dadada;" data-block-id="{{ block.id }}">
                                                     <div class="block-data-row-inner" style="{% if block.width %}margin: 0 auto; max-width: 100%; width: {{ block.width }}{% if block.width_type == "0" %}px{% else %}%{% endif %};{% else %}width: 100%;{% endif %}">
                                                     {% if block.grid_id == "1" %}
                                                         {% set colCounts = 1 %}
@@ -755,6 +757,17 @@
 <script type="text/javascript" src="view/javascript/summernote/opencart.js"></script>
 
 <script type="text/javascript">
+    $(document).ready(function(){
+        let anchor = getCookie("block_row_anchor")
+        console.log(anchor)
+        if(anchor !== undefined) {
+            //узнаем высоту от начала страницы до блока на который ссылается якорь
+            let top = $("#block-data-row-" + anchor).offset().top;
+
+            //анимируем переход на расстояние - top за 1500 мс
+            $('body,html').animate({scrollTop: top}, 1500);
+        }
+    });
 
     $('.summernote').eq(1).summernote('code')
     $('button[data-tooltip="tooltip"]').tooltip()
@@ -792,6 +805,9 @@
             url: 'index.php?route=extension/module/mailing/editBlock&block_id=' + block_id + '&user_token={{ user_token }}',
             success: function (res) {
                 $('#settingsBlockModal').modal('hide')
+                let date = new Date()
+                date.setMinutes(date.getMinutes() + 1)
+                setCookie('block_row_anchor', block_id, { expires : date })
                 document.location.href = window.location;
             }
         })
@@ -998,6 +1014,9 @@
                     that.removeAttr('data-block-id')
                     that.removeAttr('data-block-data-id')
                     that.removeAttr('data-col-id')
+                    let date = new Date()
+                    date.setMinutes(date.getMinutes() + 1)
+                    setCookie('block_row_anchor', block_id, { expires : date })
                     document.location.href = window.location;
                 }
             })
@@ -1012,6 +1031,9 @@
                     that.removeAttr('data-block-id')
                     that.removeAttr('data-block-data-id')
                     that.removeAttr('data-col-id')
+                    let date = new Date()
+                    date.setMinutes(date.getMinutes() + 1)
+                    setCookie('block_row_anchor', block_id, { expires : date })
                     document.location.href = window.location;
                 }
             })
@@ -1412,6 +1434,33 @@
                 alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
             }
         });
+    }
+
+    function getCookie(name) {
+        let matches = document.cookie.match(new RegExp(
+                "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+        ));
+        return matches ? decodeURIComponent(matches[1]) : undefined;
+    }
+
+    function setCookie(name, value, options = {}) {
+        options = {
+            path: '/',
+            // при необходимости добавьте другие значения по умолчанию
+            ...options
+        };
+        if (options.expires instanceof Date) {
+            options.expires = options.expires.toUTCString();
+        }
+        let updatedCookie = encodeURIComponent(name) + "=" + encodeURIComponent(value);
+        for (let optionKey in options) {
+            updatedCookie += "; " + optionKey;
+            let optionValue = options[optionKey];
+            if (optionValue !== true) {
+                updatedCookie += "=" + optionValue;
+            }
+        }
+        document.cookie = updatedCookie;
     }
 
     $(document).ready(function() {
