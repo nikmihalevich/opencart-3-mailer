@@ -200,6 +200,16 @@
         max-width: 140px;
     }
 
+    .grid-view-type-heading {
+        text-align: center;
+        font-weight: bold;
+    }
+
+    .grid-view-type {
+        display: flex;
+        justify-content: center;
+    }
+
     @media (max-width: 768px) {
         .w-xs {
             width: 100%;
@@ -392,20 +402,19 @@
                                                                 </tr>
                                                             </table>
                                                         {% else %}
-                                                            <div class="block-data-inner w-12">
-                                                                <span>{{ text_add_data }}</span>
+                                                            <div class="block-data-inner">
                                                                 <button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="{{ colId }}" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>
                                                             </div>
 
                                                         {% endfor %}
 
                                                     {% endfor %}
-
+                                                    </div>
                                                     <div class="block-data-buttons">
                                                         <button type="button" data-toggle="modal" data-target="#settingsBlockModal" data-tooltip="tooltip" title="{{ button_edit }}" data-block-id="{{ block.id }}" class="btn btn-primary edit-block-settings-btn"><i class="fa fa-pencil"></i></button>
                                                         <button type="button" data-tooltip="tooltip" title="{{ button_delete }}" data-block-id="{{ block.id }}" class="btn btn-danger delete-block-btn"><i class="fa fa-trash"></i></button>
                                                     </div>
-                                                </div>
+
                                                 </div>
                                             {% endfor %}
                                         </div>
@@ -688,7 +697,14 @@
                 <h5 class="modal-title">{{ text_settings }}</h5>
             </div>
             <div class="modal-body">
-
+                <div class="grid-view-type-heading">
+                    {{ text_block_view }}
+                </div>
+                <div class="grid-view-type">
+                    <div class="select-grid-field-inner-content-item" data-grid-id="1">
+                        <div class="gray-bg w-100"></div>
+                    </div>
+                </div>
                 <div class="form-group">
                     <label class="col-sm-12 control-label" for="input-block-bg-color">{{ entry_bg_block }}</label>
                     <div class="col-sm-12">
@@ -760,12 +776,13 @@
     $(document).ready(function(){
         let anchor = getCookie("block_row_anchor")
         console.log(anchor)
-        if(anchor !== undefined) {
+        if(anchor !== undefined && anchor !== 'undefined') {
             //узнаем высоту от начала страницы до блока на который ссылается якорь
             let top = $("#block-data-row-" + anchor).offset().top;
 
             //анимируем переход на расстояние - top за 1500 мс
             $('body,html').animate({scrollTop: top}, 1500);
+            deleteCookie("block_row_anchor")
         }
     });
 
@@ -834,18 +851,19 @@
         }
 
         html += '<div class="block-data-row" data-block-id="' + block_id + '">'
+        html += '<div class="block-data-row-inner">'
 
         for (let i = 0; i < cols; i++) {
-            html += '<div class="block-data-inner w-12">\n' +
-                        '<span>{{ text_add_data }}</span>\n' +
+            html += '<div class="block-data-inner">\n' +
                         '<button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" class="btn btn-success pull-right add-block-data-btn" data-col-id="' + (i + 1) + '"><i class="fa fa-plus"></i></button>\n' +
                     '</div>'
         }
-
+        html += '</div>'
         html += '<div class="block-data-buttons">\n' +
                     '<button type="button" data-toggle="modal" data-target="#settingsBlockModal" data-tooltip="tooltip" title="{{ button_edit }}" data-block-id="' + block_id + '" class="btn btn-primary edit-block-settings-btn"><i class="fa fa-pencil"></i></button>\n' +
                     '<button type="button" data-tooltip="tooltip" title="{{ button_delete }}" data-block-id="' + block_id + '" class="btn btn-danger delete-block-btn"><i class="fa fa-trash"></i></button>\n' +
                 '</div>'
+
         html += '</div>'
 
         return html;
@@ -860,6 +878,8 @@
                 type: "GET",
                 url: 'index.php?route=extension/module/mailing/getBlock&block_id=' + block_id + '&user_token={{ user_token }}',
                 success: function(response) {
+                    // get html view grid by grid_id
+                    $('.grid-view-type').html(getGridViewHTML(response.grid_id))
                     let keys = Object.keys(response)
                     for (let i = 0; i < keys.length; i++) {
                         $( ":input[name='block[" + keys[i] + "]']" ).val(response[keys[i]])
@@ -871,6 +891,103 @@
             })
         })
     }
+
+    function getGridViewHTML(grid_id) {
+        let html = '';
+
+        switch (grid_id) {
+            case "1":
+                html += '<div class="select-grid-field-inner-content-item">\n' +
+                            '<div class="gray-bg w-100"></div>\n' +
+                        '</div>'
+                break;
+            case "2":
+                html += '<div class="select-grid-field-inner-content-item">\n' +
+                            '<div class="gray-bg w-50"></div>\n' +
+                            '<div class="gray-bg w-50"></div>\n' +
+                        '</div>'
+                break;
+            case "3":
+                html += '<div class="select-grid-field-inner-content-item">\n' +
+                            '<div class="gray-bg w-33"></div>\n' +
+                            '<div class="gray-bg w-33"></div>\n' +
+                            '<div class="gray-bg w-33"></div>\n' +
+                        '</div>'
+                break;
+            case "4":
+                html += '<div class="select-grid-field-inner-content-item">\n' +
+                            '<div class="gray-bg w-25"></div>\n' +
+                            '<div class="gray-bg w-25"></div>\n' +
+                            '<div class="gray-bg w-25"></div>\n' +
+                            '<div class="gray-bg w-25"></div>\n' +
+                        '</div>'
+                break;
+            case "5":
+                html += '<div class="select-grid-field-inner-content-item">\n' +
+                            '<div class="gray-bg w-33"></div>\n' +
+                            '<div class="gray-bg w-66"></div>\n' +
+                        '</div>'
+                break;
+            case "6":
+                html += '<div class="select-grid-field-inner-content-item">\n' +
+                            '<div class="gray-bg w-66"></div>\n' +
+                            '<div class="gray-bg w-33"></div>\n' +
+                        '</div>'
+                break;
+            case "7":
+                html += '<div class="select-grid-field-inner-content-item">\n' +
+                            '<div class="gray-bg w-25"></div>\n' +
+                            '<div class="gray-bg w-25"></div>\n' +
+                            '<div class="gray-bg w-50"></div>\n' +
+                        '</div>'
+                break;
+            case "8":
+                html += '<div class="select-grid-field-inner-content-item">\n' +
+                            '<div class="gray-bg w-50"></div>\n' +
+                            '<div class="gray-bg w-25"></div>\n' +
+                            '<div class="gray-bg w-25"></div>\n' +
+                        '</div>'
+                break;
+            case "9":
+                html += '<div class="select-grid-field-inner-content-item">\n' +
+                            '<div class="gray-bg w-25"></div>\n' +
+                            '<div class="gray-bg w-50"></div>\n' +
+                            '<div class="gray-bg w-25"></div>\n' +
+                        '</div>'
+                break;
+            case "10":
+                html += '<div class="select-grid-field-inner-content-item">\n' +
+                            '<div class="gray-bg w-20"></div>\n' +
+                            '<div class="gray-bg w-20"></div>\n' +
+                            '<div class="gray-bg w-20"></div>\n' +
+                            '<div class="gray-bg w-20"></div>\n' +
+                            '<div class="gray-bg w-20"></div>\n' +
+                        '</div>'
+                break;
+            case "11":
+                html += '<div class="select-grid-field-inner-content-item">\n' +
+                            '<div class="gray-bg w-16"></div>\n' +
+                            '<div class="gray-bg w-16"></div>\n' +
+                            '<div class="gray-bg w-16"></div>\n' +
+                            '<div class="gray-bg w-16"></div>\n' +
+                            '<div class="gray-bg w-16"></div>\n' +
+                            '<div class="gray-bg w-16"></div>\n' +
+                        '</div>'
+                break;
+            case "12":
+                html += '<div class="select-grid-field-inner-content-item">\n' +
+                            '<div class="gray-bg w-16"></div>\n' +
+                            '<div class="gray-bg w-66"></div>\n' +
+                            '<div class="gray-bg w-16"></div>\n' +
+                        '</div>'
+                break;
+            default:
+                break;
+        }
+
+        return html;
+    }
+
     deleteBlock()
     function deleteBlock() {
         $('.delete-block-btn').unbind('click');
@@ -917,6 +1034,8 @@
                 type: "GET",
                 url: 'index.php?route=extension/module/mailing/getBlockData&block_data_id=' + block_data_id + '&user_token={{ user_token }}',
                 success: function(response) {
+                    console.log(response)
+                    $('.add-block-data-modal-btn').attr('data-block-id', response.block_id)
                     let keys = Object.keys(response)
                     for (let i = 0; i < keys.length; i++) {
                         if(response[keys[i]] !== '0') {
@@ -988,8 +1107,7 @@
     }
 
     function emptyBlockDataHTML(col_id) {
-        let html = '<div class="block-data-inner col-sm-2">\n' +
-                       '<span>{{ text_add_data }}</span>\n' +
+        let html = '<div class="block-data-inner">\n' +
                        '<button type="button" data-toggle="modal" data-target="#addBlockDataModal" data-tooltip="tooltip" title="{{ button_add }}" data-col-id="' + col_id + '" class="btn btn-success pull-right add-block-data-btn"><i class="fa fa-plus"></i></button>\n' +
                    '</div>'
 
@@ -1461,6 +1579,12 @@
             }
         }
         document.cookie = updatedCookie;
+    }
+
+    function deleteCookie(name) {
+        setCookie(name, "", {
+            'max-age': -1
+        })
     }
 
     $(document).ready(function() {

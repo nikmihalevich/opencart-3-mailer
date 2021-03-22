@@ -29,6 +29,7 @@ $_['text_settings']         = 'Настройки';
 $_['text_pixels']           = 'Пиксели';
 $_['text_percents']         = 'Проценты';
 $_['text_create_mailing']   = 'Создайте шаблон, чтобы добавить в него содержимое';
+$_['text_block_view']       = 'Вид блока';
 
 // Entry
 $_['entry_template_name']   = 'Название шаблона';
