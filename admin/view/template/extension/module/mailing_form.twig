@@ -518,7 +518,7 @@
                                     <input type="text" name="filter_name" value="" placeholder="Name" id="input-name" class="form-control"/>
                                 </div>
                                 <div class="col-sm-2">
-                                    <span onclick="{% if mailing.mailing_id %} resetFilter() {% else %} resetFilterAdd() {% endif %}" data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_reset }}" class="btn btn-danger"><i class="fa fa-refresh"></i>&nbsp;Очистить</span>
+                                    <span onclick="{% if mailing.mailing_id %} resetFilter() {% else %} resetFilterAdd() {% endif %}" data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_reset }}" class="btn btn-danger"><i class="fa fa-refresh"></i>&nbsp;{{ button_clear }}</span>
                                     {% if mailing.mailing_id %}
                                     <span class="pull-right">
                                         <span data-toggle="tooltip" title="{{ button_add_all_to_mailing }}" class="btn btn-success subscribe-all-customers"><i class="fa fa-plus"></i></span>
@@ -1224,7 +1224,7 @@
                 url: 'index.php?route=extension/module/mailing/subscribeAllToMailing&mailing_id={{ mailing.mailing_id }}' + '&user_token={{ user_token }}',
                 success: function() {
                     getMailingCustomers()
-                    alert('Пользователи успешно добавлены в рассылку!')
+                    alert('{{ text_users_success_added }}')
                 }
             });
         }
@@ -1239,7 +1239,7 @@
                 url: 'index.php?route=extension/module/mailing/unsubscribeAllFromMailing&customer_id=' + $(this).data('customerId') + '&mailing_id={{ mailing.mailing_id }}' + '&user_token={{ user_token }}',
                 success: function() {
                     getMailingCustomers()
-                    alert('Пользователи успешно удалены из рассылки!')
+                    alert('{{ text_users_success_removed }}')
                 }
             });
         }
@@ -1261,7 +1261,7 @@
                         _this.remove();
                         sub()
                         getMailingCustomers()
-                        alert('Пользователь успешно удален из рассылки!')
+                        alert('{{ text_user_success_removed }}')
                     }
                 });
             }
@@ -1283,7 +1283,7 @@
                         _this.remove();
                         unsub()
                         getMailingCustomers()
-                        alert('Пользователь успешно добавлен в рассылку!')
+                        alert('{{ text_user_success_added }}')
                     }
                 });
             }
@@ -1497,14 +1497,14 @@
     function deleteProductFromMailing(product_id) {
         $('.added-products-list').find("[data-product-id='" + product_id + "']").appendTo(".products-list")
         $('.products-list').find("[data-product-id='" + product_id + "']").find('.button-group').html(
-            '<button type="button" onclick="addProductToMailing(' + product_id + ')"> Добавить в рассылку</button>'
+            '<button type="button" onclick="addProductToMailing(' + product_id + ')"> {{ button_product_to_mailing }}</button>'
         )
     }
 
     function addProductToMailing(product_id) {
         $('.products-list').find("[data-product-id='" + product_id + "']").appendTo(".added-products-list")
         $('.added-products-list').find("[data-product-id='" + product_id + "']").find('.button-group').html(
-            '<button type="button" onclick="deleteProductFromMailing(' + product_id + ')"> Удалить из рассылки</button>' +
+            '<button type="button" onclick="deleteProductFromMailing(' + product_id + ')"> {{ button_product_from_mailing }}</button>' +
             '<input type="hidden" name="added_products_id[]" id="added-product-id" value="' + product_id + '" />'
         )
     }
@@ -1536,7 +1536,7 @@
                                                 '</p>' +
                                                 '<div class="button-group">' +
                                                     '<button type="button" onclick="addProductToMailing(' + val.product_id + ')">' +
-                                                    'Добавить в рассылку' +
+                                                    '{{ button_product_to_mailing }}' +
                                                     '</button>' +
                                                 '</div>' +
                                             '</div>' +

@@ -40,7 +40,7 @@
                                     <input type="text" name="filter_mailing_name" value="" placeholder="{{ column_template_name }}" id="input-name" class="form-control"/>
                                 </div>
                                 <div class="col-sm-2">
-                                    <span onclick="resetMailingFilter()" data-toggle="tooltip" title="{{ button_reset }}" class="btn btn-danger"><i class="fa fa-refresh"></i>&nbsp;Очистить</span>
+                                    <span onclick="resetMailingFilter()" data-toggle="tooltip" title="{{ button_reset }}" class="btn btn-danger"><i class="fa fa-refresh"></i>&nbsp;{{ button_clear }}</span>
                                 </div>
                                 <div class="col-sm-5">
                                     <div style="margin-bottom: 20px" class="pull-right">
@@ -106,7 +106,7 @@
                                     <input type="text" name="filter_name" value="" placeholder="{{ column_name }}" id="input-name" class="form-control"/>
                                 </div>
                                 <div class="col-sm-2">
-                                    <span onclick="resetCustomerFilter()" data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_reset }}" class="btn btn-danger"><i class="fa fa-refresh"></i>&nbsp;Очистить</span>
+                                    <span onclick="resetCustomerFilter()" data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_reset }}" class="btn btn-danger"><i class="fa fa-refresh"></i>&nbsp;{{ button_clear }}</span>
                                 </div>
                             </div>
                             <table class="table table-bordered table-hover subscribed-customers">
@@ -164,7 +164,7 @@
                 <p>Some text in the modal.</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default close-modal" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-default close-modal" data-dismiss="modal">{{ button_close }}</button>
             </div>
         </div>
 
@@ -407,7 +407,7 @@
             url: 'index.php?route=extension/module/mailing/startmailing&user_token={{ user_token }}&mailing_id='+mailing_id,
             beforeSend: function() {
                 $('.modal-body p').text('');
-                $('.modal-body p').text('Рассылка началась');
+                $('.modal-body p').text('{{ text_mailing_started }}');
                 $('#myModal').modal({
                     show: true
                 })
@@ -419,7 +419,7 @@
                 $('.modal-body p').text('');
 
                 if(!res)
-                    $('.modal-body p').text('Рассылка успешно выполнена!');
+                    $('.modal-body p').text('{{ text_mailing_done }}');
                 else
                     $('.modal-body p').text(res);
 
@@ -435,9 +435,9 @@
     function startMailingByDate(mailing_id, date_start) {
         $('.modal-body p').text('');
         if(date_start !== '0000-00-00 00:00:00') {
-            $('.modal-body p').text('Рассылка будет автоматически запущена ' + date_start);
+            $('.modal-body p').text('{{ text_mailing_will_start}} ' + date_start);
         } else {
-            $('.modal-body p').text('Для этого типа рассылки необходимо указать корректную дату!');
+            $('.modal-body p').text('{{ text_mailing_correct_date }}');
         }
         $('#myModal').modal({
             show: true
