@@ -400,16 +400,6 @@ class ControllerExtensionModuleMailing extends Controller {
             $data['mailing_customers'] = array();
         }
 
-        $data['social_icons'] = $this->model_extension_module_mailing->getSocialIcons();
-
-        foreach ($data['social_icons'] as $k => $icon) {
-            foreach ($data['mailing_social_links'] as $link) {
-                if($icon['icon_id'] == $link['icon_id']) {
-                    $data['social_icons'][$k]['link'] = $link['link'];
-                }
-            }
-        }
-
         $filter_data = array(
             'filter_newsletter' => 1,
             'sort'              => $sort,
@@ -807,10 +797,6 @@ class ControllerExtensionModuleMailing extends Controller {
 
             $mailing_blocks['blocks'] = $blocks_info;
             $mailing_blocks['title'] = $mailing_description['letter_theme'];
-
-//            echo "<pre>";
-//            print_r($mailing_blocks);
-//            echo "</pre>";
 
             $count_letters = intval($mailing['counter_letters']);
 

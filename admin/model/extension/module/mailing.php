@@ -35,13 +35,6 @@ class ModelExtensionModuleMailing extends Model {
             `customer_id` INT(11) NOT NULL,
             PRIMARY KEY (`id`)
 		) ENGINE=MyISAM DEFAULT COLLATE=utf8_general_ci;");
-        $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "social_icons` (
-            `id` INT(11) NOT NULL AUTO_INCREMENT,
-            `icon_id` INT(11) NOT NULL,
-            `name` VARCHAR(50) NOT NULL,
-            `image` VARCHAR(255) NOT NULL,
-            PRIMARY KEY (`id`)
-		) ENGINE=MyISAM DEFAULT COLLATE=utf8_general_ci;");
         $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "mailing_blocks` (
             `id` INT(11) NOT NULL AUTO_INCREMENT,
             `mailing_id` INT(11) NOT NULL,
@@ -69,11 +62,6 @@ class ModelExtensionModuleMailing extends Model {
             `padding` VARCHAR(20) DEFAULT NULL,
             PRIMARY KEY (`id`)
 		) ENGINE=MyISAM DEFAULT COLLATE=utf8_general_ci;");
-        $this->db->query("INSERT INTO " . DB_PREFIX . "social_icons SET `icon_id` = '1', `name` = 'Facebook', `image` = 'social/facebook.png'");
-        $this->db->query("INSERT INTO " . DB_PREFIX . "social_icons SET `icon_id` = '2', `name` = 'Instagram', `image` = 'social/instagram.png'");
-        $this->db->query("INSERT INTO " . DB_PREFIX . "social_icons SET `icon_id` = '3', `name` = 'OK', `image` = 'social/odnoklassniki.png'");
-        $this->db->query("INSERT INTO " . DB_PREFIX . "social_icons SET `icon_id` = '4', `name` = 'Twitter', `image` = 'social/twitter.png'");
-        $this->db->query("INSERT INTO " . DB_PREFIX . "social_icons SET `icon_id` = '5', `name` = 'VK', `image` = 'social/VK.png'");
     }
 
     public function uninstall() {
@@ -82,7 +70,6 @@ class ModelExtensionModuleMailing extends Model {
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "product_to_mailing`");
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "mailing_social_links`");
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "customer_to_mailing`");
-        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "social_icons`");
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "mailing_blocks`");
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "mailing_blocks_data`");
 
@@ -404,21 +391,6 @@ class ModelExtensionModuleMailing extends Model {
         }
 
         return $social_links;
-    }
-
-    public function getSocialIcons() {
-        $social_icons = array();
-        $query = $this->db->query("SELECT icon_id, `name`, image FROM " . DB_PREFIX . "social_icons");
-
-        foreach ($query->rows as $result) {
-            $social_icons[] = array(
-                'icon_id' => intval($result['icon_id']),
-                'name'    => $result['name'],
-                'image'   => $result['image']
-            );
-        }
-
-        return $social_icons;
     }
 
     public function getMailingCustomersId($mailing_id) {
