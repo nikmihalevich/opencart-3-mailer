@@ -330,7 +330,7 @@ class ControllerExtensionModuleMailing extends Controller {
         if (isset($this->request->get['mailing_id']) && ($this->request->server['REQUEST_METHOD'] != 'POST')) {
 			$mailing_info = $this->model_extension_module_mailing->getMailing($this->request->get['mailing_id']);
 			$blocks_info  = $this->model_extension_module_mailing->getBlocks($this->request->get['mailing_id']);
-//			echo "<pre>";
+
             $this->load->model('catalog/product');
             $this->load->model('tool/image');
             foreach ($blocks_info as $k => $block) {
@@ -361,8 +361,6 @@ class ControllerExtensionModuleMailing extends Controller {
 			}
 
 			$data['blocks'] = $blocks_info;
-//			print_r($blocks_info);
-//            echo "</pre>";
 		}
 
         $data['user_token'] = $this->session->data['user_token'];
