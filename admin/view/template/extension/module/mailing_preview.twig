@@ -1,0 +1,226 @@
+{{ header }}
+<style type="text/css">
+  [style*="Open Sans"] {font-family: 'Open Sans', arial, sans-serif !important;}
+
+  .mailing-preview img {
+    outline: none;
+    text-decoration: none;
+    border:none;
+    -ms-interpolation-mode: bicubic;
+    max-width: 100%!important;
+    margin: 0;
+    padding: 0;
+    display: block;
+  }
+
+  .mailing-preview table td {
+    border-collapse: collapse;
+  }
+
+  .mailing-preview table {
+    border-collapse: collapse;
+    mso-table-lspace: 0pt;
+    mso-table-rspace: 0pt;
+  }
+
+  .w-100 {
+    width: 100%;
+  }
+  .w-66 {
+    width: 66.7%;
+    float: left;
+  }
+  .w-50 {
+    width: 50%;
+    float: left;
+  }
+  .w-33 {
+    width: 33.3%;
+    float: left;
+  }
+  .w-25 {
+    width: 25%;
+    float: left;
+  }
+  .w-20 {
+    width: 20%;
+    float: left;
+  }
+  .w-16 {
+    width: 16.6%;
+    float: left;
+  }
+
+  .block-data-table {
+    position: relative;
+  }
+
+  .added-product-image img {
+    height: auto;
+    width: auto;
+    max-width: 100px;
+    max-height: 100px;
+  }
+
+  @media (max-width: 768px) {
+    .w-xs {
+      width: 100%;
+    }
+  }
+</style>
+{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a>
+      </div>
+      <h1>{{heading_title}}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_mailing_preview}}</h3>
+      </div>
+      <div class="panel-body mailing-preview">
+        <table cellpadding="0" cellspacing="0" width="100%">
+
+          {% for block in blocks %}
+            <tr>
+              <td style="{% if block.bg_color %}background-color: {{ block.bg_color }};{% endif %}{% if block.bg_image %}background: no-repeat url('{{ block.background_image }}') {{ block.bg_color }}; background-size: cover;{% endif %}{% if block.padding %}padding: {{ block.padding }};{% endif %}display: flex;flex-wrap: wrap;justify-content: center;">
+                <table style="{% if block.width %}margin: 0 auto; max-width: 100%; width: {{ block.width }}{% if block.width_type == "0" %}px{% else %}%{% endif %};{% else %}width: 100%;{% endif %}">
+                  <tr>
+                    <td>
+                      {% if block.grid_id == "1" %}
+                        {% set colCounts = 1 %}
+                      {% elseif block.grid_id == "2" or block.grid_id == "5" or block.grid_id == "6" %}
+                        {% set colCounts = 2 %}
+                      {% elseif block.grid_id == "3" or block.grid_id == "7" or block.grid_id == "8" or block.grid_id == "9" or block.grid_id == "12" %}
+                        {% set colCounts = 3 %}
+                      {% elseif block.grid_id == "4" %}
+                        {% set colCounts = 4 %}
+                      {% elseif block.grid_id == "10" %}
+                        {% set colCounts = 5 %}
+                      {% elseif block.grid_id == "11" %}
+                        {% set colCounts = 6 %}
+                      {% endif %}
+
+                      {% set ignoredCols = [] %}
+
+                      {% for colId in 1..colCounts %}
+                        {% for block_data in block.blocks_data if block_data.col_id == colId %}
+
+                          <table class="{{ block_data.block_grid_width }} block-data-table w-xs" style="{% if block_data.bg_color %}background: {{ block_data.bg_color }};{% endif %}{% if block_data.bg_image %}background: no-repeat url('{{ block_data.thumb }}') {{ block_data.bg_color }}; background-size: cover;{% endif %}{% if block_data.width %}width: {{ block_data.width }}{% if block_data.width_type == "0" %}px{% else %}%{% endif %}; margin: 0 auto;{% endif %}">
+                            <tr>
+                              <td style="{% if block_data.padding %}padding: {{ block_data.padding }};{% endif %}">
+                                <table class="w-100">
+                                  {% if block_data.text_ordinal <= block_data.products_ordinal %}
+                                    {% if block_data.text %}
+                                      <tr>
+                                        <td>
+                                          {{ block_data.text }}
+                                        </td>
+                                      </tr>
+                                    {% endif %}
+                                    {% if block_data.products %}
+                                      <tr>
+                                        <td>
+                                          <table width="60%" style="margin: 0 auto;">
+                                            <tr>
+                                              <td style="display: flex;justify-content: center;flex-wrap: wrap;">
+                                                {% for product in block_data.products %}
+
+                                                  <table class="product-layout product-list" style="margin-left: 15px; margin-top: 15px; padding: 10px; width: fit-content;">
+                                                    <tr>
+                                                      <td class="added-product-image">
+                                                        <a href="{{ product.link }}">
+                                                          <img src="{{ product.thumb }}" alt="{{ product.name }}" title="{{ product.name }}" class="img-responsive" />
+                                                        </a>
+                                                      </td>
+                                                    </tr>
+                                                    <tr>
+                                                      <td class="caption">
+                                                        <a href="{{ product.link }}">
+                                                          {{ product.name }}
+                                                        </a>
+                                                        <p class="price">{{ product.price}}</p>
+                                                      </td>
+                                                    </tr>
+                                                  </table>
+
+                                                {% endfor %}
+                                              </td>
+                                            </tr>
+                                          </table>
+                                        </td>
+                                      </tr>
+                                    {% endif %}
+                                  {% else %}
+                                    {% if block_data.products %}
+                                      <tr>
+                                        <td>
+                                          <table width="60%" style="margin: 0 auto;">
+                                            <tr>
+                                              <td style="display: flex;justify-content: center;flex-wrap: wrap;">
+                                                {% for product in block_data.products %}
+
+                                                  <table class="product-layout product-list col-sm-3 col-xs-12" style="margin-left: 15px; margin-top: 15px; padding: 10px; width: fit-content;">
+                                                    <tr>
+                                                      <td class="added-product-image">
+                                                        <img src="{{ product.thumb }}" alt="{{ product.name }}" title="{{ product.name }}" class="img-responsive" />
+                                                      </td>
+                                                    </tr>
+                                                    <tr>
+                                                      <td class="caption">
+                                                        <a href="{{ product.link }}">
+                                                          <p>{{ product.name }}</p>
+                                                          <p class="price">{{ product.price}}</p>
+                                                        </a>
+                                                      </td>
+                                                    </tr>
+                                                  </table>
+
+                                                {% endfor %}
+                                              </td>
+                                            </tr>
+                                          </table>
+                                        </td>
+                                      </tr>
+                                    {% endif %}
+                                    {% if block_data.text %}
+                                      <tr>
+                                        <td>
+                                          <div>
+                                            {{ block_data.text }}
+                                          </div>
+                                        </td>
+                                      </tr>
+                                    {% endif %}
+                                  {% endif %}
+                                </table>
+                              </td>
+                            </tr>
+                          </table>
+
+                        {% endfor %}
+
+                      {% endfor %}
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{footer}}

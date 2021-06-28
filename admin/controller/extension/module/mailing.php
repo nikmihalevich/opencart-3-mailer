@@ -71,6 +71,16 @@ class ControllerExtensionModuleMailing extends Controller {
         $this->getList();
     }
 
+    public function previewMailing() {
+        $this->load->language('extension/module/mailing');
+
+        $this->document->setTitle($this->language->get('heading_title'));
+
+        $this->load->model('extension/module/mailing');
+
+        $this->getPreview();
+    }
+
     public function delete() {
 		$this->load->language('extension/module/mailing');
 
@@ -118,6 +128,74 @@ class ControllerExtensionModuleMailing extends Controller {
 
 		$this->getList();
 	}
+
+	protected function getPreview() {
+        $url = '';
+
+        if (isset($this->request->get['order'])) {
+            $url .= '&order=' . $this->request->get['order'];
+        }
+
+        $data['breadcrumbs'] = array();
+
+        $data['breadcrumbs'][] = array(
+            'text' => $this->language->get('text_home'),
+            'href' => $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'], true)
+        );
+
+        $data['breadcrumbs'][] = array(
+            'text' => $this->language->get('heading_title'),
+            'href' => $this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . $url, true)
+        );
+
+        $data['cancel'] = $this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . $url, true);
+
+        if (isset($this->request->get['mailing_id']) && ($this->request->server['REQUEST_METHOD'] != 'POST')) {
+            $mailing_info = $this->model_extension_module_mailing->getMailing($this->request->get['mailing_id']);
+            $blocks_info  = $this->model_extension_module_mailing->getBlocks($this->request->get['mailing_id']);
+
+            $this->load->model('catalog/product');
+            $this->load->model('tool/image');
+            foreach ($blocks_info as $k => $block) {
+                $blocks_info[$k]['background_image'] = ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . "image/" . $block['bg_image'];
+                $block_data_info = $this->model_extension_module_mailing->getBlockData($block['id']);
+                foreach ($block_data_info as $kk => $block_data) {
+                    if ($block_data['bg_image']) {
+                        $block_data_info[$kk]['thumb'] = $this->model_tool_image->resize($block_data['bg_image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_height'));
+                    } else {
+                        $block_data_info[$kk]['thumb'] = '';
+                    }
+                    $results = array();
+                    foreach ($block_data['products'] as $product) {
+                        $results[] = $this->model_catalog_product->getProduct($product['product_id']);
+                    }
+                    foreach ($results as $kkk => $result) {
+                        $results[$kkk]['price'] = $this->currency->format($result['price'], $this->config->get('config_currency'));
+                        if ($results[$kkk]['image']) {
+                            $results[$kkk]['thumb'] = $this->model_tool_image->resize($result['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_height'));
+                        } else {
+                            $results[$kkk]['thumb'] = $this->model_tool_image->resize('no_image.png', 100, 100);;
+                        }
+                    }
+                    $block_data_info[$kk]['products'] = $results;
+                }
+
+                $blocks_info[$k]['blocks_data'] = $block_data_info;
+            }
+
+            $data['blocks'] = $blocks_info;
+        }
+
+        $this->load->model('design/layout');
+
+        $data['layouts'] = $this->model_design_layout->getLayouts();
+
+        $data['header'] = $this->load->controller('common/header');
+        $data['column_left'] = $this->load->controller('common/column_left');
+        $data['footer'] = $this->load->controller('common/footer');
+
+        $this->response->setOutput($this->load->view('extension/module/mailing_preview', $data));
+    }
 
     protected function getList() {
         if (isset($this->request->get['sort'])) {
@@ -229,9 +307,12 @@ class ControllerExtensionModuleMailing extends Controller {
         $data['sort_date_added'] = $this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . '&sort=date_added' . $url, true);
         $data['sort_date_start'] = $this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . '&sort=date_start' . $url, true);
 
-
         $data['sort_name'] = $this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . '&sort=c.name' . $url, true);
         $data['sort_email'] = $this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . '&sort=c.email' . $url, true);
+
+        $data['previewMailingAction'] = $this->url->link('extension/module/mailing/previewMailing', 'user_token=' . $this->session->data['user_token'], true);
+        $data['copyMailingAction'] = $this->url->link('extension/module/mailing/copyMailing', 'user_token=' . $this->session->data['user_token'], true);
+        $data['editMailingAction'] = $this->url->link('extension/module/mailing/edit', 'user_token=' . $this->session->data['user_token'], true);
 
         $url = '';
 
