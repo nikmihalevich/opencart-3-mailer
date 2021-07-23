@@ -258,7 +258,25 @@
                     </ul>
                     <div class="tab-content">
                         <div class="tab-pane active" id="tab-templates"> {# 1 TAB TEMPLATE #}
-                        <div class="form-group required">
+                            <div class="form-group required">
+                                <label class="col-sm-2 control-label" for="input-name">{{ entry_mailing_category }}</label>
+                                <div class="col-sm-10">
+                                    <select name="mailing_category_id" id="input-mailing-category" class="form-control">
+                                        <option value="">{{ text_none }}</option>
+                                        {% for mailing_category in mailing_categories %}
+                                            {% if mailing_category.mailing_category_id == mailing_category_id %}
+                                                <option value="{{ mailing_category.mailing_category_id }}" selected>{{ mailing_category.name }}</option>
+                                            {% else %}
+                                                <option value="{{ mailing_category.mailing_category_id }}">{{ mailing_category.name }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                    {% if error_mailing_category %}
+                                        <div class="text-danger">{{ error_mailing_category }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="form-group required">
                                 <label class="col-sm-2 control-label" for="input-name">{{ entry_template_name }}</label>
                                 <div class="col-sm-10">
                                     <input type="text" name="template_name" value="{{ mailing.name }}" placeholder="{{ entry_name }}" id="input-name{{ language.language_id }}" class="form-control"/>
@@ -527,49 +545,128 @@
                                     {% endif %}
                                 </div>
                             </div>
-                            <table class="table table-bordered table-hover mailing-users">
-                                <thead>
-                                <tr>
-                                    <td style="width: 1px;" class="text-center"><input type="checkbox" {% if mailing.mailing_id %} disabled="disabled" {% endif %} onclick="selectAllCheckbox()" /></td>
-                                    <td class="text-left">{% if sort == 'name' %} <a href="{{ sort_email }}" class="{{ order|lower }}">{{ column_email }}</a> {% else %} <a href="{{ sort_email }}">{{ column_email }}</a> {% endif %}</td>
-                                    <td class="text-left">{% if sort == 'c.email' %} <a href="{{ sort_name }}" class="{{ order|lower }}">{{ column_name }}</a> {% else %} <a href="{{ sort_name }}">{{ column_name }}</a> {% endif %}</td>
-                                </tr>
-                                </thead>
-                                <tbody>
-
-                                {% if customers %}
-                                    {% for customer in customers %}
-                                        <tr>
+                            <h4>{{ text_added_in_mailing }}</h4>
+                            <div style="max-height: 500px; overflow-y: scroll;">
+                                <table class="table table-bordered table-hover subscribed-users">
+                                    <thead>
+                                    <tr>
+                                        <td style="width: 1px;" class="text-center"><input type="checkbox" {% if mailing.mailing_id %} disabled="disabled" {% endif %} onclick="selectAllCheckbox()" /></td>
+                                        <td class="text-left">{% if sort == 'name' %} <a href="{{ sort_email }}" class="{{ order|lower }}">{{ column_email }}</a> {% else %} <a href="{{ sort_email }}">{{ column_email }}</a> {% endif %}</td>
+                                        <td class="text-left">{% if sort == 'c.email' %} <a href="{{ sort_name }}" class="{{ order|lower }}">{{ column_name }}</a> {% else %} <a href="{{ sort_name }}">{{ column_name }}</a> {% endif %}</td>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% if customers %}
+                                        {% for customer in customers if customer.customer_id in mailing_customers %}
+                                            <tr>
+                                                <td class="text-center">
+                                                    {% if customer.customer_id in mailing_customers %}
+                                                        <input type="checkbox" name="mailing_customers[]" {% if mailing.mailing_id %} disabled="disabled" {% endif %} value="{{ customer.customer_id }}" checked="checked" />
+                                                    {% endif %}
+                                                </td>
+                                                <td class="text-left">{{ customer.email }}</td>
+                                                <td class="text-left">
+                                                    {{ customer.name }}
+                                                    <span class="pull-right d-flex">
+                                                        <a href="index.php?route=customer/customer/edit&user_token={{ user_token }}&customer_id={{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>
+                                                        {% if mailing.mailing_id %}
+                                                            {% if customer.customer_id in mailing_customers %}
+                                                                <span data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_delete_from_mailing }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></span>
+                                                            {% endif %}
+                                                        {% endif %}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-center">
+                                                    {% if customer.customer_id in mailing_customers %}
+                                                        <input type="checkbox" name="mailing_customers[]" {% if mailing.mailing_id %} disabled="disabled" {% endif %} value="{{ customer.customer_id }}" checked="checked" />
+                                                    {% endif %}
+                                                </td>
+                                                <td class="text-left">{{ customer.email }}</td>
+                                                <td class="text-left">
+                                                    {{ customer.name }}
+                                                    <span class="pull-right d-flex">
+                                                        <a href="index.php?route=customer/customer/edit&user_token={{ user_token }}&customer_id={{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>
+                                                        {% if mailing.mailing_id %}
+                                                            {% if customer.customer_id in mailing_customers %}
+                                                                <span data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_delete_from_mailing }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></span>
+                                                            {% endif %}
+                                                        {% endif %}
+                                                    </span>
+                                                </td>
+                                            </tr><tr>
                                             <td class="text-center">
                                                 {% if customer.customer_id in mailing_customers %}
                                                     <input type="checkbox" name="mailing_customers[]" {% if mailing.mailing_id %} disabled="disabled" {% endif %} value="{{ customer.customer_id }}" checked="checked" />
-                                                {% else %}
-                                                    <input type="checkbox" name="mailing_customers[]" {% if mailing.mailing_id %} disabled="disabled" {% endif %} value="{{ customer.customer_id }}" />
                                                 {% endif %}
                                             </td>
                                             <td class="text-left">{{ customer.email }}</td>
                                             <td class="text-left">
                                                 {{ customer.name }}
                                                 <span class="pull-right d-flex">
-                                                    <a href="index.php?route=customer/customer/edit&user_token={{ user_token }}&customer_id={{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>
-                                                    {% if mailing.mailing_id %}
-                                                        {% if customer.customer_id in mailing_customers %}
-                                                            <span data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_delete_from_mailing }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></span>
-                                                        {% else %}
-                                                            <span data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_add_to_mailing }}" class="btn btn-success subscribe-customer"><i class="fa fa-plus"></i></span>
+                                                        <a href="index.php?route=customer/customer/edit&user_token={{ user_token }}&customer_id={{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>
+                                                        {% if mailing.mailing_id %}
+                                                            {% if customer.customer_id in mailing_customers %}
+                                                                <span data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_delete_from_mailing }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></span>
+                                                            {% endif %}
                                                         {% endif %}
-                                                    {% endif %}
-                                                </span>
+                                                    </span>
                                             </td>
                                         </tr>
-                                    {% endfor %}
-                                {% else %}
+
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td class="text-center" colspan="8">{{ text_no_results }}</td>
+                                        </tr>
+                                    {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <h4>{{ text_not_added_in_mailing }}</h4>
+                            <div style="max-height: 500px; overflow-y: scroll;">
+                                <table class="table table-bordered table-hover unsubscribed-users">
+                                    <thead>
                                     <tr>
-                                        <td class="text-center" colspan="8">{{ text_no_results }}</td>
+                                        <td style="width: 1px;" class="text-center"><input type="checkbox" {% if mailing.mailing_id %} disabled="disabled" {% endif %} onclick="selectAllCheckbox()" /></td>
+                                        <td class="text-left">{% if sort == 'name' %} <a href="{{ sort_email }}" class="{{ order|lower }}">{{ column_email }}</a> {% else %} <a href="{{ sort_email }}">{{ column_email }}</a> {% endif %}</td>
+                                        <td class="text-left">{% if sort == 'c.email' %} <a href="{{ sort_name }}" class="{{ order|lower }}">{{ column_name }}</a> {% else %} <a href="{{ sort_name }}">{{ column_name }}</a> {% endif %}</td>
                                     </tr>
-                                {% endif %}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                    {% if customers %}
+                                        {% for customer in customers if customer.customer_id not in mailing_customers %}
+                                            <tr>
+                                                <td class="text-center">
+                                                    {% if customer.customer_id not in mailing_customers %}
+                                                        <input type="checkbox" name="mailing_customers[]" {% if mailing.mailing_id %} disabled="disabled" {% endif %} value="{{ customer.customer_id }}" />
+                                                    {% endif %}
+                                                </td>
+                                                <td class="text-left">{{ customer.email }}</td>
+                                                <td class="text-left">
+                                                    {{ customer.name }}
+                                                    <span class="pull-right d-flex">
+                                                            <a href="index.php?route=customer/customer/edit&user_token={{ user_token }}&customer_id={{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>
+                                                            {% if mailing.mailing_id %}
+                                                                {% if customer.customer_id in mailing_customers %}
+                                                                    <span data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_delete_from_mailing }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></span>
+                                                                {% else %}
+                                                                    <span data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_add_to_mailing }}" class="btn btn-success subscribe-customer"><i class="fa fa-plus"></i></span>
+                                                                {% endif %}
+                                                            {% endif %}
+                                                        </span>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td class="text-center" colspan="8">{{ text_no_results }}</td>
+                                        </tr>
+                                    {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                         <div class="tab-pane" id="tab-3"> {# 3 TAB MAILING #}
                             <div class="form-group">
@@ -1162,7 +1259,7 @@
     let flag = true;
 
     function selectAllCheckbox() {
-        $('.mailing-users tbody input[type="checkbox"]').each(function () {
+        $('.subscribed-users tbody input[type="checkbox"]').each(function () {
             $(this).prop('checked', flag)
             if(flag) {
                 if(selects.indexOf($(this).val()) === -1)
@@ -1176,7 +1273,7 @@
     }
 
     function addEventOnCheckbox() {
-        $('.mailing-users tbody input[type="checkbox"]').on('change', function () {
+        $('.subscribed-users tbody input[type="checkbox"]').on('change', function () {
             if($(this).prop("checked")) {
                 selects.push($(this).val())
             } else {
@@ -1221,7 +1318,7 @@
             const _this = $(this)
             $.ajax({
                 type: "POST",
-                url: 'index.php?route=extension/module/mailing/subscribeAllToMailing&mailing_id={{ mailing.mailing_id }}' + '&user_token={{ user_token }}',
+                url: 'index.php?route=extension/module/mailing/subscribeAllToMailing&mailing_category_id={{ mailing.mailing_category_id }}' + '&user_token={{ user_token }}',
                 success: function() {
                     getMailingCustomers()
                     alert('{{ text_users_success_added }}')
@@ -1236,7 +1333,7 @@
             const _this = $(this)
             $.ajax({
                 type: "POST",
-                url: 'index.php?route=extension/module/mailing/unsubscribeAllFromMailing&customer_id=' + $(this).data('customerId') + '&mailing_id={{ mailing.mailing_id }}' + '&user_token={{ user_token }}',
+                url: 'index.php?route=extension/module/mailing/unsubscribeAllFromMailing&customer_id=' + $(this).data('customerId') + '&mailing_category_id={{ mailing.mailing_category_id }}' + '&user_token={{ user_token }}',
                 success: function() {
                     getMailingCustomers()
                     alert('{{ text_users_success_removed }}')
@@ -1254,11 +1351,12 @@
                 const _this = $(this)
                 $.ajax({
                     type: "POST",
-                    url: 'index.php?route=extension/module/mailing/unsubscribeFromMailing&customer_id=' + $(this).data('customerId') + '&mailing_id={{ mailing.mailing_id }}' + '&user_token={{ user_token }}',
+                    url: 'index.php?route=extension/module/mailing/unsubscribeFromMailing&customer_id=' + $(this).data('customerId') + '&mailing_category_id={{ mailing.mailing_category_id }}' + '&user_token={{ user_token }}',
                     success: function() {
-                        _this.parent().parent().parent().find('input[type=\'checkbox\']')[0].checked = false;
-                        _this.parent().append('<span data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_add_to_mailing }}" class="btn btn-success subscribe-customer"><i class="fa fa-plus"></i></span>')
-                        _this.remove();
+                        // _this.parent().parent().parent().find('input[type=\'checkbox\']')[0].checked = false;
+                        {#_this.parent().append('<span data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_add_to_mailing }}" class="btn btn-success subscribe-customer"><i class="fa fa-plus"></i></span>')#}
+                        // _this.remove();
+                        _this.parent().parent().parent().remove()
                         sub()
                         getMailingCustomers()
                         alert('{{ text_user_success_removed }}')
@@ -1276,11 +1374,12 @@
                 const _this = $(this)
                 $.ajax({
                     type: "POST",
-                    url: 'index.php?route=extension/module/mailing/subscribeToMailing&customer_id=' + $(this).data('customerId') + '&mailing_id={{ mailing.mailing_id }}' + '&user_token={{ user_token }}',
+                    url: 'index.php?route=extension/module/mailing/subscribeToMailing&customer_id=' + $(this).data('customerId') + '&mailing_category_id={{ mailing.mailing_category_id }}' + '&user_token={{ user_token }}',
                     success: function() {
-                        _this.parent().parent().parent().find('input[type=\'checkbox\']')[0].checked = true;
-                        _this.parent().append('<span data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_delete_from_mailing }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></span>')
-                        _this.remove();
+                        // _this.parent().parent().parent().find('input[type=\'checkbox\']')[0].checked = true;
+                        {#_this.parent().append('<span data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_delete_from_mailing }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></span>')#}
+                        _this.parent().parent().parent().remove()
+                        // _this.remove();
                         unsub()
                         getMailingCustomers()
                         alert('{{ text_user_success_added }}')
@@ -1292,7 +1391,7 @@
 
     function getMailingCustomers() {
         $.ajax({
-            url: 'index.php?route=extension/module/mailing/mailingcustomersid&user_token={{ user_token }}&mailing_id={{ mailing.mailing_id }}',
+            url: 'index.php?route=extension/module/mailing/mailingcustomersid&user_token={{ user_token }}&mailing_category_id={{ mailing.mailing_category_id }}',
             type: "POST",
             dataType: 'json',
             success: function(json) {
@@ -1365,19 +1464,26 @@
                                 '<a href="index.php?route=customer/customer/edit&user_token={{ user_token }}&customer_id=' + item['value'] + '" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>';
 
         {% if mailing.mailing_id %}
-        if(mailing_customers_ids.indexOf( item['value'] ) != -1)
-            html += '<span data-customer-id="' + item['value'] +'" data-toggle="tooltip" title="{{ button_delete_from_mailing }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></span>';
-        else
-            html += '<span data-customer-id="' + item['value'] + '" data-toggle="tooltip" title="{{ button_add_to_mailing }}" class="btn btn-success subscribe-customer"><i class="fa fa-plus"></i></span>';
+            if(mailing_customers_ids.indexOf( item['value'] ) != -1)
+                html += '<span data-customer-id="' + item['value'] +'" data-toggle="tooltip" title="{{ button_delete_from_mailing }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></span>';
+            else
+                html += '<span data-customer-id="' + item['value'] + '" data-toggle="tooltip" title="{{ button_add_to_mailing }}" class="btn btn-success subscribe-customer"><i class="fa fa-plus"></i></span>';
         {% endif %}
 
         html +=             '</span>' +
                         '</td>' +
                     '</tr>'
 
-        $('.mailing-users tbody').html(
-            html
-        )
+        if((mailing_customers_ids.indexOf( item['value'] ) != -1) || (selects.indexOf( item['value'] ) != -1)) {
+            $('.subscribed-users tbody').html(
+                    html
+            )
+        } else {
+            $('.unsubscribed-users tbody').html(
+                    html
+            )
+        }
+
         unsub()
         sub()
         reloadTooltip()
@@ -1387,44 +1493,89 @@
     }
 
     function resetFilter() { 
-        let html
+        let html = ''
         {% if customers %}
-            {% for customer in customers %}
+            {% for customer in customers  %}
+                if (mailing_customers_ids.indexOf( '{{customer.customer_id}}' ) != -1) {
                     html += '<tr>' +
-                                '<td class="text-center">';
-                if(mailing_customers_ids.indexOf( '{{customer.customer_id}}' ) != -1)            
-                    html +=         '<input type="checkbox" name="mailing_customers[]" {% if mailing.mailing_id %} disabled="disabled" {% endif %} value="{{ customer.customer_id }}" checked="checked" />'
-                else
-                    html +=         '<input type="checkbox" name="mailing_customers[]" {% if mailing.mailing_id %} disabled="disabled" {% endif %} value="{{ customer.customer_id }}" />';
+                            '<td class="text-center">';
+                    if (mailing_customers_ids.indexOf('{{ customer.customer_id }}') != -1)
+                        html += '<input type="checkbox" name="mailing_customers[]" {% if mailing.mailing_id %} disabled="disabled" {% endif %} value="{{ customer.customer_id }}" checked="checked" />'
+                    else
+                        html += '<input type="checkbox" name="mailing_customers[]" {% if mailing.mailing_id %} disabled="disabled" {% endif %} value="{{ customer.customer_id }}" />';
 
-                    html +=     '</td>' +
-                                '<td class="text-left">{{ customer.email }}</td>' +
-                                '<td class="text-left">' +
-                                    '{{ customer.name }}' +
-                                    '<span class="pull-right">' +
-                                        '<a href="index.php?route=customer/customer/edit&user_token={{ user_token }}&customer_id={{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>';
+                    html += '</td>' +
+                            '<td class="text-left">{{ customer.email }}</td>' +
+                            '<td class="text-left">' +
+                            '{{ customer.name }}' +
+                            '<span class="pull-right">' +
+                            '<a href="index.php?route=customer/customer/edit&user_token={{ user_token }}&customer_id={{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>';
                     {% if mailing.mailing_id %}
 
-                    if(mailing_customers_ids.indexOf( '{{customer.customer_id}}' ) != -1)
-                        html +=         '<span data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_delete_from_mailing }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></span>';
+                    if (mailing_customers_ids.indexOf('{{ customer.customer_id }}') != -1)
+                        html += '<span data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_delete_from_mailing }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></span>';
                     else
-                        html +=         '<span data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_add_to_mailing }}" class="btn btn-success subscribe-customer"><i class="fa fa-plus"></i></span>';
+                        html += '<span data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_add_to_mailing }}" class="btn btn-success subscribe-customer"><i class="fa fa-plus"></i></span>';
+
+                    {% endif %}
+
+                    html += '</span>' +
+                            '</td>' +
+                            '</tr>';
+                }
+            {% endfor %}
+        {% else %}
+            html =  '<tr>' +
+                    '<td class="text-center" colspan="8">{{ text_no_results }}</td>' +
+                    '</tr>';
+        {% endif %}
+
+        $('.subscribed-users tbody').html(
+            html
+        )
+
+        html = '';
+
+        {% if customers %}
+            {% for customer in customers  %}
+                if (mailing_customers_ids.indexOf( '{{customer.customer_id}}' ) === -1) {
+                    html += '<tr>' +
+                                '<td class="text-center">';
+                    if (mailing_customers_ids.indexOf('{{ customer.customer_id }}') != -1)
+                        html += '<input type="checkbox" name="mailing_customers[]" {% if mailing.mailing_id %} disabled="disabled" {% endif %} value="{{ customer.customer_id }}" checked="checked" />'
+                    else
+                        html += '<input type="checkbox" name="mailing_customers[]" {% if mailing.mailing_id %} disabled="disabled" {% endif %} value="{{ customer.customer_id }}" />';
+
+                    html += '</td>' +
+                            '<td class="text-left">{{ customer.email }}</td>' +
+                            '<td class="text-left">' +
+                                '{{ customer.name }}' +
+                                '<span class="pull-right">' +
+                                '<a href="index.php?route=customer/customer/edit&user_token={{ user_token }}&customer_id={{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>';
+                    {% if mailing.mailing_id %}
+
+                        if (mailing_customers_ids.indexOf('{{ customer.customer_id }}') != -1)
+                            html += '<span data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_delete_from_mailing }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></span>';
+                        else
+                            html += '<span data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_add_to_mailing }}" class="btn btn-success subscribe-customer"><i class="fa fa-plus"></i></span>';
 
                     {% endif %}
 
                     html +=         '</span>' +
                                 '</td>' +
                             '</tr>';
-                    {% endfor %}
-                {% else %}
-                    html =  '<tr>' +
-                                '<td class="text-center" colspan="8">{{ text_no_results }}</td>' +
-                            '</tr>';
+                }
+            {% endfor %}
+        {% else %}
+            html =  '<tr>' +
+                    '<td class="text-center" colspan="8">{{ text_no_results }}</td>' +
+                    '</tr>';
         {% endif %}
-        
-        $('.mailing-users tbody').html(
-            html
+
+        $('.unsubscribed-users tbody').html(
+                html
         )
+
         $('input[name=\'filter_name\']').val('');
         $('input[name=\'filter_email\']').val('');
 
@@ -1438,41 +1589,86 @@
         let html
         {% if customers %}
             {% for customer in customers %}
+                if (selects.indexOf( '{{customer.customer_id}}' ) != -1) {
                     html += '<tr>' +
-                                '<td class="text-center">';
-                if(selects.indexOf( '{{customer.customer_id}}' ) != -1)
-                    html +=         '<input type="checkbox" name="mailing_customers[]" {% if mailing.mailing_id %} disabled="disabled" {% endif %} value="{{ customer.customer_id }}" checked="checked" />'
-                else
-                    html +=         '<input type="checkbox" name="mailing_customers[]" {% if mailing.mailing_id %} disabled="disabled" {% endif %} value="{{ customer.customer_id }}" />';
+                            '<td class="text-center">';
+                    if (selects.indexOf('{{ customer.customer_id }}') != -1)
+                        html += '<input type="checkbox" name="mailing_customers[]" {% if mailing.mailing_id %} disabled="disabled" {% endif %} value="{{ customer.customer_id }}" checked="checked" />'
+                    else
+                        html += '<input type="checkbox" name="mailing_customers[]" {% if mailing.mailing_id %} disabled="disabled" {% endif %} value="{{ customer.customer_id }}" />';
 
-                    html +=     '</td>' +
-                                '<td class="text-left">{{ customer.email }}</td>' +
-                                '<td class="text-left">' +
-                                    '{{ customer.name }}' +
-                                    '<span class="pull-right">' +
-                                        '<a href="index.php?route=customer/customer/edit&user_token={{ user_token }}&customer_id={{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>';
+                    html += '</td>' +
+                            '<td class="text-left">{{ customer.email }}</td>' +
+                            '<td class="text-left">' +
+                            '{{ customer.name }}' +
+                            '<span class="pull-right">' +
+                            '<a href="index.php?route=customer/customer/edit&user_token={{ user_token }}&customer_id={{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>';
                     {% if mailing.mailing_id %}
 
-                    if(selects.indexOf( '{{customer.customer_id}}' ) != -1)
-                        html +=         '<span data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_delete_from_mailing }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></span>';
+                    if (selects.indexOf('{{ customer.customer_id }}') != -1)
+                        html += '<span data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_delete_from_mailing }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></span>';
                     else
-                        html +=         '<span data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_add_to_mailing }}" class="btn btn-success subscribe-customer"><i class="fa fa-plus"></i></span>';
+                        html += '<span data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_add_to_mailing }}" class="btn btn-success subscribe-customer"><i class="fa fa-plus"></i></span>';
 
                     {% endif %}
 
-                    html +=         '</span>' +
-                                '</td>' +
+                    html += '</span>' +
+                            '</td>' +
                             '</tr>';
-                    {% endfor %}
-                {% else %}
-                    html =  '<tr>' +
-                                '<td class="text-center" colspan="8">{{ text_no_results }}</td>' +
-                            '</tr>';
+                }
+            {% endfor %}
+        {% else %}
+            html =  '<tr>' +
+                        '<td class="text-center" colspan="8">{{ text_no_results }}</td>' +
+                    '</tr>';
         {% endif %}
 
-        $('.mailing-users tbody').html(
+        $('.subscribed-users tbody').html(
             html
         )
+
+        html = ''
+
+        {% if customers %}
+            {% for customer in customers %}
+                if (selects.indexOf( '{{customer.customer_id}}' ) === -1) {
+                    html += '<tr>' +
+                            '<td class="text-center">';
+                    if (selects.indexOf('{{ customer.customer_id }}') != -1)
+                        html += '<input type="checkbox" name="mailing_customers[]" {% if mailing.mailing_id %} disabled="disabled" {% endif %} value="{{ customer.customer_id }}" checked="checked" />'
+                    else
+                        html += '<input type="checkbox" name="mailing_customers[]" {% if mailing.mailing_id %} disabled="disabled" {% endif %} value="{{ customer.customer_id }}" />';
+
+                    html += '</td>' +
+                            '<td class="text-left">{{ customer.email }}</td>' +
+                            '<td class="text-left">' +
+                            '{{ customer.name }}' +
+                            '<span class="pull-right">' +
+                            '<a href="index.php?route=customer/customer/edit&user_token={{ user_token }}&customer_id={{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>';
+                    {% if mailing.mailing_id %}
+
+                    if (selects.indexOf('{{ customer.customer_id }}') != -1)
+                        html += '<span data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_delete_from_mailing }}" class="btn btn-danger unsubscribe-customer"><i class="fa fa-trash-o"></i></span>';
+                    else
+                        html += '<span data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_add_to_mailing }}" class="btn btn-success subscribe-customer"><i class="fa fa-plus"></i></span>';
+
+                    {% endif %}
+
+                    html += '</span>' +
+                            '</td>' +
+                            '</tr>';
+                }
+            {% endfor %}
+        {% else %}
+            html =          '<tr>' +
+                        '<td class="text-center" colspan="8">{{ text_no_results }}</td>' +
+                    '</tr>';
+        {% endif %}
+
+        $('.unsubscribed-users tbody').html(
+                html
+        )
+
         $('input[name=\'filter_name\']').val('');
         $('input[name=\'filter_email\']').val('');
 

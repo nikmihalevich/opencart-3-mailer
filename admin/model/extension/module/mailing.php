@@ -4,6 +4,7 @@ class ModelExtensionModuleMailing extends Model {
         $this->log('Installing module');
         $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "mailing` (
 			`mailing_id` INT(11) NOT NULL AUTO_INCREMENT,
+			`mailing_category_id` INT(11) NOT NULL,
 			`name` varchar(50) NOT NULL,
 			`counter_letters` INT(11) NOT NULL DEFAULT 10,
 			`date_start` datetime NOT NULL,
@@ -31,7 +32,7 @@ class ModelExtensionModuleMailing extends Model {
 		) ENGINE=MyISAM DEFAULT COLLATE=utf8_general_ci;");
         $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "customer_to_mailing` (
             `id` INT(11) NOT NULL AUTO_INCREMENT,
-            `mailing_id` INT(11) NOT NULL,
+            `mailing_category_id` INT(11) NOT NULL,
             `customer_id` INT(11) NOT NULL,
             PRIMARY KEY (`id`)
 		) ENGINE=MyISAM DEFAULT COLLATE=utf8_general_ci;");
@@ -62,6 +63,11 @@ class ModelExtensionModuleMailing extends Model {
             `padding` VARCHAR(20) DEFAULT NULL,
             PRIMARY KEY (`id`)
 		) ENGINE=MyISAM DEFAULT COLLATE=utf8_general_ci;");
+        $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "mailing_category` (
+            `mailing_category_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `name` VARCHAR(255) DEFAULT NULL,
+            PRIMARY KEY (`mailing_category_id`)
+		) ENGINE=MyISAM DEFAULT COLLATE=utf8_general_ci;");
     }
 
     public function uninstall() {
@@ -72,6 +78,7 @@ class ModelExtensionModuleMailing extends Model {
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "customer_to_mailing`");
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "mailing_blocks`");
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "mailing_blocks_data`");
+        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "mailing_category`");
 
         $this->log('Module uninstalled');
     }
@@ -81,7 +88,7 @@ class ModelExtensionModuleMailing extends Model {
             $data['count_letters'] = 10;
         }
 
-        $this->db->query("INSERT INTO " . DB_PREFIX . "mailing SET `name` = '" . $this->db->escape($data['template_name']) . "', counter_letters = '" . (int)$data['count_letters'] . "', date_start = '" . $this->db->escape($data['date_automailing']) . "', date_added = NOW()");
+        $this->db->query("INSERT INTO " . DB_PREFIX . "mailing SET `mailing_category_id` = '" . (int)$data['mailing_category_id'] . "', `name` = '" . $this->db->escape($data['template_name']) . "', counter_letters = '" . (int)$data['count_letters'] . "', date_start = '" . $this->db->escape($data['date_automailing']) . "', date_added = NOW()");
 
         $mailing_id = $this->db->getLastId();
 
@@ -89,7 +96,7 @@ class ModelExtensionModuleMailing extends Model {
 
         if(isset($data['mailing_customers'])) {
             foreach ($data['mailing_customers'] as $customer_id) {
-                $this->db->query("INSERT INTO " . DB_PREFIX . "customer_to_mailing SET mailing_id = '" . (int)$mailing_id . "', customer_id = '" . (int)$customer_id . "'");
+                $this->db->query("INSERT INTO " . DB_PREFIX . "customer_to_mailing SET mailing_category_id = '" . (int)$data['mailing_category_id'] . "', customer_id = '" . (int)$customer_id . "'");
             }
         }
         
@@ -99,7 +106,7 @@ class ModelExtensionModuleMailing extends Model {
     }
 
     public function edit($mailing_id, $data) {
-        $this->db->query("UPDATE " . DB_PREFIX . "mailing SET `name` = '" . $this->db->escape($data['template_name']) . "', counter_letters = '" . $this->db->escape($data['count_letters']) . "', date_start = '" . $this->db->escape($data['date_automailing']) . "' WHERE mailing_id = '" . (int)$mailing_id . "'");
+        $this->db->query("UPDATE " . DB_PREFIX . "mailing SET `mailing_category_id` = '" . (int)$data['mailing_category_id'] . "', `name` = '" . $this->db->escape($data['template_name']) . "', counter_letters = '" . $this->db->escape($data['count_letters']) . "', date_start = '" . $this->db->escape($data['date_automailing']) . "' WHERE mailing_id = '" . (int)$mailing_id . "'");
 
         $this->db->query("DELETE FROM " . DB_PREFIX . "mailing_description WHERE mailing_id = '" . (int)$mailing_id . "'");
         $this->db->query("INSERT INTO " . DB_PREFIX . "mailing_description SET mailing_id = '" . (int)$mailing_id . "', language_id = '" . (int)1 . "', theme = '" . $this->db->escape($data['letter_theme']) . "'");
@@ -161,6 +168,40 @@ class ModelExtensionModuleMailing extends Model {
 
 		$this->cache->delete('mailing');
 	}
+
+    public function getMailingCategories() {
+        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "mailing_category");
+
+        return $query->rows;
+    }
+
+    public function getMailingCategory($mailing_category_id) {
+        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "mailing_category WHERE mailing_category_id = '" . (int)$mailing_category_id ."'");
+
+        return $query->row;
+    }
+
+    public function addMailingCategory($data) {
+        $this->db->query("INSERT INTO " . DB_PREFIX . "mailing_category SET `name` = '" . $this->db->escape($data['name']) . "'");
+
+        $mailing_id = $this->db->getLastId();
+
+        $this->cache->delete('mailing_category');
+
+        return $mailing_id;
+    }
+
+    public function editMailingCategory($mailing_category_id, $data) {
+        $this->db->query("UPDATE " . DB_PREFIX . "mailing_category SET `name` = '" . $this->db->escape($data['name']) . "' WHERE mailing_category_id = '" . (int)$mailing_category_id ."'");
+
+        $this->cache->delete('mailing_category');
+    }
+
+    public function deleteMailingCategory($mailing_category_id) {
+        $this->db->query("DELETE FROM " . DB_PREFIX . "mailing_category WHERE mailing_category_id = '" . (int)$mailing_category_id ."'");
+
+        $this->cache->delete('mailing_category');
+    }
 
 	public function copyBlocks($mailing_id, $blocks) {
         foreach ($blocks as $data) {
@@ -345,6 +386,7 @@ class ModelExtensionModuleMailing extends Model {
 		foreach ($query->rows as $result) {
 			$mailing_data = array(
 			    'mailing_id'       => $result['mailing_id'],
+			    'mailing_category_id' => $result['mailing_category_id'],
 				'name'             => $result['name'],
 				'counter_letters'  => $result['counter_letters'],
 				'date_start'       => date('Y-m-d\TH:i', strtotime($result['date_start'])),
@@ -393,8 +435,8 @@ class ModelExtensionModuleMailing extends Model {
         return $social_links;
     }
 
-    public function getMailingCustomersId($mailing_id) {
-        $query = $this->db->query("SELECT customer_id FROM " . DB_PREFIX . "customer_to_mailing WHERE mailing_id = '" . (int)$mailing_id . "'");
+    public function getMailingCustomersId($mailing_category_id) {
+        $query = $this->db->query("SELECT customer_id FROM " . DB_PREFIX . "customer_to_mailing WHERE mailing_category_id = '" . (int)$mailing_category_id . "'");
 
         $new_array = array();
 
@@ -431,21 +473,21 @@ class ModelExtensionModuleMailing extends Model {
         $this->db->query("DELETE FROM " . DB_PREFIX . "customer_to_mailing WHERE customer_id = '" . (int)$customer_id . "'");
     }
 
-    public function unsubscribeFromMailing($mailing_id, $customer_id) {
-        $this->db->query("DELETE FROM " . DB_PREFIX . "customer_to_mailing WHERE mailing_id = '" . (int)$mailing_id . "' AND customer_id = '" . (int)$customer_id . "'");
+    public function unsubscribeFromMailing($mailing_category_id, $customer_id) {
+        $this->db->query("DELETE FROM " . DB_PREFIX . "customer_to_mailing WHERE mailing_category_id = '" . (int)$mailing_category_id . "' AND customer_id = '" . (int)$customer_id . "'");
     }
 
-    public function subscribeToMailing($mailing_id, $customer_id) {
-        $this->db->query("INSERT INTO " . DB_PREFIX . "customer_to_mailing SET mailing_id = '" . (int)$mailing_id . "', customer_id = '" . (int)$customer_id . "'");
+    public function subscribeToMailing($mailing_category_id, $customer_id) {
+        $this->db->query("INSERT INTO " . DB_PREFIX . "customer_to_mailing SET mailing_category_id = '" . (int)$mailing_category_id . "', customer_id = '" . (int)$customer_id . "'");
     }
 
-    public function unsubscribeAllFromMailing($mailing_id) {
-        $this->db->query("DELETE FROM " . DB_PREFIX . "customer_to_mailing WHERE mailing_id = '" . (int)$mailing_id . "'");
+    public function unsubscribeAllFromMailing($mailing_category_id) {
+        $this->db->query("DELETE FROM " . DB_PREFIX . "customer_to_mailing WHERE mailing_category_id = '" . (int)$mailing_category_id . "'");
     }
 
-    public function subcribeAllToMailing($mailing_id) {
+    public function subcribeAllToMailing($mailing_category_id) { // add s to name
         $query = $this->db->query("SELECT customer_id FROM " . DB_PREFIX . "customer WHERE newsletter = 1");
-        $queryy = $this->db->query("SELECT customer_id FROM " . DB_PREFIX . "customer_to_mailing WHERE mailing_id = '" . $mailing_id ."'");
+        $queryy = $this->db->query("SELECT customer_id FROM " . DB_PREFIX . "customer_to_mailing WHERE mailing_category_id = '" . $mailing_category_id ."'");
 
         $customers = array();
         foreach ($queryy->rows as $key => $row) {
@@ -454,9 +496,94 @@ class ModelExtensionModuleMailing extends Model {
 
         foreach ($query->rows as $row) {
             if(!in_array($row['customer_id'], $customers)) {
-                $this->db->query("INSERT INTO " . DB_PREFIX . "customer_to_mailing SET mailing_id = '" . (int)$mailing_id . "', customer_id = '" . (int)$row['customer_id'] . "'");
+                $this->db->query("INSERT INTO " . DB_PREFIX . "customer_to_mailing SET mailing_category_id = '" . (int)$mailing_category_id . "', customer_id = '" . (int)$row['customer_id'] . "'");
             }
         }
+    }
+
+    public function getCustomers($data = array()) {
+        $sql = "SELECT *, CONCAT(c.firstname, ' ', c.lastname) AS name, cgd.name AS customer_group FROM " . DB_PREFIX . "customer c LEFT JOIN " . DB_PREFIX . "customer_group_description cgd ON (c.customer_group_id = cgd.customer_group_id)";
+
+        if (!empty($data['filter_affiliate'])) {
+            $sql .= " LEFT JOIN " . DB_PREFIX . "customer_affiliate ca ON (c.customer_id = ca.customer_id)";
+        }
+
+        $sql .= " WHERE cgd.language_id = '" . (int)$this->config->get('config_language_id') . "'";
+
+        $implode = array();
+
+        if (!empty($data['filter_name'])) {
+            $implode[] = "CONCAT(c.firstname, ' ', c.lastname) LIKE '%" . $this->db->escape($data['filter_name']) . "%'";
+        }
+
+        if (!empty($data['filter_email'])) {
+            $implode[] = "c.email LIKE '" . $this->db->escape($data['filter_email']) . "%'";
+        }
+
+        if (isset($data['filter_newsletter']) && !is_null($data['filter_newsletter'])) {
+            $implode[] = "c.newsletter = '" . (int)$data['filter_newsletter'] . "'";
+        }
+
+        if (!empty($data['filter_customer_group_id'])) {
+            $implode[] = "c.customer_group_id = '" . (int)$data['filter_customer_group_id'] . "'";
+        }
+
+        if (!empty($data['filter_affiliate'])) {
+            $implode[] = "ca.status = '" . (int)$data['filter_affiliate'] . "'";
+        }
+
+        if (!empty($data['filter_ip'])) {
+            $implode[] = "c.customer_id IN (SELECT customer_id FROM " . DB_PREFIX . "customer_ip WHERE ip = '" . $this->db->escape($data['filter_ip']) . "')";
+        }
+
+        if (isset($data['filter_status']) && $data['filter_status'] !== '') {
+            $implode[] = "c.status = '" . (int)$data['filter_status'] . "'";
+        }
+
+        if (!empty($data['filter_date_added'])) {
+            $implode[] = "DATE(c.date_added) = DATE('" . $this->db->escape($data['filter_date_added']) . "')";
+        }
+
+        if ($implode) {
+            $sql .= " AND " . implode(" AND ", $implode);
+        }
+
+        $sort_data = array(
+            'name',
+            'c.email',
+            'customer_group',
+            'c.status',
+            'c.ip',
+            'c.date_added'
+        );
+
+        if (isset($data['sort']) && in_array($data['sort'], $sort_data)) {
+            $sql .= " ORDER BY " . $data['sort'];
+        } else {
+            $sql .= " ORDER BY name";
+        }
+
+        if (isset($data['order']) && ($data['order'] == 'DESC')) {
+            $sql .= " DESC";
+        } else {
+            $sql .= " ASC";
+        }
+
+        if (isset($data['start']) || isset($data['limit'])) {
+            if ($data['start'] < 0) {
+                $data['start'] = 0;
+            }
+
+            if ($data['limit'] < 1) {
+                $data['limit'] = 20;
+            }
+
+            $sql .= " LIMIT " . (int)$data['start'] . "," . (int)$data['limit'];
+        }
+
+        $query = $this->db->query($sql);
+
+        return $query->rows;
     }
 
     public function log($data) {

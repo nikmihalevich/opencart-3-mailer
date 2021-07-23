@@ -31,6 +31,26 @@ class ControllerExtensionModuleMailing extends Controller {
         $this->getForm("add");
     }
 
+    public function addMailingCategory() {
+        $this->load->language('extension/module/mailing');
+
+        $this->document->setTitle($this->language->get('heading_title'));
+
+        $this->load->model('extension/module/mailing');
+
+        if ($this->request->server['REQUEST_METHOD'] == 'POST' && $this->validateMailingCategoryForm()) {
+            $this->model_extension_module_mailing->addMailingCategory($this->request->post);
+
+            $this->session->data['success'] = $this->language->get('text_success');
+
+            $url = '';
+
+            $this->response->redirect($this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . $url, true));
+        }
+
+        $this->getMailingCategoryForm("add");
+    }
+
     public function edit() {
         $this->load->language('extension/module/mailing');
 
@@ -49,6 +69,26 @@ class ControllerExtensionModuleMailing extends Controller {
         }
 
         $this->getForm("edit");
+    }
+
+    public function editMailingCategory() {
+        $this->load->language('extension/module/mailing');
+
+        $this->document->setTitle($this->language->get('heading_title'));
+
+        $this->load->model('extension/module/mailing');
+
+        if ($this->request->server['REQUEST_METHOD'] == 'POST' && $this->validateMailingCategoryForm()) {
+            $this->model_extension_module_mailing->editMailingCategory($this->request->get['mailing_category_id'], $this->request->post);
+
+            $this->session->data['success'] = $this->language->get('text_success');
+
+            $url = '';
+
+            $this->response->redirect($this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . $url, true));
+        }
+
+        $this->getMailingCategoryForm("edit");
     }
 
     public function copyMailing() {
@@ -265,6 +305,8 @@ class ControllerExtensionModuleMailing extends Controller {
             );
         }
 
+        $data['mailing_categories'] = $this->model_extension_module_mailing->getMailingCategories();
+
         $filter_data = array(
             'sort'              => $sort,
             'order'             => $order,
@@ -313,6 +355,7 @@ class ControllerExtensionModuleMailing extends Controller {
         $data['previewMailingAction'] = $this->url->link('extension/module/mailing/previewMailing', 'user_token=' . $this->session->data['user_token'], true);
         $data['copyMailingAction'] = $this->url->link('extension/module/mailing/copyMailing', 'user_token=' . $this->session->data['user_token'], true);
         $data['editMailingAction'] = $this->url->link('extension/module/mailing/edit', 'user_token=' . $this->session->data['user_token'], true);
+        $data['addCategoryAction'] = $this->url->link('extension/module/mailing/addMailingCategory', 'user_token=' . $this->session->data['user_token'], true);
 
         $url = '';
 
@@ -364,6 +407,12 @@ class ControllerExtensionModuleMailing extends Controller {
 			$data['error_warning'] = $this->error['warning'];
 		} else {
 			$data['error_warning'] = '';
+		}
+
+		if (isset($this->error['mailing_category'])) {
+			$data['error_mailing_category'] = $this->error['mailing_category'];
+		} else {
+			$data['error_mailing_category'] = '';
 		}
 
 		if (isset($this->error['template_name'])) {
@@ -487,7 +536,7 @@ class ControllerExtensionModuleMailing extends Controller {
 
         $this->load->model('customer/customer');
 
-        $newsletter_subs = $this->model_customer_customer->getCustomers($filter_data);
+        $newsletter_subs = $this->model_extension_module_mailing->getCustomers($filter_data);
 
         foreach ($newsletter_subs as $newsletter_sub) {
             $data['customers'][] = array(
@@ -508,6 +557,16 @@ class ControllerExtensionModuleMailing extends Controller {
                 'category_id' => $category['category_id'],
                 'name'        => $category['name'],
             );
+        }
+
+        $data['mailing_categories'] = $this->model_extension_module_mailing->getMailingCategories();
+
+        if (isset($this->request->post['mailing_category_id'])) {
+            $data['mailing_category_id'] = $this->request->post['mailing_category_id'];
+        } elseif (isset($mailing_info)) {
+            $data['mailing_category_id'] = $mailing_info['mailing_category_id'];
+        } else {
+            $data['mailing_category_id'] = array();
         }
 
         if (isset($this->request->post['template_name'])) {
@@ -534,6 +593,78 @@ class ControllerExtensionModuleMailing extends Controller {
 		$data['footer'] = $this->load->controller('common/footer');
 
 		$this->response->setOutput($this->load->view('extension/module/mailing_form', $data));
+    }
+
+    protected function getMailingCategoryForm($type) {
+        $data['text_form'] = !isset($this->request->get['mailing_category_id']) ? $this->language->get('text_add_mailing_category') : $this->language->get('text_edit_mailing_category');
+
+        if (isset($this->request->get['sort'])) {
+            $sort = $this->request->get['sort'];
+        } else {
+            $sort = 'name';
+        }
+
+        if (isset($this->request->get['order'])) {
+            $order = $this->request->get['order'];
+        } else {
+            $order = 'ASC';
+        }
+
+        $url = '';
+
+        if (isset($this->error['warning'])) {
+            $data['error_warning'] = $this->error['warning'];
+        } else {
+            $data['error_warning'] = '';
+        }
+
+        if (isset($this->error['mailing_category_name'])) {
+            $data['error_mailing_category_name'] = $this->error['mailing_category_name'];
+        } else {
+            $data['error_mailing_category_name'] = '';
+        }
+
+        $data['breadcrumbs'] = array();
+
+        $data['breadcrumbs'][] = array(
+            'text' => $this->language->get('text_home'),
+            'href' => $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'], true)
+        );
+
+        $data['breadcrumbs'][] = array(
+            'text' => $this->language->get('heading_title'),
+            'href' => $this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . $url, true)
+        );
+
+        if (!isset($this->request->get['mailing_category_id'])) {
+            $data['action'] = $this->url->link('extension/module/mailing/addMailingCategory', 'user_token=' . $this->session->data['user_token'] . $url, true);
+        } else {
+            $data['action'] = $this->url->link('extension/module/mailing/editMailingCategory', 'user_token=' . $this->session->data['user_token'] . '&mailing_category_id=' . $this->request->get['mailing_category_id'] . $url, true);
+        }
+
+        $data['cancel'] = $this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . $url, true);
+
+        if (isset($this->request->get['mailing_category_id']) && ($this->request->server['REQUEST_METHOD'] != 'POST')) {
+            $data['mailing_category'] = $this->model_extension_module_mailing->getMailingCategory($this->request->get['mailing_category_id']);
+        }
+
+        $data['user_token'] = $this->session->data['user_token'];
+
+//        if (isset($this->request->get['mailing_category_id'])) {
+//            $data['mailing'] = $this->model_extension_module_mailing->getMailing($this->request->get['mailing_category_id']);
+//        } else {
+//            $data['mailing'] = array();
+//        }
+
+        $this->load->model('design/layout');
+
+        $data['layouts'] = $this->model_design_layout->getLayouts();
+
+        $data['header'] = $this->load->controller('common/header');
+        $data['column_left'] = $this->load->controller('common/column_left');
+        $data['footer'] = $this->load->controller('common/footer');
+
+        $this->response->setOutput($this->load->view('extension/module/mailing_category_form', $data));
     }
 
     public function addBlock() {
@@ -743,35 +874,35 @@ class ControllerExtensionModuleMailing extends Controller {
     public function unsubscribeFromMailing() {
         if ($this->request->server['REQUEST_METHOD'] == 'POST') {
             $this->load->model('extension/module/mailing');
-            $this->model_extension_module_mailing->unsubscribeFromMailing($this->request->get['mailing_id'], $this->request->get['customer_id']);
+            $this->model_extension_module_mailing->unsubscribeFromMailing($this->request->get['mailing_category_id'], $this->request->get['customer_id']);
         }
     }
 
     public function subscribeToMailing() {
         if ($this->request->server['REQUEST_METHOD'] == 'POST') {
             $this->load->model('extension/module/mailing');
-            $this->model_extension_module_mailing->subscribeToMailing($this->request->get['mailing_id'], $this->request->get['customer_id']);
+            $this->model_extension_module_mailing->subscribeToMailing($this->request->get['mailing_category_id'], $this->request->get['customer_id']);
         }
     }
 
     public function unsubscribeAllFromMailing() {
         if ($this->request->server['REQUEST_METHOD'] == 'POST') {
             $this->load->model('extension/module/mailing');
-            $this->model_extension_module_mailing->unsubscribeAllFromMailing($this->request->get['mailing_id']);
+            $this->model_extension_module_mailing->unsubscribeAllFromMailing($this->request->get['mailing_category_id']);
         }
     }
 
     public function subscribeAllToMailing() {
         if ($this->request->server['REQUEST_METHOD'] == 'POST') {
             $this->load->model('extension/module/mailing');
-            $this->model_extension_module_mailing->subcribeAllToMailing($this->request->get['mailing_id']);
+            $this->model_extension_module_mailing->subcribeAllToMailing($this->request->get['mailing_category_id']);
         }
     }
 
     public function mailingCustomersId() {
         if ($this->request->server['REQUEST_METHOD'] == 'POST') {
             $this->load->model('extension/module/mailing');
-            $mailing_customers = $this->model_extension_module_mailing->getMailingCustomersId($this->request->get['mailing_id']);
+            $mailing_customers = $this->model_extension_module_mailing->getMailingCustomersId($this->request->get['mailing_category_id']);
 
             $this->response->addHeader('Content-Type: application/json');
 		    $this->response->setOutput(json_encode($mailing_customers));
@@ -1061,12 +1192,32 @@ class ControllerExtensionModuleMailing extends Controller {
             $this->error['warning'] = $this->language->get('error_permission');
         }
 
+        if ((utf8_strlen($this->request->post['mailing_category_id']) < 1)) {
+            $this->error['mailing_category'] = $this->language->get('error_mailing_category');
+        }
+
         if ((utf8_strlen($this->request->post['template_name']) < 1) || (utf8_strlen($this->request->post['template_name']) > 64)) {
             $this->error['template_name'] = $this->language->get('error_template_name');
         }
 
         if ((utf8_strlen($this->request->post['letter_theme']) < 1) || (utf8_strlen($this->request->post['letter_theme']) > 64)) {
             $this->error['letter_theme'] = $this->language->get('error_letter_theme');
+        }
+
+        if ($this->error && !isset($this->error['warning'])) {
+            $this->error['warning'] = $this->language->get('error_warning');
+        }
+
+        return !$this->error;
+    }
+
+    protected function validateMailingCategoryForm() {
+        if (!$this->user->hasPermission('modify', 'extension/module/mailing')) {
+            $this->error['warning'] = $this->language->get('error_permission');
+        }
+
+        if ((utf8_strlen($this->request->post['name']) < 1) || (utf8_strlen($this->request->post['name']) > 64)) {
+            $this->error['mailing_category_name'] = $this->language->get('error_mailing_category_name');
         }
 
         if ($this->error && !isset($this->error['warning'])) {
