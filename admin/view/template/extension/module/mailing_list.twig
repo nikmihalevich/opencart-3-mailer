@@ -28,7 +28,7 @@
                 <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_list }}</h3>
             </div>
             <div class="panel-body">
-                <form action="{{ delete }}" method="post" enctype="multipart/form-data" id="form-mailing" class="form-horizontal">
+                <form action="{{ deleteCategoryAction }}" method="post" enctype="multipart/form-data" id="form-category-mailing" class="form-horizontal">
                     <ul class="nav nav-tabs">
                         <li class="active" id="li-tab-settings"><a href="#tab-categories-templates" data-toggle="tab">{{ tab_categories_templates }}</a></li>
                         <li id="li-tab-settings"><a href="#tab-templates" data-toggle="tab">{{ tab_templates }}</a></li>
@@ -42,7 +42,7 @@
                                 <div class="col-sm-5">
                                     <div style="margin-bottom: 20px" class="pull-right">
                                         <a href="{{ addCategoryAction }}" data-toggle="tooltip" title="{{ button_add }}" class="btn btn-primary"><i class="fa fa-plus"></i></a>
-                                        <button type="button" form="form-mailing" formaction="{{ delete }}" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger" onclick="confirm('{{ text_delete_mailings }}') ? $('#form-mailing').submit() : false;"><i class="fa fa-trash-o"></i></button>
+                                        <button type="button" form="form-category-mailing" formaction="{{ deleteCategoryAction }}" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger" onclick="confirm('{{ text_delete_mailings }}') ? $('#form-category-mailing').submit() : false;"><i class="fa fa-trash-o"></i></button>
                                     </div>
                                 </div>
                             </div>
@@ -51,7 +51,7 @@
                                 <thead>
                                 <tr>
                                     <td style="width: 1px;" class="text-center"><input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', this.checked);" /></td>
-                                    <td class="text-left">{% if sort == 'date_added' %} <a href="{{ sort_date_added }}" class="{{ order|lower }}">{{ column_category_name }}</a> {% else %} <a href="{{ sort_date_added }}">{{ column_category_name }}</a> {% endif %}</td>
+                                    <td class="text-left">{% if sort == 'mc.name' %} <a href="{{ sort_mcname }}" class="{{ order|lower }}">{{ column_category_name }}</a> {% else %} <a href="{{ sort_mcname }}">{{ column_category_name }}</a> {% endif %}</td>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -70,7 +70,7 @@
                                             <td>
                                                 <span class="pull-right d-flex">
                                                     <a href="index.php?route=extension/module/mailing/editMailingCategory&user_token={{ user_token }}&mailing_category_id={{ mailing_category.mailing_category_id }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>
-                                                    <span onclick="confirm('{{ text_delete_mailing }}') ? location = '{{ delete }}&mailing_category_id={{ mailing_category.mailing_category_id }}' : false;" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger"><i class="fa fa-trash-o"></i></span>
+                                                    <span onclick="confirm('{{ text_delete_mailing }}') ? location = '{{ deleteCategoryAction }}&mailing_category_id={{ mailing_category.mailing_category_id }}' : false;" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger"><i class="fa fa-trash-o"></i></span>
                                                 </span>
                                             </td>
                                         </tr>

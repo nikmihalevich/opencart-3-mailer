@@ -151,7 +151,6 @@ class ModelExtensionModuleMailing extends Model {
     }
     
     public function delete($mailing_id) {
-
         $blocks = $this->getBlocks($mailing_id);
         foreach ($blocks as $block) {
             $blocks_data = $this->getBlockData($block['id']);
@@ -163,14 +162,31 @@ class ModelExtensionModuleMailing extends Model {
 		$this->db->query("DELETE FROM " . DB_PREFIX . "mailing WHERE mailing_id = '" . (int)$mailing_id . "'");
 		$this->db->query("DELETE FROM " . DB_PREFIX . "mailing_description WHERE mailing_id = '" . (int)$mailing_id . "'");
 		$this->db->query("DELETE FROM " . DB_PREFIX . "mailing_social_links WHERE mailing_id = '" . (int)$mailing_id . "'");
-		$this->db->query("DELETE FROM " . DB_PREFIX . "customer_to_mailing WHERE mailing_id = '" . (int)$mailing_id . "'");
 		$this->db->query("DELETE FROM " . DB_PREFIX . "mailing_blocks WHERE mailing_id = '" . (int)$mailing_id . "'");
 
 		$this->cache->delete('mailing');
 	}
 
-    public function getMailingCategories() {
-        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "mailing_category");
+    public function getMailingCategories($data) {
+        $sql = "SELECT * FROM " . DB_PREFIX . "mailing_category mc";
+
+        $sort_data = array(
+            'mc.name',
+        );
+
+        if (isset($data['sort']) && in_array($data['sort'], $sort_data)) {
+            $sql .= " ORDER BY " . $data['sort'];
+        } else {
+            $sql .= " ORDER BY mc.name";
+        }
+
+        if (isset($data['order']) && ($data['order'] == 'DESC')) {
+            $sql .= " DESC";
+        } else {
+            $sql .= " ASC";
+        }
+
+        $query = $this->db->query($sql);
 
         return $query->rows;
     }
@@ -198,7 +214,14 @@ class ModelExtensionModuleMailing extends Model {
     }
 
     public function deleteMailingCategory($mailing_category_id) {
+        $mailing_id = $this->getMailingByMailingCategoryId($mailing_category_id);
+
+        if ($mailing_id) {
+            $this->delete($mailing_id);
+        }
+
         $this->db->query("DELETE FROM " . DB_PREFIX . "mailing_category WHERE mailing_category_id = '" . (int)$mailing_category_id ."'");
+        $this->db->query("DELETE FROM " . DB_PREFIX . "customer_to_mailing WHERE mailing_category_id = '" . (int)$mailing_category_id . "'");
 
         $this->cache->delete('mailing_category');
     }
@@ -466,6 +489,12 @@ class ModelExtensionModuleMailing extends Model {
         }
 
         return $customer_mails;
+    }
+
+    public function getMailingByMailingCategoryId($mailing_category_id) {
+        $query = $this->db->query("SELECT mailing_id FROM `" . DB_PREFIX . "mailing` WHERE mailing_category_id = '" . (int)$mailing_category_id . "'");
+
+        return isset($query->row['mailing_id']) ? $query->row['mailing_id'] : false;
     }
 
     public function unsubscribe($customer_id) {

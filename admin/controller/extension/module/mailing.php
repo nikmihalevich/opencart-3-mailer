@@ -121,15 +121,15 @@ class ControllerExtensionModuleMailing extends Controller {
         $this->getPreview();
     }
 
-    public function delete() {
+    public function deleteMailingCategory() {
 		$this->load->language('extension/module/mailing');
 
         $this->document->setTitle($this->language->get('heading_title'));
 
         $this->load->model('extension/module/mailing');
 
-		if (isset($this->request->get['mailing_id']) && $this->validateDelete()) {
-			$this->model_extension_module_mailing->delete($this->request->get['mailing_id']);
+		if (isset($this->request->get['mailing_category_id']) && $this->validateDelete()) {
+			$this->model_extension_module_mailing->deleteMailingCategory($this->request->get['mailing_category_id']);
 
 			$this->session->data['success'] = $this->language->get('text_success');
 
@@ -145,6 +145,54 @@ class ControllerExtensionModuleMailing extends Controller {
 
 			$this->response->redirect($this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . $url, true));
 		}
+
+        if (isset($this->request->post['selected']) && $this->validateDelete()) {
+            foreach ($this->request->post['selected'] as $mailing_category_id) {
+                $this->model_extension_module_mailing->deleteMailingCategory($mailing_category_id);
+            }
+
+            $this->session->data['success'] = $this->language->get('text_success');
+
+            $url = '';
+
+            if (isset($this->request->get['sort'])) {
+                $url .= '&sort=' . $this->request->get['sort'];
+            }
+
+            if (isset($this->request->get['order'])) {
+                $url .= '&order=' . $this->request->get['order'];
+            }
+
+            $this->response->redirect($this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . $url, true));
+        }
+
+		$this->getList();
+	}
+
+    public function delete() {
+        $this->load->language('extension/module/mailing');
+
+        $this->document->setTitle($this->language->get('heading_title'));
+
+        $this->load->model('extension/module/mailing');
+
+        if (isset($this->request->get['mailing_id']) && $this->validateDelete()) {
+            $this->model_extension_module_mailing->delete($this->request->get['mailing_id']);
+
+            $this->session->data['success'] = $this->language->get('text_success');
+
+            $url = '';
+
+            if (isset($this->request->get['sort'])) {
+                $url .= '&sort=' . $this->request->get['sort'];
+            }
+
+            if (isset($this->request->get['order'])) {
+                $url .= '&order=' . $this->request->get['order'];
+            }
+
+            $this->response->redirect($this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . $url, true));
+        }
 
         if (isset($this->request->post['selected']) && $this->validateDelete()) {
             foreach ($this->request->post['selected'] as $mailing_id) {
@@ -166,8 +214,8 @@ class ControllerExtensionModuleMailing extends Controller {
             $this->response->redirect($this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . $url, true));
         }
 
-		$this->getList();
-	}
+        $this->getList();
+    }
 
 	protected function getPreview() {
         $url = '';
@@ -305,7 +353,12 @@ class ControllerExtensionModuleMailing extends Controller {
             );
         }
 
-        $data['mailing_categories'] = $this->model_extension_module_mailing->getMailingCategories();
+        $filter_data = array(
+            'sort'              => $sort,
+            'order'             => $order,
+        );
+
+        $data['mailing_categories'] = $this->model_extension_module_mailing->getMailingCategories($filter_data);
 
         $filter_data = array(
             'sort'              => $sort,
@@ -352,11 +405,13 @@ class ControllerExtensionModuleMailing extends Controller {
         $data['sort_name'] = $this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . '&sort=c.name' . $url, true);
         $data['sort_email'] = $this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . '&sort=c.email' . $url, true);
 
+        $data['sort_mcname'] = $this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . '&sort=mc.name' . $url, true);
+
         $data['previewMailingAction'] = $this->url->link('extension/module/mailing/previewMailing', 'user_token=' . $this->session->data['user_token'], true);
         $data['copyMailingAction'] = $this->url->link('extension/module/mailing/copyMailing', 'user_token=' . $this->session->data['user_token'], true);
         $data['editMailingAction'] = $this->url->link('extension/module/mailing/edit', 'user_token=' . $this->session->data['user_token'], true);
         $data['addCategoryAction'] = $this->url->link('extension/module/mailing/addMailingCategory', 'user_token=' . $this->session->data['user_token'], true);
-
+        $data['deleteCategoryAction'] = $this->url->link('extension/module/mailing/deleteMailingCategory', 'user_token=' . $this->session->data['user_token'] . $url, true);
         $url = '';
 
         if (isset($this->request->get['sort'])) {
