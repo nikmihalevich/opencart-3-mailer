@@ -167,7 +167,7 @@ class ModelExtensionModuleMailing extends Model {
 		$this->cache->delete('mailing');
 	}
 
-    public function getMailingCategories($data) {
+    public function getMailingCategories($data = array()) {
         $sql = "SELECT * FROM " . DB_PREFIX . "mailing_category mc";
 
         $sort_data = array(
