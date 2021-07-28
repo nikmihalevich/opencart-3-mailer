@@ -56,6 +56,7 @@ class ModelExtensionModuleMailing extends Model {
             `text` TEXT DEFAULT NULL,
             `text_ordinal` INT(11) DEFAULT NULL,
             `products_ordinal` INT(11) DEFAULT NULL,
+            `products_grid_id` INT(11) NOT NULL,
             `bg_color` VARCHAR(10) DEFAULT NULL,
             `bg_image` VARCHAR(255) DEFAULT NULL,
             `width` INT(11) DEFAULT NULL,
@@ -240,7 +241,7 @@ class ModelExtensionModuleMailing extends Model {
     }
 
     public function copyBlocksData($block_id, $data) {
-        $this->db->query("INSERT INTO " . DB_PREFIX . "mailing_blocks_data SET `block_id` = '" . (int)$block_id . "', `col_id` = '" . (int)$data['col_id'] . "', `block_grid_width` = '" . $this->db->escape($data['block_grid_width']) . "',`text` = '" . $this->db->escape($data['text']) . "', `text_ordinal` = '" . (int)$data['text_ordinal'] . "', `products_ordinal` = '" . (int)$data['products_ordinal'] . "', `bg_color` = '" . $this->db->escape($data['bg_color']) . "', `bg_image` = '" . $this->db->escape($data['bg_image']) . "', `width` = '" . (int)$data['width'] . "', `width_type` = '" . $this->db->escape($data['width_type']) . "', `padding` = '" . $this->db->escape($data['padding']) . "'");
+        $this->db->query("INSERT INTO " . DB_PREFIX . "mailing_blocks_data SET `block_id` = '" . (int)$block_id . "', `col_id` = '" . (int)$data['col_id'] . "', `block_grid_width` = '" . $this->db->escape($data['block_grid_width']) . "',`text` = '" . $this->db->escape($data['text']) . "', `text_ordinal` = '" . (int)$data['text_ordinal'] . "', `products_ordinal` = '" . (int)$data['products_ordinal'] . "', `products_grid_id` = '" . (int)$data['products_grid_id'] . "', `bg_color` = '" . $this->db->escape($data['bg_color']) . "', `bg_image` = '" . $this->db->escape($data['bg_image']) . "', `width` = '" . (int)$data['width'] . "', `width_type` = '" . $this->db->escape($data['width_type']) . "', `padding` = '" . $this->db->escape($data['padding']) . "'");
 
         $new_block_data_id = $this->db->getLastId();
 
@@ -293,7 +294,7 @@ class ModelExtensionModuleMailing extends Model {
     }
 
     public function addBlockData($data) {
-        $this->db->query("INSERT INTO " . DB_PREFIX . "mailing_blocks_data SET `block_id` = '" . (int)$data['block_id'] . "', `col_id` = '" . (int)$data['col_id'] . "', `block_grid_width` = '" . $this->db->escape($data['block_grid_width']) . "', `text` = '" . $this->db->escape($data['block_data']['text']) . "', `text_ordinal` = '" . (int)$data['block_data']['text_ordinal'] . "', `products_ordinal` = '" . (int)$data['block_data']['products_ordinal'] . "', `bg_color` = '" . $this->db->escape($data['block_data']['bg_color']) . "', `bg_image` = '" . $this->db->escape($data['block_data']['bg_image']) . "', `width` = '" . (int)$data['block_data']['width'] . "', `width_type` = '" . $this->db->escape($data['block_data']['width_type']) . "', `padding` = '" . $this->db->escape($data['block_data']['padding']) . "'");
+        $this->db->query("INSERT INTO " . DB_PREFIX . "mailing_blocks_data SET `block_id` = '" . (int)$data['block_id'] . "', `col_id` = '" . (int)$data['col_id'] . "', `block_grid_width` = '" . $this->db->escape($data['block_grid_width']) . "', `text` = '" . $this->db->escape($data['block_data']['text']) . "', `text_ordinal` = '" . (int)$data['block_data']['text_ordinal'] . "', `products_ordinal` = '" . (int)$data['block_data']['products_ordinal'] . "', `products_grid_id` = '" . (int)$data['block_data']['products_grid_id'] . "', `bg_color` = '" . $this->db->escape($data['block_data']['bg_color']) . "', `bg_image` = '" . $this->db->escape($data['block_data']['bg_image']) . "', `width` = '" . (int)$data['block_data']['width'] . "', `width_type` = '" . $this->db->escape($data['block_data']['width_type']) . "', `padding` = '" . $this->db->escape($data['block_data']['padding']) . "'");
 
         $block_data_id = $this->db->getLastId();
 
@@ -311,7 +312,7 @@ class ModelExtensionModuleMailing extends Model {
     }
 
     public function editBlockData($data) {
-        $this->db->query("UPDATE " . DB_PREFIX . "mailing_blocks_data SET `text` = '" . $this->db->escape($data['block_data']['text']) . "', `text_ordinal` = '" . (int)$data['block_data']['text_ordinal'] . "', `products_ordinal` = '" . (int)$data['block_data']['products_ordinal'] . "', `bg_color` = '" . $this->db->escape($data['block_data']['bg_color']) . "', `bg_image` = '" . $this->db->escape($data['block_data']['bg_image']) . "', `width` = '" . (int)$data['block_data']['width'] . "', `width_type` = '" . $this->db->escape($data['block_data']['width_type']) . "', `padding` = '" . $this->db->escape($data['block_data']['padding']) . "' WHERE `id` = '" . (int)$data['block_data_id'] . "'");
+        $this->db->query("UPDATE " . DB_PREFIX . "mailing_blocks_data SET `text` = '" . $this->db->escape($data['block_data']['text']) . "', `text_ordinal` = '" . (int)$data['block_data']['text_ordinal'] . "', `products_ordinal` = '" . (int)$data['block_data']['products_ordinal'] . "', `products_grid_id` = '" . (int)$data['block_data']['products_grid_id'] . "', `bg_color` = '" . $this->db->escape($data['block_data']['bg_color']) . "', `bg_image` = '" . $this->db->escape($data['block_data']['bg_image']) . "', `width` = '" . (int)$data['block_data']['width'] . "', `width_type` = '" . $this->db->escape($data['block_data']['width_type']) . "', `padding` = '" . $this->db->escape($data['block_data']['padding']) . "' WHERE `id` = '" . (int)$data['block_data_id'] . "'");
 
         $this->db->query("DELETE FROM " . DB_PREFIX . "product_to_mailing WHERE `block_data_id` = '" . (int)$data['block_data_id'] . "'");
         if(isset($data['added_products_id'])) {

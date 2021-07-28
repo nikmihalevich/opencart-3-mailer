@@ -215,6 +215,33 @@
             width: 100%;
         }
     }
+
+    .products-grid-view-row {
+        display: flex;
+        justify-content: space-between;
+    }
+    .products-grid-view {
+        width: 220px;
+        height: 220px;
+        border: 1px solid black;
+        padding: 5px;
+        cursor: pointer;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+    }
+    .products-grid-view-icons {
+        width: fit-content;
+        height: fit-content;
+        margin-right: 5px;
+    }
+    .products-grid-view-2 .products-grid-view-icons span {
+        font-size: 8px;
+    }
+    .products-grid-view-3 .products-grid-view-icons span {
+        font-size: 6px;
+    }
 </style>
 {{ column_left }}
 <div id="content">
@@ -338,8 +365,20 @@
                                                                                         <td>
                                                                                             <table width="auto" style="margin: 0 auto;">
                                                                                                 <tr>
-                                                                                                    <td class="td-products-container">
-                                                                                                        {% for product in block_data.products %}
+                                                                                                    {% for product in block_data.products %}
+                                                                                                        {% if block_data.products_grid_id == 1 %}
+                                                                                                            {% if loop.index0 % 2 == 0 %}
+                                                                                                                <td class="td-products-container">
+                                                                                                            {% endif %}
+                                                                                                        {% elseif block_data.products_grid_id == 2 %}
+                                                                                                            {% if loop.index0 % 3 == 0 %}
+                                                                                                                <td class="td-products-container">
+                                                                                                            {% endif %}
+                                                                                                        {% elseif block_data.products_grid_id == 3 %}
+                                                                                                            {% if loop.index0 % 4 == 0 %}
+                                                                                                                <td class="td-products-container">
+                                                                                                            {% endif %}
+                                                                                                        {% endif %}
 
                                                                                                             <table data-product-id="{{ product.product_id }}" class="product-layout product-list col-sm-3 col-xs-12" style="margin-left: 15px; margin-top: 15px; padding: 10px; width: fit-content;">
                                                                                                                 <tr>
@@ -359,8 +398,21 @@
                                                                                                                 </tr>
                                                                                                             </table>
 
-                                                                                                        {% endfor %}
-                                                                                                    </td>
+                                                                                                        {% if block_data.products_grid_id == 1 %}
+                                                                                                            {% if loop.index0 + 1 % 2 == 0 %}
+                                                                                                                </td>
+                                                                                                            {% endif %}
+                                                                                                        {% elseif block_data.products_grid_id == 2 %}
+                                                                                                            {% if loop.index0 + 1 % 3 == 0 %}
+                                                                                                                </td>
+                                                                                                            {% endif %}
+                                                                                                        {% elseif block_data.products_grid_id == 3 %}
+                                                                                                            {% if loop.index0 + 1 % 4 == 0 %}
+                                                                                                                </td>
+                                                                                                            {% endif %}
+                                                                                                        {% endif %}
+
+                                                                                                    {% endfor %}
                                                                                                 </tr>
                                                                                             </table>
                                                                                         </td>
@@ -372,25 +424,54 @@
                                                                                         <td>
                                                                                             <table width="auto" style="margin: 0 auto;">
                                                                                                 <tr>
-                                                                                                    <td class="td-products-container">
-                                                                                                        {% for product in block_data.products %}
+                                                                                                    {% for product in block_data.products %}
+                                                                                                        {% if block_data.products_grid_id == 1 %}
+                                                                                                            {% if loop.index0 % 2 == 0 %}
+                                                                                                                <td class="td-products-container">
+                                                                                                            {% endif %}
+                                                                                                        {% elseif block_data.products_grid_id == 2 %}
+                                                                                                            {% if loop.index0 % 3 == 0 %}
+                                                                                                                <td class="td-products-container">
+                                                                                                            {% endif %}
+                                                                                                        {% elseif block_data.products_grid_id == 3 %}
+                                                                                                            {% if loop.index0 % 4 == 0 %}
+                                                                                                                <td class="td-products-container">
+                                                                                                            {% endif %}
+                                                                                                        {% endif %}
 
-                                                                                                            <table data-product-id="{{ product.product_id }}" class="product-layout product-list col-sm-3 col-xs-12" style="margin-left: 15px; margin-top: 15px; padding: 10px; width: fit-content;">
-                                                                                                                <tr>
-                                                                                                                    <td class="added-product-image">
+                                                                                                        <table data-product-id="{{ product.product_id }}" class="product-layout product-list col-sm-3 col-xs-12" style="margin-left: 15px; margin-top: 15px; padding: 10px; width: fit-content;">
+                                                                                                            <tr>
+                                                                                                                <td class="added-product-image">
+                                                                                                                    {% if product.image %}
                                                                                                                         <img src="{{ product.thumb }}" alt="{{ product.name }}" title="{{ product.name }}" class="img-responsive" />
-                                                                                                                    </td>
-                                                                                                                </tr>
-                                                                                                                <tr>
-                                                                                                                    <td class="caption">
-                                                                                                                        <p>{{ product.name }}</p>
-                                                                                                                        <p class="price">{{ product.price}}</p>
-                                                                                                                    </td>
-                                                                                                                </tr>
-                                                                                                            </table>
+                                                                                                                    {% else %}
+                                                                                                                        <img src="/image/cache/no_image-100x100.png" alt="{{ product.name }}" title="{{ product.name }}" class="img-responsive" />
+                                                                                                                    {% endif %}
+                                                                                                                </td>
+                                                                                                            </tr>
+                                                                                                            <tr>
+                                                                                                                <td class="caption">
+                                                                                                                    <p>{{ product.name }}</p>
+                                                                                                                    <p class="price">{{ product.price}}</p>
+                                                                                                                </td>
+                                                                                                            </tr>
+                                                                                                        </table>
 
-                                                                                                        {% endfor %}
-                                                                                                    </td>
+                                                                                                        {% if block_data.products_grid_id == 1 %}
+                                                                                                            {% if loop.index0 + 1 % 2 == 0 %}
+                                                                                                                </td>
+                                                                                                            {% endif %}
+                                                                                                        {% elseif block_data.products_grid_id == 2 %}
+                                                                                                            {% if loop.index0 + 1 % 3 == 0 %}
+                                                                                                                </td>
+                                                                                                            {% endif %}
+                                                                                                        {% elseif block_data.products_grid_id == 3 %}
+                                                                                                            {% if loop.index0 + 1 % 4 == 0 %}
+                                                                                                                </td>
+                                                                                                            {% endif %}
+                                                                                                        {% endif %}
+
+                                                                                                    {% endfor %}
                                                                                                 </tr>
                                                                                             </table>
                                                                                         </td>
@@ -741,6 +822,110 @@
                             </div>
 
                         </div>
+                        <div class="col-sm-12 mt-10">
+                            <label class="col-sm-2 control-label" for="input-block-data-products-grid-id">{{ entry_select_products_grid }}</label>
+                            <div class="col-sm-10">
+                                <div class="products-grid-view-row">
+                                    <div class="products-grid-view products-grid-view-1" style="border: 2px solid green;" data-products-grid-id="1">
+                                        <div class="products-grid-view-icons">
+                                            <img src="{{ img_placeholder }}" alt=""> <br>
+                                            <span>Название тов</span> <br>
+                                            <span>250 р</span>
+                                        </div>
+                                        <div class="products-grid-view-icons">
+                                            <img src="{{ img_placeholder }}" alt=""> <br>
+                                            <span>Название тов</span> <br>
+                                            <span>250 р</span>
+                                        </div>
+                                        <div class="products-grid-view-icons">
+                                            <img src="{{ img_placeholder }}" alt=""> <br>
+                                            <span>Название тов</span> <br>
+                                            <span>250 р</span>
+                                        </div>
+                                        <div class="products-grid-view-icons">
+                                            <img src="{{ img_placeholder }}" alt=""> <br>
+                                            <span>Название тов</span> <br>
+                                            <span>250 р</span>
+                                        </div>
+                                    </div>
+                                    <div class="products-grid-view products-grid-view-2" data-products-grid-id="2">
+                                        <div class="products-grid-view-icons">
+                                            <img src="{{ img_placeholder }}" alt=""> <br>
+                                            <span>Название тов</span> <br>
+                                            <span>250 р</span>
+                                        </div>
+                                        <div class="products-grid-view-icons">
+                                            <img src="{{ img_placeholder }}" alt=""> <br>
+                                            <span>Название тов</span> <br>
+                                            <span>250 р</span>
+                                        </div>
+                                        <div class="products-grid-view-icons">
+                                            <img src="{{ img_placeholder }}" alt=""> <br>
+                                            <span>Название тов</span> <br>
+                                            <span>250 р</span>
+                                        </div>
+                                        <div class="products-grid-view-icons">
+                                            <img src="{{ img_placeholder }}" alt=""> <br>
+                                            <span>Название тов</span> <br>
+                                            <span>250 р</span>
+                                        </div>
+                                        <div class="products-grid-view-icons">
+                                            <img src="{{ img_placeholder }}" alt=""> <br>
+                                            <span>Название тов</span> <br>
+                                            <span>250 р</span>
+                                        </div>
+                                        <div class="products-grid-view-icons">
+                                            <img src="{{ img_placeholder }}" alt=""> <br>
+                                            <span>Название тов</span> <br>
+                                            <span>250 р</span>
+                                        </div>
+                                    </div>
+                                    <div class="products-grid-view products-grid-view-3" data-products-grid-id="3">
+                                        <div class="products-grid-view-icons">
+                                            <img src="{{ img_min_placeholder }}" alt=""> <br>
+                                            <span>Название тов</span> <br>
+                                            <span>250 р</span>
+                                        </div>
+                                        <div class="products-grid-view-icons">
+                                            <img src="{{ img_min_placeholder }}" alt=""> <br>
+                                            <span>Название тов</span> <br>
+                                            <span>250 р</span>
+                                        </div>
+                                        <div class="products-grid-view-icons">
+                                            <img src="{{ img_min_placeholder }}" alt=""> <br>
+                                            <span>Название тов</span> <br>
+                                            <span>250 р</span>
+                                        </div>
+                                        <div class="products-grid-view-icons">
+                                            <img src="{{ img_min_placeholder }}" alt=""> <br>
+                                            <span>Название тов</span> <br>
+                                            <span>250 р</span>
+                                        </div>
+                                        <div class="products-grid-view-icons">
+                                            <img src="{{ img_min_placeholder }}" alt=""> <br>
+                                            <span>Название тов</span> <br>
+                                            <span>250 р</span>
+                                        </div>
+                                        <div class="products-grid-view-icons">
+                                            <img src="{{ img_min_placeholder }}" alt=""> <br>
+                                            <span>Название тов</span> <br>
+                                            <span>250 р</span>
+                                        </div>
+                                        <div class="products-grid-view-icons">
+                                            <img src="{{ img_min_placeholder }}" alt=""> <br>
+                                            <span>Название тов</span> <br>
+                                            <span>250 р</span>
+                                        </div>
+                                        <div class="products-grid-view-icons">
+                                            <img src="{{ img_min_placeholder }}" alt=""> <br>
+                                            <span>Название тов</span> <br>
+                                            <span>250 р</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="block_data[products_grid_id]" value="1" id="input-block-data-products-grid-id" class="form-control"/>
+                            </div>
+                        </div>
                         <label class="control-label mt-10" for="input-block-data-products-ordinal">{{ entry_position_data_in_block }}</label>
                         <input type="text" name="block_data[products_ordinal]" value="" placeholder="{{ entry_position_data_in_block }}" id="input-block-data-products-ordinal" class="form-control"/>
                     </div>
@@ -868,6 +1053,17 @@
 <script type="text/javascript" src="view/javascript/summernote/summernote.js"></script>
 <script type="text/javascript" src="view/javascript/summernote/summernote-image-attributes.js"></script>
 <script type="text/javascript" src="view/javascript/summernote/opencart.js"></script>
+
+<script>
+    $('.products-grid-view').on('click', function () {
+        let productsGridId = $(this).data('products-grid-id')
+
+        $('.products-grid-view').css('border', '1px solid black')
+        $(this).css('border', '2px solid green')
+
+        $('#input-block-data-products-grid-id').val(productsGridId)
+    })
+</script>
 
 <script type="text/javascript">
     $(document).ready(function(){
@@ -1133,6 +1329,8 @@
                 success: function(response) {
                     console.log(response)
                     $('.add-block-data-modal-btn').attr('data-block-id', response.block_id)
+                    $('.products-grid-view').css('border', '1px solid black')
+                    $('.products-grid-view-' + response.products_grid_id).css('border', '2px solid green')
                     let keys = Object.keys(response)
                     for (let i = 0; i < keys.length; i++) {
                         if(response[keys[i]] !== '0') {

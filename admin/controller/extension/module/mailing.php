@@ -638,6 +638,7 @@ class ControllerExtensionModuleMailing extends Controller {
 
         $this->load->model('tool/image');
         $data['img_placeholder'] = $this->model_tool_image->resize('no_image.png', 40, 40);
+        $data['img_min_placeholder'] = $this->model_tool_image->resize('no_image.png', 20, 20);
 
 		$this->load->model('design/layout');
 
