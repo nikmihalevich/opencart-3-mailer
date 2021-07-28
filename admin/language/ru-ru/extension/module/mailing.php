@@ -44,6 +44,8 @@ $_['text_add_mailing_category']  = 'Добавить категорию';
 $_['text_edit_mailing_category'] = 'Изменить категорию';
 $_['text_added_in_mailing'] = 'Добавлены в рассылку';
 $_['text_not_added_in_mailing'] = 'Не добавлены в рассылку';
+$_['text_delete_mailing_category'] = 'Вы действительно хотите удалить категорию рассылки?';
+$_['text_delete_mailing_categories'] = 'Вы действительно хотите удалить категории рассылки?';
 
 // Entry
 $_['entry_template_name']   = 'Название шаблона';
@@ -64,6 +66,8 @@ $_['entry_padding_block']   = 'ОТСТУПЫ ВНУТРИ БЛОКА';
 $_['entry_block_sort_ordinal']= 'СОРТИРОВКА ДАННЫХ В СПИСКЕ';
 $_['entry_mailing_category_name']= 'Название категории';
 $_['entry_mailing_category']= 'Выберите категории';
+$_['entry_customer_email']  = 'E-mail пользователя';
+$_['entry_customer_name']   = 'ФИО пользователя';
 
 // Tabs
 $_['tab_text_data']         = 'Текстовые данные';
@@ -76,7 +80,7 @@ $_['confirm_delete_block_data'] = 'Вы уверены, что хотите уд
 $_['confirm_copy_mailing']  = 'Вы уверены, что хотите создать дубликат этого шаблона рассылки?';
 
 // Columns
-$_['column_email']          = 'E-mail пользов.';
+$_['column_email']          = 'E-mail пользователя';
 $_['column_name']           = 'ФИО пользователя';
 $_['column_date_added']     = 'Дата создания';
 $_['column_template_name']  = 'Название шаблона';

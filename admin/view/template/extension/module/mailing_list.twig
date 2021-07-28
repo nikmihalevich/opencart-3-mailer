@@ -42,7 +42,7 @@
                                 <div class="col-sm-5">
                                     <div style="margin-bottom: 20px" class="pull-right">
                                         <a href="{{ addCategoryAction }}" data-toggle="tooltip" title="{{ button_add }}" class="btn btn-primary"><i class="fa fa-plus"></i></a>
-                                        <button type="button" form="form-category-mailing" formaction="{{ deleteCategoryAction }}" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger" onclick="confirm('{{ text_delete_mailings }}') ? $('#form-category-mailing').submit() : false;"><i class="fa fa-trash-o"></i></button>
+                                        <button type="button" form="form-category-mailing" formaction="{{ deleteCategoryAction }}" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger" onclick="confirm('{{ text_delete_mailing_categories }}') ? $('#form-category-mailing').submit() : false;"><i class="fa fa-trash-o"></i></button>
                                     </div>
                                 </div>
                             </div>
@@ -70,7 +70,7 @@
                                             <td>
                                                 <span class="pull-right d-flex">
                                                     <a href="index.php?route=extension/module/mailing/editMailingCategory&user_token={{ user_token }}&mailing_category_id={{ mailing_category.mailing_category_id }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>
-                                                    <span onclick="confirm('{{ text_delete_mailing }}') ? location = '{{ deleteCategoryAction }}&mailing_category_id={{ mailing_category.mailing_category_id }}' : false;" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger"><i class="fa fa-trash-o"></i></span>
+                                                    <span onclick="confirm('{{ text_delete_mailing_category }}') ? location = '{{ deleteCategoryAction }}&mailing_category_id={{ mailing_category.mailing_category_id }}' : false;" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger"><i class="fa fa-trash-o"></i></span>
                                                 </span>
                                             </td>
                                         </tr>
@@ -130,6 +130,7 @@
                                             </td>
                                             <td>
                                                 <span class="pull-right d-flex">
+                                                    <a href="index.php?route=extension/module/mailing/previewMailing&user_token={{ user_token }}&mailing_id={{ mailing.mailing_id }}" data-toggle="tooltip" title="{{ button_preview }}" class="btn btn-default"><i class="fa fa-eye"></i></a>
                                                     <a href="index.php?route=extension/module/mailing/copyMailing&user_token={{ user_token }}&mailing_id={{ mailing.mailing_id }}" data-toggle="tooltip" title="{{ button_copy }}" class="btn btn-default"><i class="fa fa-copy"></i></a>
                                                     <span onclick="confirm('{{ text_start_mailing }}') ? startMailing({{mailing.mailing_id}}) : false;" data-toggle="tooltip" title="{{ button_start }}" class="btn btn-primary"><i class="fa fa-play-circle"></i></span>
                                                     <a href="index.php?route=extension/module/mailing/edit&user_token={{ user_token }}&mailing_id={{ mailing.mailing_id }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>

@@ -530,10 +530,10 @@
                         <div class="tab-pane" id="tab-2"> {# 2 TAB USERS #}
                             <div class="form-group">
                                 <div class="col-sm-5">
-                                    <input type="text" name="filter_email" value="" placeholder="Email" id="input-name" class="form-control"/>
+                                    <input type="text" name="filter_email" value="" placeholder="{{ entry_customer_email }}" id="input-name" class="form-control"/>
                                 </div>
                                 <div class="col-sm-5">
-                                    <input type="text" name="filter_name" value="" placeholder="Name" id="input-name" class="form-control"/>
+                                    <input type="text" name="filter_name" value="" placeholder="{{ entry_customer_name }}" id="input-name" class="form-control"/>
                                 </div>
                                 <div class="col-sm-2">
                                     <span onclick="{% if mailing.mailing_id %} resetFilter() {% else %} resetFilterAdd() {% endif %}" data-customer-id="{{ customer.customer_id }}" data-toggle="tooltip" title="{{ button_reset }}" class="btn btn-danger"><i class="fa fa-refresh"></i>&nbsp;{{ button_clear }}</span>
@@ -1154,7 +1154,7 @@
 
         for (let i = 0; i < products.length; i++) {
             html += '<div data-product-id="' + products[i]['product_id'] + '" class="product-layout product-list col-sm-3 col-xs-12" style="border: 1px solid #e3e3e3; border-radius: 10px; margin-left: 15px; margin-top: 15px; padding: 10px; width: 15%;">\n' +
-                        '<div class="product-thumb">\n' +
+                        '<div class="product-thumb" style="min-height: 250px; display: flex; flex-direction: column; justify-content: space-around;">\n' +
                             '<div class="image">\n';
                                 if(products[i]['image']) {
                                     html += '<img src="/image/' + products[i]['image'] + '" alt="' + products[i]['name'] + '" title="' + products[i]['name'] + '" class="img-responsive" />\n';
@@ -1721,8 +1721,8 @@
                     if(!isAdded) {
 
                         $('.products-list').append(
-                            '<div data-product-id="'+val.product_id+'" class="product-layout product-list col-sm-3 col-xs-12" style="border: 1px solid #e3e3e3; border-radius: 10px; margin-left: 15px; margin-top: 15px; padding: 10px; width: 15%;' +
-                                '<div class="product-thumb">' +
+                            '<div data-product-id="'+val.product_id+'" class="product-layout product-list col-sm-3 col-xs-12" style="border: 1px solid #e3e3e3; border-radius: 10px; margin-left: 15px; margin-top: 15px; padding: 10px; width: 15%;">' +
+                                '<div class="product-thumb" style="min-height: 250px; display: flex; flex-direction: column; justify-content: space-around;">' +
                                     '<div class="image"><img src="'+ product_image + '" alt="'+ val.name +'" title="'+ val.name +'" class="img-responsive" /></div>' +
                                         '<div>' +
                                             '<div class="caption">' +
