@@ -9,6 +9,7 @@ $_['tab_users']             = 'Пользователи';
 $_['tab_template']          = 'Шаблон рассылки';
 $_['tab_mailing']           = 'Рассылка';
 $_['tab_categories_templates'] = 'Категории шаблонов';
+$_['tab_connections']       = 'Связи';
 
 // Text
 $_['text_category']         = 'Список категорий';
@@ -31,21 +32,22 @@ $_['text_pixels']           = 'Пиксели';
 $_['text_percents']         = 'Проценты';
 $_['text_create_mailing']   = 'Создайте шаблон, чтобы добавить в него содержимое';
 $_['text_block_view']       = 'Вид блока';
-$_['text_mailing_started'] = 'Рассылка началась';
-$_['text_mailing_done']    = 'Рассылка успешно выполнена!';
-$_['text_mailing_will_start'] = 'Рассылка будет автоматически запущена';
-$_['text_mailing_correct_date'] = 'Для этого типа рассылки необходимо указать корректную дату!';
-$_['text_users_success_added'] = 'Пользователи успешно добавлены в рассылку!';
+$_['text_mailing_started']  = 'Рассылка началась';
+$_['text_mailing_done']     = 'Рассылка успешно выполнена!';
+$_['text_mailing_will_start']    = 'Рассылка будет автоматически запущена';
+$_['text_mailing_correct_date']  = 'Для этого типа рассылки необходимо указать корректную дату!';
+$_['text_users_success_added']   = 'Пользователи успешно добавлены в рассылку!';
 $_['text_users_success_removed'] = 'Пользователи успешно удалены из рассылки!';
-$_['text_user_success_removed'] = 'Пользователь успешно удален из рассылки!';
-$_['text_user_success_added'] = 'Пользователь успешно добавлен в рассылку!';
-$_['text_mailing_preview'] = 'Предпросмотр шаблона';
+$_['text_user_success_removed']  = 'Пользователь успешно удален из рассылки!';
+$_['text_user_success_added']    = 'Пользователь успешно добавлен в рассылку!';
+$_['text_mailing_preview']       = 'Предпросмотр шаблона';
 $_['text_add_mailing_category']  = 'Добавить категорию';
 $_['text_edit_mailing_category'] = 'Изменить категорию';
-$_['text_added_in_mailing'] = 'Добавлены в рассылку';
-$_['text_not_added_in_mailing'] = 'Не добавлены в рассылку';
+$_['text_added_in_mailing']      = 'Добавлены в рассылку';
+$_['text_not_added_in_mailing']  = 'Не добавлены в рассылку';
 $_['text_delete_mailing_category'] = 'Вы действительно хотите удалить категорию рассылки?';
 $_['text_delete_mailing_categories'] = 'Вы действительно хотите удалить категории рассылки?';
+$_['text_connect_template_to_products_categories'] = 'Привязать шаблон к категориям товаров';
 
 // Entry
 $_['entry_template_name']   = 'Название шаблона';
@@ -69,6 +71,8 @@ $_['entry_mailing_category_name']= 'Название категории';
 $_['entry_mailing_category']= 'Выберите категории';
 $_['entry_customer_email']  = 'E-mail пользователя';
 $_['entry_customer_name']   = 'ФИО пользователя';
+$_['entry_list_products_categories'] = 'Список категорий товаров';
+$_['entry_repeat_mailing']  = 'Повторять авторассылку';
 
 // Tabs
 $_['tab_text_data']         = 'Текстовые данные';

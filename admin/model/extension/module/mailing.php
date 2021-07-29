@@ -8,6 +8,7 @@ class ModelExtensionModuleMailing extends Model {
 			`name` varchar(50) NOT NULL,
 			`counter_letters` INT(11) NOT NULL DEFAULT 10,
 			`date_start` datetime NOT NULL,
+			`repeat` INT(11) NOT NULL,
 			`date_added` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
 			PRIMARY KEY (`mailing_id`)
 		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci");
@@ -69,6 +70,12 @@ class ModelExtensionModuleMailing extends Model {
             `name` VARCHAR(255) DEFAULT NULL,
             PRIMARY KEY (`mailing_category_id`)
 		) ENGINE=MyISAM DEFAULT COLLATE=utf8_general_ci;");
+        $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "category_to_mailing` (
+            `id` INT(11) NOT NULL AUTO_INCREMENT,
+            `mailing_id` INT(11) NOT NULL,
+            `category_id` INT(11) NOT NULL,
+            PRIMARY KEY (`id`)
+		) ENGINE=MyISAM DEFAULT COLLATE=utf8_general_ci;");
     }
 
     public function uninstall() {
@@ -80,6 +87,7 @@ class ModelExtensionModuleMailing extends Model {
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "mailing_blocks`");
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "mailing_blocks_data`");
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "mailing_category`");
+        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "category_to_mailing`");
 
         $this->log('Module uninstalled');
     }
@@ -89,7 +97,7 @@ class ModelExtensionModuleMailing extends Model {
             $data['count_letters'] = 10;
         }
 
-        $this->db->query("INSERT INTO " . DB_PREFIX . "mailing SET `mailing_category_id` = '" . (int)$data['mailing_category_id'] . "', `name` = '" . $this->db->escape($data['template_name']) . "', counter_letters = '" . (int)$data['count_letters'] . "', date_start = '" . $this->db->escape($data['date_automailing']) . "', date_added = NOW()");
+        $this->db->query("INSERT INTO " . DB_PREFIX . "mailing SET `mailing_category_id` = '" . (int)$data['mailing_category_id'] . "', `name` = '" . $this->db->escape($data['template_name']) . "', counter_letters = '" . (int)$data['count_letters'] . "', date_start = '" . $this->db->escape($data['date_automailing']) . "', `repeat` = '" . (int)$data['repeat'] . "', date_added = NOW()");
 
         $mailing_id = $this->db->getLastId();
 
@@ -100,6 +108,12 @@ class ModelExtensionModuleMailing extends Model {
                 $this->db->query("INSERT INTO " . DB_PREFIX . "customer_to_mailing SET mailing_category_id = '" . (int)$data['mailing_category_id'] . "', customer_id = '" . (int)$customer_id . "'");
             }
         }
+
+        if(isset($data['template_categories'])) {
+            foreach ($data['template_categories'] as $category_id) {
+                $this->db->query("INSERT INTO " . DB_PREFIX . "category_to_mailing SET mailing_id = '" . (int)$mailing_id . "', category_id = '" . (int)$category_id . "'");
+            }
+        }
         
         $this->cache->delete('mailing');
 
@@ -107,17 +121,15 @@ class ModelExtensionModuleMailing extends Model {
     }
 
     public function edit($mailing_id, $data) {
-        $this->db->query("UPDATE " . DB_PREFIX . "mailing SET `mailing_category_id` = '" . (int)$data['mailing_category_id'] . "', `name` = '" . $this->db->escape($data['template_name']) . "', counter_letters = '" . $this->db->escape($data['count_letters']) . "', date_start = '" . $this->db->escape($data['date_automailing']) . "' WHERE mailing_id = '" . (int)$mailing_id . "'");
+        $this->db->query("UPDATE " . DB_PREFIX . "mailing SET `mailing_category_id` = '" . (int)$data['mailing_category_id'] . "', `name` = '" . $this->db->escape($data['template_name']) . "', counter_letters = '" . $this->db->escape($data['count_letters']) . "', date_start = '" . $this->db->escape($data['date_automailing']) . "', `repeat` = '" . (int)$data['repeat'] . "' WHERE mailing_id = '" . (int)$mailing_id . "'");
 
         $this->db->query("DELETE FROM " . DB_PREFIX . "mailing_description WHERE mailing_id = '" . (int)$mailing_id . "'");
         $this->db->query("INSERT INTO " . DB_PREFIX . "mailing_description SET mailing_id = '" . (int)$mailing_id . "', language_id = '" . (int)1 . "', theme = '" . $this->db->escape($data['letter_theme']) . "'");
 
-        $this->db->query("DELETE FROM " . DB_PREFIX . "mailing_social_links WHERE mailing_id = '" . (int)$mailing_id . "'");
-        if(isset($data['social_link'])) {
-            foreach ($data['social_link'] as $key => $value) {
-                if($value != '') {
-                    $this->db->query("INSERT INTO " . DB_PREFIX . "mailing_social_links SET mailing_id = '" . (int)$mailing_id . "', icon_id = '" . ($key + 1) . "', link = '" . $value . "'");
-                }
+        $this->db->query("DELETE FROM " . DB_PREFIX . "category_to_mailing WHERE mailing_id = '" . (int)$mailing_id . "'");
+        if(isset($data['template_categories'])) {
+            foreach ($data['template_categories'] as $category_id) {
+                $this->db->query("INSERT INTO " . DB_PREFIX . "category_to_mailing SET mailing_id = '" . (int)$mailing_id . "', category_id = '" . (int)$category_id . "'");
             }
         }
 
@@ -164,6 +176,7 @@ class ModelExtensionModuleMailing extends Model {
 		$this->db->query("DELETE FROM " . DB_PREFIX . "mailing_description WHERE mailing_id = '" . (int)$mailing_id . "'");
 		$this->db->query("DELETE FROM " . DB_PREFIX . "mailing_social_links WHERE mailing_id = '" . (int)$mailing_id . "'");
 		$this->db->query("DELETE FROM " . DB_PREFIX . "mailing_blocks WHERE mailing_id = '" . (int)$mailing_id . "'");
+		$this->db->query("DELETE FROM " . DB_PREFIX . "category_to_mailing WHERE mailing_id = '" . (int)$mailing_id . "'");
 
 		$this->cache->delete('mailing');
 	}
@@ -414,6 +427,7 @@ class ModelExtensionModuleMailing extends Model {
 				'name'             => $result['name'],
 				'counter_letters'  => $result['counter_letters'],
 				'date_start'       => date('Y-m-d\TH:i', strtotime($result['date_start'])),
+				'repeat'           => $result['repeat'],
                 'date_added'       => $result['date_added']
 			);
 		}
@@ -496,6 +510,21 @@ class ModelExtensionModuleMailing extends Model {
         $query = $this->db->query("SELECT mailing_id FROM `" . DB_PREFIX . "mailing` WHERE mailing_category_id = '" . (int)$mailing_category_id . "'");
 
         return isset($query->row['mailing_id']) ? $query->row['mailing_id'] : false;
+    }
+
+    public function getMailingCategoryId($mailing_id) {
+        $query = $this->db->query("SELECT category_id FROM " . DB_PREFIX . "category_to_mailing WHERE mailing_id = '" . (int)$mailing_id . "'");
+
+        $new_array = array();
+
+        // make array as need for us
+        foreach ($query->rows as $key => $row) {  // loop over the array of arrays
+            foreach ($row as $kkey => $value) {  // loop over each sub-array (even if just 1 item)
+                $new_array[$key] = (int)$value;      // set the output array key to the value
+            }
+        }
+
+        return $new_array;
     }
 
     public function unsubscribe($customer_id) {
@@ -610,6 +639,16 @@ class ModelExtensionModuleMailing extends Model {
 
             $sql .= " LIMIT " . (int)$data['start'] . "," . (int)$data['limit'];
         }
+
+        $query = $this->db->query($sql);
+
+        return $query->rows;
+    }
+
+    public function getCategoriesForTree() {
+        $sql = "SELECT cp.category_id AS `id`, cd2.name AS name, c1.parent_id FROM " . DB_PREFIX . "category_path cp LEFT JOIN " . DB_PREFIX . "category c1 ON (cp.category_id = c1.category_id) LEFT JOIN " . DB_PREFIX . "category c2 ON (cp.path_id = c2.category_id) LEFT JOIN " . DB_PREFIX . "category_description cd1 ON (cp.path_id = cd1.category_id) LEFT JOIN " . DB_PREFIX . "category_description cd2 ON (cp.category_id = cd2.category_id) WHERE cd1.language_id = '" . (int)$this->config->get('config_language_id') . "' AND cd2.language_id = '" . (int)$this->config->get('config_language_id') . "'";
+
+        $sql .= " GROUP BY cp.category_id";
 
         $query = $this->db->query($sql);
 

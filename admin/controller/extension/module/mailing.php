@@ -583,6 +583,17 @@ class ControllerExtensionModuleMailing extends Controller {
             $data['mailing_customers'] = array();
         }
 
+        $data['template_categories'] = array();
+        $template_categories_selected = array();
+
+        $template_categories = $this->model_extension_module_mailing->getCategoriesForTree();
+
+        if (isset($this->request->get['mailing_id'])) {
+            $template_categories_selected = $this->model_extension_module_mailing->getMailingCategoryId($this->request->get['mailing_id']);
+        }
+
+        $data['template_categories'] = $this->buildTree($template_categories, $template_categories_selected);
+
         $filter_data = array(
             'filter_newsletter' => 1,
             'sort'              => $sort,
@@ -1200,6 +1211,25 @@ class ControllerExtensionModuleMailing extends Controller {
 
         $this->response->addHeader('Content-Type: application/json');
         $this->response->setOutput(json_encode($json));
+    }
+
+    private function buildTree(array $elements, $selectedElements = array(), $parentId = 0) {
+        $branch = array();
+
+        foreach ($elements as $element) {
+            if ($element['parent_id'] == $parentId) {
+                if (gettype($selectedElements) == 'array' && in_array($element['id'], $selectedElements)) {
+                    $element['selected'] = true;
+                }
+                $children = $this->buildTree($elements, $selectedElements, $element['id']);
+                if ($children) {
+                    $element['children'] = $children;
+                }
+                $branch[] = $element;
+            }
+        }
+
+        return $branch;
     }
 
     public function install() {
