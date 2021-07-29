@@ -717,12 +717,6 @@ class ControllerExtensionModuleMailing extends Controller {
 
         $data['user_token'] = $this->session->data['user_token'];
 
-//        if (isset($this->request->get['mailing_category_id'])) {
-//            $data['mailing'] = $this->model_extension_module_mailing->getMailing($this->request->get['mailing_category_id']);
-//        } else {
-//            $data['mailing'] = array();
-//        }
-
         $this->load->model('design/layout');
 
         $data['layouts'] = $this->model_design_layout->getLayouts();
