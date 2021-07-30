@@ -58,6 +58,10 @@ class ModelExtensionModuleMailing extends Model {
             `text_ordinal` INT(11) DEFAULT NULL,
             `products_ordinal` INT(11) DEFAULT NULL,
             `products_grid_id` INT(11) NOT NULL,
+            `connections_mailing_type` INT(11) NOT NULL,
+            `connections_products_count` INT(11) NOT NULL,
+            `connections_products_grid_id` INT(11) NOT NULL,
+            `connections_ordinal` INT(11) NOT NULL,
             `bg_color` VARCHAR(10) DEFAULT NULL,
             `bg_image` VARCHAR(255) DEFAULT NULL,
             `width` INT(11) DEFAULT NULL,
@@ -73,6 +77,12 @@ class ModelExtensionModuleMailing extends Model {
         $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "category_to_mailing` (
             `id` INT(11) NOT NULL AUTO_INCREMENT,
             `mailing_id` INT(11) NOT NULL,
+            `category_id` INT(11) NOT NULL,
+            PRIMARY KEY (`id`)
+		) ENGINE=MyISAM DEFAULT COLLATE=utf8_general_ci;");
+        $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "category_to_block_data` (
+            `id` INT(11) NOT NULL AUTO_INCREMENT,
+            `block_data_id` INT(11) NOT NULL,
             `category_id` INT(11) NOT NULL,
             PRIMARY KEY (`id`)
 		) ENGINE=MyISAM DEFAULT COLLATE=utf8_general_ci;");
@@ -307,7 +317,7 @@ class ModelExtensionModuleMailing extends Model {
     }
 
     public function addBlockData($data) {
-        $this->db->query("INSERT INTO " . DB_PREFIX . "mailing_blocks_data SET `block_id` = '" . (int)$data['block_id'] . "', `col_id` = '" . (int)$data['col_id'] . "', `block_grid_width` = '" . $this->db->escape($data['block_grid_width']) . "', `text` = '" . $this->db->escape($data['block_data']['text']) . "', `text_ordinal` = '" . (int)$data['block_data']['text_ordinal'] . "', `products_ordinal` = '" . (int)$data['block_data']['products_ordinal'] . "', `products_grid_id` = '" . (int)$data['block_data']['products_grid_id'] . "', `bg_color` = '" . $this->db->escape($data['block_data']['bg_color']) . "', `bg_image` = '" . $this->db->escape($data['block_data']['bg_image']) . "', `width` = '" . (int)$data['block_data']['width'] . "', `width_type` = '" . $this->db->escape($data['block_data']['width_type']) . "', `padding` = '" . $this->db->escape($data['block_data']['padding']) . "'");
+        $this->db->query("INSERT INTO " . DB_PREFIX . "mailing_blocks_data SET `block_id` = '" . (int)$data['block_id'] . "', `col_id` = '" . (int)$data['col_id'] . "', `block_grid_width` = '" . $this->db->escape($data['block_grid_width']) . "', `text` = '" . $this->db->escape($data['block_data']['text']) . "', `text_ordinal` = '" . (int)$data['block_data']['text_ordinal'] . "', `products_ordinal` = '" . (int)$data['block_data']['products_ordinal'] . "', `products_grid_id` = '" . (int)$data['block_data']['products_grid_id'] . "', `connections_mailing_type` = '" . (int)$data['block_data']['connections_mailing_type'] . "', `connections_products_count` = '" . (int)$data['block_data']['connections_products_count'] . "', `connections_products_grid_id` = '" . (int)$data['block_data']['connections_products_grid_id'] . "', `connections_ordinal` = '" . (int)$data['block_data']['connections_ordinal'] . "', `bg_color` = '" . $this->db->escape($data['block_data']['bg_color']) . "', `bg_image` = '" . $this->db->escape($data['block_data']['bg_image']) . "', `width` = '" . (int)$data['block_data']['width'] . "', `width_type` = '" . $this->db->escape($data['block_data']['width_type']) . "', `padding` = '" . $this->db->escape($data['block_data']['padding']) . "'");
 
         $block_data_id = $this->db->getLastId();
 
@@ -318,6 +328,12 @@ class ModelExtensionModuleMailing extends Model {
             }
         }
 
+        if(isset($data['block_categories_display'])) {
+            foreach ($data['block_categories_display'] as $category_id) {
+                $this->db->query("INSERT INTO " . DB_PREFIX . "category_to_block_data SET block_data_id = '" . (int)$block_data_id . "', category_id = '" . (int)$category_id . "'");
+            }
+        }
+
         $this->cache->delete('mailing_blocks_data');
         $this->cache->delete('product_to_mailing');
 
@@ -325,12 +341,19 @@ class ModelExtensionModuleMailing extends Model {
     }
 
     public function editBlockData($data) {
-        $this->db->query("UPDATE " . DB_PREFIX . "mailing_blocks_data SET `text` = '" . $this->db->escape($data['block_data']['text']) . "', `text_ordinal` = '" . (int)$data['block_data']['text_ordinal'] . "', `products_ordinal` = '" . (int)$data['block_data']['products_ordinal'] . "', `products_grid_id` = '" . (int)$data['block_data']['products_grid_id'] . "', `bg_color` = '" . $this->db->escape($data['block_data']['bg_color']) . "', `bg_image` = '" . $this->db->escape($data['block_data']['bg_image']) . "', `width` = '" . (int)$data['block_data']['width'] . "', `width_type` = '" . $this->db->escape($data['block_data']['width_type']) . "', `padding` = '" . $this->db->escape($data['block_data']['padding']) . "' WHERE `id` = '" . (int)$data['block_data_id'] . "'");
+        $this->db->query("UPDATE " . DB_PREFIX . "mailing_blocks_data SET `text` = '" . $this->db->escape($data['block_data']['text']) . "', `text_ordinal` = '" . (int)$data['block_data']['text_ordinal'] . "', `products_ordinal` = '" . (int)$data['block_data']['products_ordinal'] . "', `products_grid_id` = '" . (int)$data['block_data']['products_grid_id'] . "', `connections_mailing_type` = '" . (int)$data['block_data']['connections_mailing_type'] . "', `connections_products_count` = '" . (int)$data['block_data']['connections_products_count'] . "', `connections_products_grid_id` = '" . (int)$data['block_data']['connections_products_grid_id'] . "', `connections_ordinal` = '" . (int)$data['block_data']['connections_ordinal'] . "', `bg_color` = '" . $this->db->escape($data['block_data']['bg_color']) . "', `bg_image` = '" . $this->db->escape($data['block_data']['bg_image']) . "', `width` = '" . (int)$data['block_data']['width'] . "', `width_type` = '" . $this->db->escape($data['block_data']['width_type']) . "', `padding` = '" . $this->db->escape($data['block_data']['padding']) . "' WHERE `id` = '" . (int)$data['block_data_id'] . "'");
 
         $this->db->query("DELETE FROM " . DB_PREFIX . "product_to_mailing WHERE `block_data_id` = '" . (int)$data['block_data_id'] . "'");
         if(isset($data['added_products_id'])) {
             foreach ($data['added_products_id'] as $added_product_id) {
                 $this->db->query("INSERT INTO " . DB_PREFIX . "product_to_mailing SET product_id = '" . (int)$added_product_id . "', block_data_id = '" . (int)$data['block_data_id'] . "'");
+            }
+        }
+
+        $this->db->query("DELETE FROM " . DB_PREFIX . "category_to_block_data WHERE `block_data_id` = '" . (int)$data['block_data_id'] . "'");
+        if(isset($data['block_categories_display'])) {
+            foreach ($data['block_categories_display'] as $category_id) {
+                $this->db->query("INSERT INTO " . DB_PREFIX . "category_to_block_data SET block_data_id = '" . (int)$data['block_data_id'] . "', category_id = '" . (int)$category_id . "'");
             }
         }
 
@@ -354,6 +377,11 @@ class ModelExtensionModuleMailing extends Model {
             $block_data_info[$k]['products'] = $query2->rows;
         }
 
+        foreach ($block_data_info as $k => $block_data) {
+            $query3 = $this->db->query("SELECT `category_id` FROM " . DB_PREFIX . "category_to_block_data WHERE `block_data_id` = '" . (int)$block_data['id'] . "'");
+            $block_data_info[$k]['categories'] = $query3->rows;
+        }
+
         return $block_data_info;
     }
 
@@ -364,6 +392,9 @@ class ModelExtensionModuleMailing extends Model {
 
         $query2 = $this->db->query("SELECT `product_id` FROM " . DB_PREFIX . "product_to_mailing WHERE `block_data_id` = '" . (int)$block_data_id . "'");
         $block_data_info['products'] = $query2->rows;
+
+        $query3 = $this->db->query("SELECT `category_id` FROM " . DB_PREFIX . "category_to_block_data WHERE `block_data_id` = '" . (int)$block_data_id . "'");
+        $block_data_info['categories'] = $query3->rows;
 
         return $block_data_info;
     }
@@ -651,6 +682,34 @@ class ModelExtensionModuleMailing extends Model {
         $sql .= " GROUP BY cp.category_id";
 
         $query = $this->db->query($sql);
+
+        return $query->rows;
+    }
+
+    public function getSelectedCategoriesForTree($mailing_id) {
+        $sql = "SELECT cp.category_id AS `id`, cd2.name AS name, c1.parent_id FROM " . DB_PREFIX . "category_path cp LEFT JOIN " . DB_PREFIX . "category c1 ON (cp.category_id = c1.category_id) LEFT JOIN " . DB_PREFIX . "category c2 ON (cp.path_id = c2.category_id) LEFT JOIN " . DB_PREFIX . "category_description cd1 ON (cp.path_id = cd1.category_id) LEFT JOIN " . DB_PREFIX . "category_description cd2 ON (cp.category_id = cd2.category_id) LEFT JOIN " . DB_PREFIX . "category_to_mailing ctm ON (cp.category_id = ctm.category_id) WHERE cd1.language_id = '" . (int)$this->config->get('config_language_id') . "' AND cd2.language_id = '" . (int)$this->config->get('config_language_id') . "' AND ctm.mailing_id = '" . (int)$mailing_id . "'";
+
+        $sql .= " GROUP BY cp.category_id";
+
+        $query = $this->db->query($sql);
+
+        return $query->rows;
+    }
+
+    public function getCategoryDescription($category_id) {
+        $query = $this->db->query("SELECT category_id, `name` FROM " . DB_PREFIX . "category_description WHERE category_id = '" . (int)$category_id . "' AND language_id = '" . (int)$this->config->get('config_language_id') ."'");
+
+        return $query->row;
+    }
+
+    public function getLastProductsByCategory($category_id, $limit = 10) {
+        $query = $this->db->query("SELECT p.product_id, p.price, p.image, pd.name, p2c.category_id FROM " . DB_PREFIX . "product p LEFT JOIN " . DB_PREFIX . "product_description pd ON (p.product_id = pd.product_id) LEFT JOIN " . DB_PREFIX . "product_to_category p2c ON (p.product_id = p2c.product_id) WHERE pd.language_id = '" . (int)$this->config->get('config_language_id') . "' AND p2c.category_id = '" . (int)$category_id . "' ORDER BY p.product_id DESC LIMIT " . (int)$limit);
+
+        return $query->rows;
+    }
+
+    public function getLastProductsByCategoryAndDate($category_id, $date, $limit) {
+        $query = $this->db->query("SELECT p.product_id, p.price, p.image, pd.name, p2c.category_id, p.date_added FROM " . DB_PREFIX . "product p LEFT JOIN " . DB_PREFIX . "product_description pd ON (p.product_id = pd.product_id) LEFT JOIN " . DB_PREFIX . "product_to_category p2c ON (p.product_id = p2c.product_id) WHERE pd.language_id = '" . (int)$this->config->get('config_language_id') . "' AND p2c.category_id = '" . (int)$category_id . "' AND p.date_added > '" . $date . "' LIMIT " . (int)$limit);
 
         return $query->rows;
     }

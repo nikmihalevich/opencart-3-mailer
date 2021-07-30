@@ -45,9 +45,14 @@ $_['text_add_mailing_category']  = 'Добавить категорию';
 $_['text_edit_mailing_category'] = 'Изменить категорию';
 $_['text_added_in_mailing']      = 'Добавлены в рассылку';
 $_['text_not_added_in_mailing']  = 'Не добавлены в рассылку';
-$_['text_delete_mailing_category'] = 'Вы действительно хотите удалить категорию рассылки?';
+$_['text_delete_mailing_category']   = 'Вы действительно хотите удалить категорию рассылки?';
 $_['text_delete_mailing_categories'] = 'Вы действительно хотите удалить категории рассылки?';
 $_['text_connect_template_to_products_categories'] = 'Привязать шаблон к категориям товаров';
+$_['text_list_products_categories']  = 'Список категорий товаров';
+$_['text_mailing_settings']          = 'Настройки рассылки';
+$_['text_all_products']          = 'Все продукты';
+$_['text_new_products']          = 'Новые продукты';
+$_['text_view_all']              = 'Смотреть все';
 
 // Entry
 $_['entry_template_name']   = 'Название шаблона';
@@ -73,6 +78,10 @@ $_['entry_customer_email']  = 'E-mail пользователя';
 $_['entry_customer_name']   = 'ФИО пользователя';
 $_['entry_list_products_categories'] = 'Список категорий товаров';
 $_['entry_repeat_mailing']  = 'Повторять авторассылку';
+$_['entry_connections_mailing_type']  = 'Варианты рассылок';
+$_['entry_connections_products_count']= 'Кол-во товаров для каждой категории';
+$_['entry_products_categories_connected_template'] = 'Категории товара связанные с шаблоном';
+$_['entry_display_category_in_block'] = 'Вывод категорий в блоке';
 
 // Tabs
 $_['tab_text_data']         = 'Текстовые данные';

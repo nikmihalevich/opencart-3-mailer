@@ -524,6 +524,11 @@ class ControllerExtensionModuleMailing extends Controller {
                 $blocks_info[$k]['background_image'] = ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . "image/" . $block['bg_image'];
                 $block_data_info = $this->model_extension_module_mailing->getBlockData($block['id']);
                 foreach ($block_data_info as $kk => $block_data) {
+                    $contents[] = array(
+                        'value'   => $block_data['text'],
+                        'sort'    => $block_data['text_ordinal'],
+                        'type'    => 'text'
+                    );
                     if ($block_data['bg_image']) {
                         $block_data_info[$kk]['thumb'] = $this->model_tool_image->resize($block_data['bg_image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_height'));
                     } else {
@@ -541,7 +546,57 @@ class ControllerExtensionModuleMailing extends Controller {
                             $results[$kkk]['thumb'] = $this->model_tool_image->resize('no_image.png', 100, 100);;
                         }
                     }
-                    $block_data_info[$kk]['products'] = $results;
+                    $contents[] = array(
+                        'value'   => $results,
+                        'sort'    => $block_data['products_ordinal'],
+                        'grid_id' => $block_data['products_grid_id'],
+                        'type'    => 'products'
+                    );
+//                    $block_data_info[$kk]['products'] = $results;
+
+                    $results = array();
+                    if ($block_data['connections_mailing_type'] == '2') {
+                        foreach ($block_data['categories'] as $category) {
+                            $results[$category['category_id']] = $this->model_extension_module_mailing->getLastProductsByCategoryAndDate($category['category_id'], $mailing_info['date_start'], $block_data['connections_products_count']);
+                        }
+                    } else {
+                        foreach ($block_data['categories'] as $category) {
+                            $results[$category['category_id']] = $this->model_extension_module_mailing->getLastProductsByCategory($category['category_id'], $block_data['connections_products_count']);
+                        }
+                    }
+
+                    foreach ($results as $category_id => $result) {
+                        $promo_products = array();
+                        foreach ($result as $kkkk => $promo_product) {
+                            $result[$kkkk]['price'] = $this->currency->format($promo_product['price'], $this->config->get('config_currency'));
+                            $link = $this->url->link('product/category', 'path=' . $promo_product['category_id']);
+                            $result[$kkkk]['category_link'] = str_replace('admin', '', $link);
+                            if ($result[$kkkk]['image']) {
+                                $result[$kkkk]['thumb'] = $this->model_tool_image->resize($promo_product['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_height'));
+                            } else {
+                                $result[$kkkk]['thumb'] = $this->model_tool_image->resize('no_image.png', 100, 100);;
+                            }
+                            $promo_products[] = $result[$kkkk];
+                        }
+                        $results[$category_id] = $promo_products;
+                    }
+
+                    $contents[] = array(
+                        'value'   => $results,
+                        'sort'    => $block_data['connections_ordinal'],
+                        'grid_id' => $block_data['connections_products_grid_id'],
+                        'type'    => 'promo_products'
+                    );
+
+                    $sort_order = array();
+
+                    foreach ($contents as $key => $value) {
+                        $sort_order[$key] = $value['sort'];
+                    }
+
+                    array_multisort($sort_order, SORT_ASC, $contents);
+
+                    $block_data_info[$kk]['contents'] = $contents;
                 }
 
                 $blocks_info[$k]['blocks_data'] = $block_data_info;
@@ -549,6 +604,10 @@ class ControllerExtensionModuleMailing extends Controller {
 
 			$data['blocks'] = $blocks_info;
 		}
+
+//        echo "<pre>";
+//        print_r($data['blocks']);
+//        echo "</pre>";
 
         $data['user_token'] = $this->session->data['user_token'];
 
@@ -592,6 +651,7 @@ class ControllerExtensionModuleMailing extends Controller {
 
         if (isset($this->request->get['mailing_id'])) {
             $template_categories_selected = $this->model_extension_module_mailing->getMailingCategoryId($this->request->get['mailing_id']);
+            $data['template_categories_selected'] = $this->model_extension_module_mailing->getSelectedCategoriesForTree($this->request->get['mailing_id']);
         }
 
         $data['template_categories'] = $this->buildTree($template_categories, $template_categories_selected);
@@ -896,6 +956,15 @@ class ControllerExtensionModuleMailing extends Controller {
                 }
 
                 $block_data['products'] = $json;
+            }
+
+            if (isset($block_data['categories'])) {
+                $results = array();
+                foreach ($block_data['categories'] as $category) {
+                    $results[] = $this->model_extension_module_mailing->getCategoryDescription($category['category_id']);
+                }
+
+                $block_data['categories'] = $results;
             }
 
             $this->response->addHeader('Content-Type: application/json');
