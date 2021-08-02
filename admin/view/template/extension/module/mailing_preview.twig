@@ -67,6 +67,11 @@
       width: 100%;
     }
   }
+  .td-products-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
 </style>
 {{ column_left }}
 <div id="content">
@@ -120,42 +125,37 @@
                             <tr>
                               <td style="{% if block_data.padding %}padding: {{ block_data.padding }};{% endif %}">
                                 <table class="w-100">
-                                  {% if block_data.text_ordinal <= block_data.products_ordinal %}
-                                    {% if block_data.text %}
+                                  {% for content in block_data.contents %}
+                                    {% if content.type == 'text' %}
                                       <tr>
                                         <td>
-                                          {{ block_data.text }}
+                                          {{ content.value }}
                                         </td>
                                       </tr>
-                                    {% endif %}
-                                    {% if block_data.products %}
+                                    {% elseif content.type == 'products' %}
                                       <tr>
                                         <td>
-                                          <table width="60%" style="margin: 0 auto;">
+                                          <table width="auto" style="margin: 0 auto;">
                                             <tr>
-                                              {% for product in block_data.products %}
-                                                {% if block_data.products_grid_id == 1 %}
+                                              {% for product in content.value %}
+                                                {% if content.grid_id == 1 %}
                                                   {% if loop.index0 % 2 == 0 %}
-                                                    <td style="display: flex;justify-content: center;flex-wrap: wrap;">
+                                                    <td class="td-products-container">
                                                   {% endif %}
-                                                {% elseif block_data.products_grid_id == 2 %}
+                                                {% elseif content.grid_id == 2 %}
                                                   {% if loop.index0 % 3 == 0 %}
-                                                    <td style="display: flex;justify-content: center;flex-wrap: wrap;">
+                                                    <td class="td-products-container">
                                                   {% endif %}
-                                                {% elseif block_data.products_grid_id == 3 %}
+                                                {% elseif content.grid_id == 3 %}
                                                   {% if loop.index0 % 4 == 0 %}
-                                                    <td style="display: flex;justify-content: center;flex-wrap: wrap;">
+                                                    <td class="td-products-container">
                                                   {% endif %}
                                                 {% endif %}
 
                                                 <table data-product-id="{{ product.product_id }}" class="product-layout product-list col-sm-3 col-xs-12" style="margin-left: 15px; margin-top: 15px; padding: 10px; width: fit-content;">
                                                   <tr>
                                                     <td class="added-product-image">
-                                                      {% if product.image %}
-                                                        <img src="{{ product.thumb }}" alt="{{ product.name }}" title="{{ product.name }}" class="img-responsive" />
-                                                      {% else %}
-                                                        <img src="/image/cache/no_image-100x100.png" alt="{{ product.name }}" title="{{ product.name }}" class="img-responsive" />
-                                                      {% endif %}
+                                                      <img src="{{ product.thumb }}" alt="{{ product.name }}" title="{{ product.name }}" class="img-responsive" />
                                                     </td>
                                                   </tr>
                                                   <tr>
@@ -166,15 +166,15 @@
                                                   </tr>
                                                 </table>
 
-                                                {% if block_data.products_grid_id == 1 %}
+                                                {% if content.grid_id == 1 %}
                                                   {% if loop.index0 + 1 % 2 == 0 %}
                                                     </td>
                                                   {% endif %}
-                                                {% elseif block_data.products_grid_id == 2 %}
+                                                {% elseif content.grid_id == 2 %}
                                                   {% if loop.index0 + 1 % 3 == 0 %}
                                                     </td>
                                                   {% endif %}
-                                                {% elseif block_data.products_grid_id == 3 %}
+                                                {% elseif content.grid_id == 3 %}
                                                   {% if loop.index0 + 1 % 4 == 0 %}
                                                     </td>
                                                   {% endif %}
@@ -185,76 +185,71 @@
                                           </table>
                                         </td>
                                       </tr>
-                                    {% endif %}
-                                  {% else %}
-                                    {% if block_data.products %}
+                                    {% elseif content.type == 'promo_products' %}
                                       <tr>
                                         <td>
-                                          <table width="60%" style="margin: 0 auto;">
+                                          <table width="auto" style="margin: 0 auto;">
                                             <tr>
-                                              {% for product in block_data.products %}
-                                                {% if block_data.products_grid_id == 1 %}
-                                                  {% if loop.index0 % 2 == 0 %}
-                                                    <td style="display: flex;justify-content: center;flex-wrap: wrap;">
+                                              {% for category in content.value %}
+                                                {% set categoryLink = '1' %}
+                                                {% for product in category %}
+                                                  {% if content.grid_id == 1 %}
+                                                    {% if loop.index0 % 2 == 0 %}
+                                                      <td class="td-products-container">
+                                                    {% endif %}
+                                                  {% elseif content.grid_id == 2 %}
+                                                    {% if loop.index0 % 3 == 0 %}
+                                                      <td class="td-products-container">
+                                                    {% endif %}
+                                                  {% elseif content.grid_id == 3 %}
+                                                    {% if loop.index0 % 4 == 0 %}
+                                                      <td class="td-products-container">
+                                                    {% endif %}
                                                   {% endif %}
-                                                {% elseif block_data.products_grid_id == 2 %}
-                                                  {% if loop.index0 % 3 == 0 %}
-                                                    <td style="display: flex;justify-content: center;flex-wrap: wrap;">
-                                                  {% endif %}
-                                                {% elseif block_data.products_grid_id == 3 %}
-                                                  {% if loop.index0 % 4 == 0 %}
-                                                    <td style="display: flex;justify-content: center;flex-wrap: wrap;">
-                                                  {% endif %}
-                                                {% endif %}
 
-                                                <table data-product-id="{{ product.product_id }}" class="product-layout product-list col-sm-3 col-xs-12" style="margin-left: 15px; margin-top: 15px; padding: 10px; width: fit-content;">
-                                                  <tr>
-                                                    <td class="added-product-image">
-                                                      {% if product.image %}
+                                                  <table data-product-id="{{ product.product_id }}" class="product-layout product-list col-sm-3 col-xs-12" style="margin-left: 15px; margin-top: 15px; padding: 10px; width: fit-content;">
+                                                    <tr>
+                                                      <td class="added-product-image">
                                                         <img src="{{ product.thumb }}" alt="{{ product.name }}" title="{{ product.name }}" class="img-responsive" />
-                                                      {% else %}
-                                                        <img src="/image/cache/no_image-100x100.png" alt="{{ product.name }}" title="{{ product.name }}" class="img-responsive" />
-                                                      {% endif %}
-                                                    </td>
-                                                  </tr>
-                                                  <tr>
-                                                    <td class="caption">
-                                                      <p>{{ product.name }}</p>
-                                                      <p class="price">{{ product.price}}</p>
-                                                    </td>
-                                                  </tr>
-                                                </table>
+                                                      </td>
+                                                    </tr>
+                                                    <tr>
+                                                      <td class="caption">
+                                                        <p>{{ product.name }}</p>
+                                                        <p class="price">{{ product.price}}</p>
+                                                      </td>
+                                                    </tr>
+                                                  </table>
 
-                                                {% if block_data.products_grid_id == 1 %}
-                                                  {% if loop.index0 + 1 % 2 == 0 %}
-                                                    </td>
+                                                  {% if content.grid_id == 1 %}
+                                                    {% if loop.index0 + 1 % 2 == 0 %}
+                                                      </td>
+                                                    {% endif %}
+                                                  {% elseif content.grid_id == 2 %}
+                                                    {% if loop.index0 + 1 % 3 == 0 %}
+                                                      </td>
+                                                    {% endif %}
+                                                  {% elseif content.grid_id == 3 %}
+                                                    {% if loop.index0 + 1 % 4 == 0 %}
+                                                      </td>
+                                                    {% endif %}
                                                   {% endif %}
-                                                {% elseif block_data.products_grid_id == 2 %}
-                                                  {% if loop.index0 + 1 % 3 == 0 %}
-                                                    </td>
-                                                  {% endif %}
-                                                {% elseif block_data.products_grid_id == 3 %}
-                                                  {% if loop.index0 + 1 % 4 == 0 %}
-                                                    </td>
-                                                  {% endif %}
-                                                {% endif %}
 
+                                                  {% if loop.last %}
+                                                    {% set categoryLink = product.category_link %}
+                                                  {% endif %}
+
+                                                {% endfor %}
+                                                <td style="display: flex; justify-content:center;">
+                                                  <a href="{{ categoryLink }}">{{ text_view_all }}</a>
+                                                </td>
                                               {% endfor %}
                                             </tr>
                                           </table>
                                         </td>
                                       </tr>
                                     {% endif %}
-                                    {% if block_data.text %}
-                                      <tr>
-                                        <td>
-                                          <div>
-                                            {{ block_data.text }}
-                                          </div>
-                                        </td>
-                                      </tr>
-                                    {% endif %}
-                                  {% endif %}
+                                  {% endfor %}
                                 </table>
                               </td>
                             </tr>

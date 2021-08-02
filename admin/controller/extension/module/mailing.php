@@ -249,12 +249,22 @@ class ControllerExtensionModuleMailing extends Controller {
             foreach ($blocks_info as $k => $block) {
                 $blocks_info[$k]['background_image'] = ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . "image/" . $block['bg_image'];
                 $block_data_info = $this->model_extension_module_mailing->getBlockData($block['id']);
+                $contents = array();
                 foreach ($block_data_info as $kk => $block_data) {
+                    if (!empty($block_data['text'])) {
+                        $contents[] = array(
+                            'value'   => $block_data['text'],
+                            'sort'    => $block_data['text_ordinal'],
+                            'type'    => 'text'
+                        );
+                    }
+
                     if ($block_data['bg_image']) {
                         $block_data_info[$kk]['thumb'] = $this->model_tool_image->resize($block_data['bg_image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_height'));
                     } else {
                         $block_data_info[$kk]['thumb'] = '';
                     }
+
                     $results = array();
                     foreach ($block_data['products'] as $product) {
                         $results[] = $this->model_catalog_product->getProduct($product['product_id']);
@@ -267,7 +277,66 @@ class ControllerExtensionModuleMailing extends Controller {
                             $results[$kkk]['thumb'] = $this->model_tool_image->resize('no_image.png', 100, 100);;
                         }
                     }
-                    $block_data_info[$kk]['products'] = $results;
+
+                    if (!empty($results)) {
+                        $contents[] = array(
+                            'value'   => $results,
+                            'sort'    => $block_data['products_ordinal'],
+                            'grid_id' => $block_data['products_grid_id'],
+                            'type'    => 'products'
+                        );
+                    }
+
+                    $results = array();
+                    $is_results_not_empty = false;
+                    if ($block_data['connections_mailing_type'] == '2') {
+                        $dateForCheck = !empty($mailing_info['date_last_start']) ? $mailing_info['date_last_start'] : $mailing_info['date_added'];
+                        foreach ($block_data['categories'] as $category) {
+                            $results[$category['category_id']] = $this->model_extension_module_mailing->getLastProductsByCategoryAndDate($category['category_id'], $dateForCheck, $block_data['connections_products_count']);
+                        }
+                    } else {
+                        foreach ($block_data['categories'] as $category) {
+                            $results[$category['category_id']] = $this->model_extension_module_mailing->getLastProductsByCategory($category['category_id'], $block_data['connections_products_count']);
+                        }
+                    }
+
+                    foreach ($results as $category_id => $result) {
+                        $promo_products = array();
+                        foreach ($result as $kkkk => $promo_product) {
+                            $result[$kkkk]['price'] = $this->currency->format($promo_product['price'], $this->config->get('config_currency'));
+                            $link = $this->url->link('product/category', 'path=' . $promo_product['category_id']);
+                            $result[$kkkk]['category_link'] = str_replace('admin', '', $link);
+                            if ($result[$kkkk]['image']) {
+                                $result[$kkkk]['thumb'] = $this->model_tool_image->resize($promo_product['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_height'));
+                            } else {
+                                $result[$kkkk]['thumb'] = $this->model_tool_image->resize('no_image.png', 100, 100);;
+                            }
+                            $promo_products[] = $result[$kkkk];
+                        }
+                        $results[$category_id] = $promo_products;
+                        if (!empty($promo_products)) {
+                            $is_results_not_empty = true;
+                        }
+                    }
+
+                    if ($is_results_not_empty) {
+                        $contents[] = array(
+                            'value'   => $results,
+                            'sort'    => $block_data['connections_ordinal'],
+                            'grid_id' => $block_data['connections_products_grid_id'],
+                            'type'    => 'promo_products'
+                        );
+                    }
+
+                    $sort_order = array();
+
+                    foreach ($contents as $key => $value) {
+                        $sort_order[$key] = $value['sort'];
+                    }
+
+                    array_multisort($sort_order, SORT_ASC, $contents);
+
+                    $block_data_info[$kk]['contents'] = $contents;
                 }
 
                 $blocks_info[$k]['blocks_data'] = $block_data_info;
@@ -523,17 +592,22 @@ class ControllerExtensionModuleMailing extends Controller {
             foreach ($blocks_info as $k => $block) {
                 $blocks_info[$k]['background_image'] = ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . "image/" . $block['bg_image'];
                 $block_data_info = $this->model_extension_module_mailing->getBlockData($block['id']);
+                $contents = array();
                 foreach ($block_data_info as $kk => $block_data) {
-                    $contents[] = array(
-                        'value'   => $block_data['text'],
-                        'sort'    => $block_data['text_ordinal'],
-                        'type'    => 'text'
-                    );
+                    if (!empty($block_data['text'])) {
+                        $contents[] = array(
+                            'value'   => $block_data['text'],
+                            'sort'    => $block_data['text_ordinal'],
+                            'type'    => 'text'
+                        );
+                    }
+
                     if ($block_data['bg_image']) {
                         $block_data_info[$kk]['thumb'] = $this->model_tool_image->resize($block_data['bg_image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_height'));
                     } else {
                         $block_data_info[$kk]['thumb'] = '';
                     }
+
                     $results = array();
                     foreach ($block_data['products'] as $product) {
                         $results[] = $this->model_catalog_product->getProduct($product['product_id']);
@@ -546,18 +620,22 @@ class ControllerExtensionModuleMailing extends Controller {
                             $results[$kkk]['thumb'] = $this->model_tool_image->resize('no_image.png', 100, 100);;
                         }
                     }
-                    $contents[] = array(
-                        'value'   => $results,
-                        'sort'    => $block_data['products_ordinal'],
-                        'grid_id' => $block_data['products_grid_id'],
-                        'type'    => 'products'
-                    );
-//                    $block_data_info[$kk]['products'] = $results;
+
+                    if (!empty($results)) {
+                        $contents[] = array(
+                            'value'   => $results,
+                            'sort'    => $block_data['products_ordinal'],
+                            'grid_id' => $block_data['products_grid_id'],
+                            'type'    => 'products'
+                        );
+                    }
 
                     $results = array();
+                    $is_results_not_empty = false;
                     if ($block_data['connections_mailing_type'] == '2') {
+                        $dateForCheck = !empty($mailing_info['date_last_start']) ? $mailing_info['date_last_start'] : $mailing_info['date_added'];
                         foreach ($block_data['categories'] as $category) {
-                            $results[$category['category_id']] = $this->model_extension_module_mailing->getLastProductsByCategoryAndDate($category['category_id'], $mailing_info['date_start'], $block_data['connections_products_count']);
+                            $results[$category['category_id']] = $this->model_extension_module_mailing->getLastProductsByCategoryAndDate($category['category_id'], $dateForCheck, $block_data['connections_products_count']);
                         }
                     } else {
                         foreach ($block_data['categories'] as $category) {
@@ -579,14 +657,19 @@ class ControllerExtensionModuleMailing extends Controller {
                             $promo_products[] = $result[$kkkk];
                         }
                         $results[$category_id] = $promo_products;
+                        if (!empty($promo_products)) {
+                            $is_results_not_empty = true;
+                        }
                     }
 
-                    $contents[] = array(
-                        'value'   => $results,
-                        'sort'    => $block_data['connections_ordinal'],
-                        'grid_id' => $block_data['connections_products_grid_id'],
-                        'type'    => 'promo_products'
-                    );
+                    if ($is_results_not_empty) {
+                        $contents[] = array(
+                            'value'   => $results,
+                            'sort'    => $block_data['connections_ordinal'],
+                            'grid_id' => $block_data['connections_products_grid_id'],
+                            'type'    => 'promo_products'
+                        );
+                    }
 
                     $sort_order = array();
 
@@ -1070,6 +1153,16 @@ class ControllerExtensionModuleMailing extends Controller {
 
         foreach($mailings as $mailing) {
             if(substr($mailing['date_start'], 0, -3) == date("Y-m-d H:i")) {
+                if ($mailing['repeat']) {
+                    $date = $mailing['date_start'];
+
+                    $dateAt = strtotime('+1 MONTH', strtotime($date));
+
+                    $newDate = date('Y-m-d H:i:s', $dateAt);
+
+                    $this->model_extension_module_mailing->editMailingStartDate($mailing['mailing_id'], $newDate);
+                }
+
                 $this->mailing($mailing['mailing_id']);
             }
         }
@@ -1107,31 +1200,94 @@ class ControllerExtensionModuleMailing extends Controller {
             foreach ($blocks_info as $k => $block) {
                 $blocks_info[$k]['background_image'] = ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . "image/" . $block['bg_image'];
                 $block_data_info = $this->model_extension_module_mailing->getBlockData($block['id']);
+                $contents = array();
                 foreach ($block_data_info as $kk => $block_data) {
+                    if (!empty($block_data['text'])) {
+                        $contents[] = array(
+                            'value'   => $block_data['text'],
+                            'sort'    => $block_data['text_ordinal'],
+                            'type'    => 'text'
+                        );
+                    }
+
                     if ($block_data['bg_image']) {
                         $block_data_info[$kk]['thumb'] = $this->model_tool_image->resize($block_data['bg_image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_height'));
                     } else {
                         $block_data_info[$kk]['thumb'] = '';
                     }
+
                     $results = array();
                     foreach ($block_data['products'] as $product) {
                         $results[] = $this->model_catalog_product->getProduct($product['product_id']);
                     }
                     foreach ($results as $kkk => $result) {
                         $results[$kkk]['price'] = $this->currency->format($result['price'], $this->config->get('config_currency'));
-                        $link = $this->url->link('product/product', 'product_id=' . $results[$kkk]['product_id']);
-                        $link_arr = explode('/', $link);
-                        if(($key = array_search('admin', $link_arr)) !== false){
-                            unset($link_arr[$key]);
-                        }
-                        $results[$kkk]['link'] = implode('/', $link_arr);
                         if ($results[$kkk]['image']) {
                             $results[$kkk]['thumb'] = $this->model_tool_image->resize($result['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_height'));
                         } else {
-                            $results[$kkk]['thumb'] = $this->model_tool_image->resize('no_image.png', 100, 100);
+                            $results[$kkk]['thumb'] = $this->model_tool_image->resize('no_image.png', 100, 100);;
                         }
                     }
-                    $block_data_info[$kk]['products'] = $results;
+
+                    if (!empty($results)) {
+                        $contents[] = array(
+                            'value'   => $results,
+                            'sort'    => $block_data['products_ordinal'],
+                            'grid_id' => $block_data['products_grid_id'],
+                            'type'    => 'products'
+                        );
+                    }
+
+                    $results = array();
+                    $is_results_not_empty = false;
+                    if ($block_data['connections_mailing_type'] == '2') {
+                        $dateForCheck = !empty($mailing['date_last_start']) ? $mailing['date_last_start'] : $mailing['date_added'];
+                        foreach ($block_data['categories'] as $category) {
+                            $results[$category['category_id']] = $this->model_extension_module_mailing->getLastProductsByCategoryAndDate($category['category_id'], $dateForCheck, $block_data['connections_products_count']);
+                        }
+                    } else {
+                        foreach ($block_data['categories'] as $category) {
+                            $results[$category['category_id']] = $this->model_extension_module_mailing->getLastProductsByCategory($category['category_id'], $block_data['connections_products_count']);
+                        }
+                    }
+
+                    foreach ($results as $category_id => $result) {
+                        $promo_products = array();
+                        foreach ($result as $kkkk => $promo_product) {
+                            $result[$kkkk]['price'] = $this->currency->format($promo_product['price'], $this->config->get('config_currency'));
+                            $link = $this->url->link('product/category', 'path=' . $promo_product['category_id']);
+                            $result[$kkkk]['category_link'] = str_replace('admin', '', $link);
+                            if ($result[$kkkk]['image']) {
+                                $result[$kkkk]['thumb'] = $this->model_tool_image->resize($promo_product['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_height'));
+                            } else {
+                                $result[$kkkk]['thumb'] = $this->model_tool_image->resize('no_image.png', 100, 100);;
+                            }
+                            $promo_products[] = $result[$kkkk];
+                        }
+                        $results[$category_id] = $promo_products;
+                        if (!empty($promo_products)) {
+                            $is_results_not_empty = true;
+                        }
+                    }
+
+                    if ($is_results_not_empty) {
+                        $contents[] = array(
+                            'value'   => $results,
+                            'sort'    => $block_data['connections_ordinal'],
+                            'grid_id' => $block_data['connections_products_grid_id'],
+                            'type'    => 'promo_products'
+                        );
+                    }
+
+                    $sort_order = array();
+
+                    foreach ($contents as $key => $value) {
+                        $sort_order[$key] = $value['sort'];
+                    }
+
+                    array_multisort($sort_order, SORT_ASC, $contents);
+
+                    $block_data_info[$kk]['contents'] = $contents;
                 }
 
                 $blocks_info[$k]['blocks_data'] = $block_data_info;
@@ -1156,6 +1312,8 @@ class ControllerExtensionModuleMailing extends Controller {
 
     protected function sendMail($to, $message_info, $data) {
         $from = $this->config->get('config_email');
+        $this->load->language('extension/module/mailing');
+        $data['text_view_all'] = $this->language->get('text_view_all');
 
         $mail = new Mail($this->config->get('config_mail_engine'));
         $mail->parameter = $this->config->get('config_mail_parameter');
