@@ -654,6 +654,7 @@ class ControllerExtensionModuleMailing extends Controller {
                             } else {
                                 $result[$kkkk]['thumb'] = $this->model_tool_image->resize('no_image.png', 100, 100);;
                             }
+
                             $promo_products[] = $result[$kkkk];
                         }
                         $results[$category_id] = $promo_products;
@@ -661,7 +662,6 @@ class ControllerExtensionModuleMailing extends Controller {
                             $is_results_not_empty = true;
                         }
                     }
-
                     if ($is_results_not_empty) {
                         $contents[] = array(
                             'value'   => $results,
@@ -1222,6 +1222,19 @@ class ControllerExtensionModuleMailing extends Controller {
                     }
                     foreach ($results as $kkk => $result) {
                         $results[$kkk]['price'] = $this->currency->format($result['price'], $this->config->get('config_currency'));
+
+                        $get_categories = $this->model_extension_module_mailing->getCategories($results[$kkk]['product_id']);
+                        $main_category = array_shift($get_categories);
+                        $main_category_info = $this->model_extension_module_mailing->getCategoryPath($main_category['category_id']);
+
+                        if ($main_category_info['path_id'] != $main_category_info['category_id']) {
+                            $product_link = $this->url->link('product/product', 'path=' . $main_category_info['path_id'] . '_' . $main_category_info['category_id'] . '&product_id=' . $results[$kkk]['product_id']);
+                        } else {
+                            $product_link = $this->url->link('product/product', 'path=' . $main_category_info['category_id'] . '&product_id=' . $results[$kkk]['product_id']);
+                        }
+
+                        $results[$kkk]['link'] = str_replace('admin', '', $product_link);
+
                         if ($results[$kkk]['image']) {
                             $results[$kkk]['thumb'] = $this->model_tool_image->resize($result['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_height'));
                         } else {
@@ -1257,6 +1270,19 @@ class ControllerExtensionModuleMailing extends Controller {
                             $result[$kkkk]['price'] = $this->currency->format($promo_product['price'], $this->config->get('config_currency'));
                             $link = $this->url->link('product/category', 'path=' . $promo_product['category_id']);
                             $result[$kkkk]['category_link'] = str_replace('admin', '', $link);
+
+                            $get_categories = $this->model_extension_module_mailing->getCategories($result[$kkkk]['product_id']);
+                            $main_category = array_shift($get_categories);
+                            $main_category_info = $this->model_extension_module_mailing->getCategoryPath($main_category['category_id']);
+
+                            if ($main_category_info['path_id'] != $main_category_info['category_id']) {
+                                $product_link = $this->url->link('product/product', 'path=' . $main_category_info['path_id'] . '_' . $main_category_info['category_id'] . '&product_id=' . $results[$kkkk]['product_id']);
+                            } else {
+                                $product_link = $this->url->link('product/product', 'path=' . $main_category_info['category_id'] . '&product_id=' . $result[$kkkk]['product_id']);
+                            }
+
+                            $result[$kkkk]['link'] = str_replace('admin', '', $product_link);
+
                             if ($result[$kkkk]['image']) {
                                 $result[$kkkk]['thumb'] = $this->model_tool_image->resize($promo_product['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_height'));
                             } else {

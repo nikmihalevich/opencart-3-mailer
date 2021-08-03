@@ -707,6 +707,12 @@ class ModelExtensionModuleMailing extends Model {
         return $query->rows;
     }
 
+    public function getCategories($product_id) {
+        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_to_category WHERE product_id = '" . (int)$product_id . "'");
+
+        return $query->rows;
+    }
+
     public function getCategoriesForTree() {
         $sql = "SELECT cp.category_id AS `id`, cd2.name AS name, c1.parent_id FROM " . DB_PREFIX . "category_path cp LEFT JOIN " . DB_PREFIX . "category c1 ON (cp.category_id = c1.category_id) LEFT JOIN " . DB_PREFIX . "category c2 ON (cp.path_id = c2.category_id) LEFT JOIN " . DB_PREFIX . "category_description cd1 ON (cp.path_id = cd1.category_id) LEFT JOIN " . DB_PREFIX . "category_description cd2 ON (cp.category_id = cd2.category_id) WHERE cd1.language_id = '" . (int)$this->config->get('config_language_id') . "' AND cd2.language_id = '" . (int)$this->config->get('config_language_id') . "'";
 
@@ -743,6 +749,12 @@ class ModelExtensionModuleMailing extends Model {
         $query = $this->db->query("SELECT p.product_id, p.price, p.image, pd.name, p2c.category_id, p.date_added FROM " . DB_PREFIX . "product p LEFT JOIN " . DB_PREFIX . "product_description pd ON (p.product_id = pd.product_id) LEFT JOIN " . DB_PREFIX . "product_to_category p2c ON (p.product_id = p2c.product_id) WHERE pd.language_id = '" . (int)$this->config->get('config_language_id') . "' AND p2c.category_id = '" . (int)$category_id . "' AND p.date_added > '" . $date . "' LIMIT " . (int)$limit);
 
         return $query->rows;
+    }
+
+    public function getCategoryPath($category_id) {
+        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "category_path WHERE category_id = '" . (int)$category_id . "'");
+
+        return $query->row;
     }
 
     public function log($data) {
