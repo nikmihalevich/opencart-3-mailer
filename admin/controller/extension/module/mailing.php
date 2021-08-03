@@ -1298,6 +1298,9 @@ class ControllerExtensionModuleMailing extends Controller {
 
             $count_letters = intval($mailing['counter_letters']);
 
+            date_default_timezone_set('Europe/Moscow');
+            $this->model_extension_module_mailing->editMailingLastStartDate($mailing_id, date('Y-m-d H:i:s'));
+
             for($i = 0; $i < count($customers_mails); $i += $count_letters) {
                 for($j = $i; $j < $i + $count_letters; $j++) {
                     if(isset($customers_mails[$j])) {
