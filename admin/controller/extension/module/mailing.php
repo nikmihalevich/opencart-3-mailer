@@ -1224,13 +1224,39 @@ class ControllerExtensionModuleMailing extends Controller {
                         $results[$kkk]['price'] = $this->currency->format($result['price'], $this->config->get('config_currency'));
 
                         $get_categories = $this->model_extension_module_mailing->getCategories($results[$kkk]['product_id']);
-                        $main_category = array_shift($get_categories);
-                        $main_category_info = $this->model_extension_module_mailing->getCategoryPath($main_category['category_id']);
+                        $path = '';
 
-                        if ($main_category_info['path_id'] != $main_category_info['category_id']) {
-                            $product_link = $this->url->link('product/product', 'path=' . $main_category_info['path_id'] . '_' . $main_category_info['category_id'] . '&product_id=' . $results[$kkk]['product_id']);
+                        $categoriesPaths = array();
+                        $max_count = 0;
+                        foreach ($get_categories as $getCategory) {
+                            $categoriesPaths[] = $this->model_catalog_category->getCategoryPathHighestLevel($getCategory['category_id']);
+                        }
+                        foreach ($categoriesPaths as $categoriesPath) {
+                            if ($max_count < count($categoriesPath)) {
+                                $max_count = count($categoriesPath);
+                            }
+                        }
+                        foreach ($categoriesPaths as $key => $categoriesPath) {
+                            if ($max_count > count($categoriesPath)) {
+                                unset($categoriesPaths[$key]);
+                            }
+                        }
+                        if (!empty($categoriesPaths)) {
+                            $currentCategoryPaths = min($categoriesPaths);
+
+                            foreach ($currentCategoryPaths as $kk => $currentCategoryPath) {
+                                if ($kk != (count($currentCategoryPaths) - 1)) {
+                                    $path .= $currentCategoryPath['path_id'] . '_';
+                                } else {
+                                    $path .= $currentCategoryPath['path_id'];
+                                }
+                            }
+                        }
+
+                        if(!empty($path)) {
+                            $product_link = $this->url->link('product/product', 'path=' . $path . '&product_id=' . $results[$kkk]['product_id']);
                         } else {
-                            $product_link = $this->url->link('product/product', 'path=' . $main_category_info['category_id'] . '&product_id=' . $results[$kkk]['product_id']);
+                            $product_link = $this->url->link('product/product', 'product_id=' . $results[$kkk]['product_id']);
                         }
 
                         $results[$kkk]['link'] = str_replace('admin', '', $product_link);
@@ -1272,13 +1298,39 @@ class ControllerExtensionModuleMailing extends Controller {
                             $result[$kkkk]['category_link'] = str_replace('admin', '', $link);
 
                             $get_categories = $this->model_extension_module_mailing->getCategories($result[$kkkk]['product_id']);
-                            $main_category = array_shift($get_categories);
-                            $main_category_info = $this->model_extension_module_mailing->getCategoryPath($main_category['category_id']);
+                            $path = '';
 
-                            if ($main_category_info['path_id'] != $main_category_info['category_id']) {
-                                $product_link = $this->url->link('product/product', 'path=' . $main_category_info['path_id'] . '_' . $main_category_info['category_id'] . '&product_id=' . $results[$kkkk]['product_id']);
+                            $categoriesPaths = array();
+                            $max_count = 0;
+                            foreach ($get_categories as $getCategory) {
+                                $categoriesPaths[] = $this->model_catalog_category->getCategoryPathHighestLevel($getCategory['category_id']);
+                            }
+                            foreach ($categoriesPaths as $categoriesPath) {
+                                if ($max_count < count($categoriesPath)) {
+                                    $max_count = count($categoriesPath);
+                                }
+                            }
+                            foreach ($categoriesPaths as $key => $categoriesPath) {
+                                if ($max_count > count($categoriesPath)) {
+                                    unset($categoriesPaths[$key]);
+                                }
+                            }
+                            if (!empty($categoriesPaths)) {
+                                $currentCategoryPaths = min($categoriesPaths);
+
+                                foreach ($currentCategoryPaths as $kk => $currentCategoryPath) {
+                                    if ($kk != (count($currentCategoryPaths) - 1)) {
+                                        $path .= $currentCategoryPath['path_id'] . '_';
+                                    } else {
+                                        $path .= $currentCategoryPath['path_id'];
+                                    }
+                                }
+                            }
+
+                            if(!empty($path)) {
+                                $product_link = $this->url->link('product/product', 'path=' . $path . '&product_id=' . $results[$kkkk]['product_id']);
                             } else {
-                                $product_link = $this->url->link('product/product', 'path=' . $main_category_info['category_id'] . '&product_id=' . $result[$kkkk]['product_id']);
+                                $product_link = $this->url->link('product/product', 'product_id=' . $results[$kkkk]['product_id']);
                             }
 
                             $result[$kkkk]['link'] = str_replace('admin', '', $product_link);
