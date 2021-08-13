@@ -249,8 +249,9 @@ class ControllerExtensionModuleMailing extends Controller {
             foreach ($blocks_info as $k => $block) {
                 $blocks_info[$k]['background_image'] = ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . "image/" . $block['bg_image'];
                 $block_data_info = $this->model_extension_module_mailing->getBlockData($block['id']);
-                $contents = array();
+                
                 foreach ($block_data_info as $kk => $block_data) {
+                	$contents = array();
                     if (!empty($block_data['text'])) {
                         $contents[] = array(
                             'value'   => $block_data['text'],
@@ -592,8 +593,9 @@ class ControllerExtensionModuleMailing extends Controller {
             foreach ($blocks_info as $k => $block) {
                 $blocks_info[$k]['background_image'] = ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . "image/" . $block['bg_image'];
                 $block_data_info = $this->model_extension_module_mailing->getBlockData($block['id']);
-                $contents = array();
+                
                 foreach ($block_data_info as $kk => $block_data) {
+                	$contents = array();
                     if (!empty($block_data['text'])) {
                         $contents[] = array(
                             'value'   => $block_data['text'],
@@ -1200,8 +1202,9 @@ class ControllerExtensionModuleMailing extends Controller {
             foreach ($blocks_info as $k => $block) {
                 $blocks_info[$k]['background_image'] = ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . "image/" . $block['bg_image'];
                 $block_data_info = $this->model_extension_module_mailing->getBlockData($block['id']);
-                $contents = array();
+                
                 foreach ($block_data_info as $kk => $block_data) {
+                	$contents = array();
                     if (!empty($block_data['text'])) {
                         $contents[] = array(
                             'value'   => $block_data['text'],
