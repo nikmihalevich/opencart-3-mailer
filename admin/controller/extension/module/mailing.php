@@ -168,6 +168,8 @@ class ControllerExtensionModuleMailing extends Controller {
             $this->response->redirect($this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . $url, true));
         }
 
+        $this->response->redirect($this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'], true));
+
 		$this->getList();
 	}
 
@@ -216,6 +218,8 @@ class ControllerExtensionModuleMailing extends Controller {
             $this->response->redirect($this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'] . $url, true));
         }
 
+        $this->response->redirect($this->url->link('extension/module/mailing', 'user_token=' . $this->session->data['user_token'], true));
+
         $this->getList();
     }
 
@@ -249,7 +253,7 @@ class ControllerExtensionModuleMailing extends Controller {
             foreach ($blocks_info as $k => $block) {
                 $blocks_info[$k]['background_image'] = ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . "image/" . $block['bg_image'];
                 $block_data_info = $this->model_extension_module_mailing->getBlockData($block['id']);
-                
+
                 foreach ($block_data_info as $kk => $block_data) {
                 	$contents = array();
                     if (!empty($block_data['text'])) {
@@ -275,7 +279,7 @@ class ControllerExtensionModuleMailing extends Controller {
                         if ($results[$kkk]['image']) {
                             $results[$kkk]['thumb'] = $this->model_tool_image->resize($result['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_height'));
                         } else {
-                            $results[$kkk]['thumb'] = $this->model_tool_image->resize('no_image.png', 100, 100);;
+                            $results[$kkk]['thumb'] = $this->model_tool_image->resize('no_image.png', 100, 100);
                         }
                     }
 
@@ -310,7 +314,7 @@ class ControllerExtensionModuleMailing extends Controller {
                             if ($result[$kkkk]['image']) {
                                 $result[$kkkk]['thumb'] = $this->model_tool_image->resize($promo_product['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_height'));
                             } else {
-                                $result[$kkkk]['thumb'] = $this->model_tool_image->resize('no_image.png', 100, 100);;
+                                $result[$kkkk]['thumb'] = $this->model_tool_image->resize('no_image.png', 100, 100);
                             }
                             $promo_products[] = $result[$kkkk];
                         }
@@ -441,10 +445,11 @@ class ControllerExtensionModuleMailing extends Controller {
 
         foreach ($mailings as $mailing) {
             $data['mailings'][] = array(
-                'mailing_id' => $mailing['mailing_id'],
-                'name'       => $mailing['name'],
-                'date_start' => $mailing['date_start'],
-                'date_added' => $mailing['date_added'],
+                'mailing_id'    => $mailing['mailing_id'],
+                'name'          => $mailing['name'],
+                'category_name' => $mailing['category_name'],
+                'date_start'    => $mailing['date_start'],
+                'date_added'    => $mailing['date_added'],
             );
         }
 
@@ -483,7 +488,7 @@ class ControllerExtensionModuleMailing extends Controller {
         $data['copyMailingAction'] = $this->url->link('extension/module/mailing/copyMailing', 'user_token=' . $this->session->data['user_token'], true);
         $data['editMailingAction'] = $this->url->link('extension/module/mailing/edit', 'user_token=' . $this->session->data['user_token'], true);
         $data['addCategoryAction'] = $this->url->link('extension/module/mailing/addMailingCategory', 'user_token=' . $this->session->data['user_token'], true);
-        $data['deleteCategoryAction'] = $this->url->link('extension/module/mailing/deleteMailingCategory', 'user_token=' . $this->session->data['user_token'] . $url, true);
+        $data['deleteCategoryAction'] = $this->url->link('extension/module/mailing/deleteMailingCategory', 'user_token=' . $this->session->data['user_token'], true);
         $url = '';
 
         if (isset($this->request->get['sort'])) {
@@ -619,7 +624,7 @@ class ControllerExtensionModuleMailing extends Controller {
                         if ($results[$kkk]['image']) {
                             $results[$kkk]['thumb'] = $this->model_tool_image->resize($result['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_height'));
                         } else {
-                            $results[$kkk]['thumb'] = $this->model_tool_image->resize('no_image.png', 100, 100);;
+                            $results[$kkk]['thumb'] = $this->model_tool_image->resize('no_image.png', 100, 100);
                         }
                     }
 
@@ -654,7 +659,7 @@ class ControllerExtensionModuleMailing extends Controller {
                             if ($result[$kkkk]['image']) {
                                 $result[$kkkk]['thumb'] = $this->model_tool_image->resize($promo_product['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_height'));
                             } else {
-                                $result[$kkkk]['thumb'] = $this->model_tool_image->resize('no_image.png', 100, 100);;
+                                $result[$kkkk]['thumb'] = $this->model_tool_image->resize('no_image.png', 100, 100);
                             }
 
                             $promo_products[] = $result[$kkkk];
@@ -737,6 +742,13 @@ class ControllerExtensionModuleMailing extends Controller {
         if (isset($this->request->get['mailing_id'])) {
             $template_categories_selected = $this->model_extension_module_mailing->getMailingCategoryId($this->request->get['mailing_id']);
             $data['template_categories_selected'] = $this->model_extension_module_mailing->getSelectedCategoriesForTree($this->request->get['mailing_id']);
+
+            foreach ($data['template_categories_selected'] as $key => $category) {
+                $total_products = $this->model_extension_module_mailing->getTotalProductsByCategoryId($category['id']);
+                if ($total_products == 0) {
+                    unset($data['template_categories_selected'][$key]);
+                }
+            }
         }
 
         $data['template_categories'] = $this->buildTree($template_categories, $template_categories_selected);
@@ -766,9 +778,12 @@ class ControllerExtensionModuleMailing extends Controller {
         $categories = $this->model_catalog_category->getCategories($filter_data);
 
         foreach ($categories as $category) {
+            $total_products = $this->model_extension_module_mailing->getTotalProductsByCategoryId($category['category_id']);
+
             $data['categories'][] = array(
                 'category_id' => $category['category_id'],
                 'name'        => $category['name'],
+                'total_products' => sprintf($this->language->get('text_total_products'), $total_products)
             );
         }
 
@@ -1202,7 +1217,7 @@ class ControllerExtensionModuleMailing extends Controller {
             foreach ($blocks_info as $k => $block) {
                 $blocks_info[$k]['background_image'] = ($this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG) . "image/" . $block['bg_image'];
                 $block_data_info = $this->model_extension_module_mailing->getBlockData($block['id']);
-                
+
                 foreach ($block_data_info as $kk => $block_data) {
                 	$contents = array();
                     if (!empty($block_data['text'])) {
@@ -1275,7 +1290,7 @@ class ControllerExtensionModuleMailing extends Controller {
                         if ($results[$kkk]['image']) {
                             $results[$kkk]['thumb'] = $this->model_tool_image->resize($result['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_height'));
                         } else {
-                            $results[$kkk]['thumb'] = $this->model_tool_image->resize('no_image.png', 100, 100);;
+                            $results[$kkk]['thumb'] = $this->model_tool_image->resize('no_image.png', 100, 100);
                         }
                     }
 
@@ -1357,7 +1372,7 @@ class ControllerExtensionModuleMailing extends Controller {
                             if ($result[$kkkk]['image']) {
                                 $result[$kkkk]['thumb'] = $this->model_tool_image->resize($promo_product['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_height'));
                             } else {
-                                $result[$kkkk]['thumb'] = $this->model_tool_image->resize('no_image.png', 100, 100);;
+                                $result[$kkkk]['thumb'] = $this->model_tool_image->resize('no_image.png', 100, 100);
                             }
                             $promo_products[] = $result[$kkkk];
                         }
@@ -1461,7 +1476,7 @@ class ControllerExtensionModuleMailing extends Controller {
                 'filter_affiliate' => $filter_affiliate,
                 'filter_newsletter'=> 1,
                 'start'            => 0,
-                'limit'            => 5
+                'limit'            => 20
             );
 
             $results = $this->model_customer_customer->getCustomers($filter_data);
@@ -1509,7 +1524,7 @@ class ControllerExtensionModuleMailing extends Controller {
             $filter_data = array(
                 'filter_name'      => $filter_name,
                 'start'            => 0,
-                'limit'            => 5
+                'limit'            => 20
             );
 
             $results = $this->model_extension_module_mailing->getMailingsAutocomplete($filter_data);
@@ -1518,8 +1533,92 @@ class ControllerExtensionModuleMailing extends Controller {
                 $json[] = array(
                     'mailing_id'       => $result['mailing_id'],
                     'name'             => strip_tags(html_entity_decode($result['name'], ENT_QUOTES, 'UTF-8')),
+                    'category_name'    => strip_tags(html_entity_decode($result['category_name'], ENT_QUOTES, 'UTF-8')),
                     'date_start'       => $result['date_start'],
                     'date_added'       => $result['date_added'],
+                );
+            }
+        }
+
+        $sort_order = array();
+
+        foreach ($json as $key => $value) {
+            $sort_order[$key] = $value['name'];
+        }
+
+        array_multisort($sort_order, SORT_ASC, $json);
+
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+
+    public function searchMailingTemplate() {
+        $json = array();
+
+        if (isset($this->request->get['filter_mailing_name'])) {
+            if (isset($this->request->get['filter_mailing_name'])) {
+                $filter_name = $this->request->get['filter_mailing_name'];
+            } else {
+                $filter_name = '';
+            }
+
+            $this->load->model('extension/module/mailing');
+
+            $results = $this->model_extension_module_mailing->getMailingsByName($filter_name);
+
+            foreach ($results as $result) {
+                $json[] = array(
+                    'mailing_id'       => $result['mailing_id'],
+                    'name'             => strip_tags(html_entity_decode($result['name'], ENT_QUOTES, 'UTF-8')),
+                    'category_name'    => strip_tags(html_entity_decode($result['category_name'], ENT_QUOTES, 'UTF-8')),
+                    'date_start'       => $result['date_start'],
+                    'date_added'       => $result['date_added'],
+                );
+            }
+        }
+
+        $sort_order = array();
+
+        foreach ($json as $key => $value) {
+            $sort_order[$key] = $value['name'];
+        }
+
+        array_multisort($sort_order, SORT_ASC, $json);
+
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+
+    public function searchCustomers() {
+        $json = array();
+
+        if (isset($this->request->get['filter_email']) || isset($this->request->get['filter_name'])) {
+            if (isset($this->request->get['filter_email'])) {
+                $filter_email = $this->request->get['filter_email'];
+            } else {
+                $filter_email = '';
+            }
+
+            if (isset($this->request->get['filter_name'])) {
+                $filter_name = $this->request->get['filter_name'];
+            } else {
+                $filter_name = '';
+            }
+
+            $this->load->model('extension/module/mailing');
+
+            $filter_data = array(
+                'filter_name'  => $filter_name,
+                'filter_email' => $filter_email,
+            );
+
+            $results = $this->model_extension_module_mailing->getCustomersByEmailOrName($filter_data);
+
+            foreach ($results as $result) {
+                $json[] = array(
+                    'customer_id'       => $result['customer_id'],
+                    'name'              => strip_tags(html_entity_decode($result['name'], ENT_QUOTES, 'UTF-8')),
+                    'email'             => $result['email'],
                 );
             }
         }
@@ -1625,7 +1724,7 @@ class ControllerExtensionModuleMailing extends Controller {
             $this->error['warning'] = $this->language->get('error_permission');
         }
 
-        if ((utf8_strlen($this->request->post['name']) < 1) || (utf8_strlen($this->request->post['name']) > 64)) {
+        if ((utf8_strlen($this->request->post['category_name']) < 1) || (utf8_strlen($this->request->post['category_name']) > 64)) {
             $this->error['mailing_category_name'] = $this->language->get('error_mailing_category_name');
         }
 

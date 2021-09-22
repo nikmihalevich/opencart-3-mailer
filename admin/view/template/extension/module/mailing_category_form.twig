@@ -36,7 +36,7 @@
                     <div class="form-group required">
                         <label class="col-sm-2 control-label" for="input-name">{{ entry_mailing_category_name }}</label>
                         <div class="col-sm-10">
-                            <input type="text" name="name" value="{{ mailing_category.name }}" placeholder="{{ entry_mailing_category_name }}" id="input-name" class="form-control"/>
+                            <input type="text" name="category_name" value="{{ mailing_category.category_name }}" placeholder="{{ entry_mailing_category_name }}" id="input-name" class="form-control"/>
                             {% if error_mailing_category_name %}
                                 <div class="text-danger">{{ error_mailing_category_name }}</div>
                             {% endif %}

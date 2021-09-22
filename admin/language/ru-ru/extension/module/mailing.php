@@ -53,6 +53,7 @@ $_['text_mailing_settings']          = 'Настройки рассылки';
 $_['text_all_products']          = 'Все продукты';
 $_['text_new_products']          = 'Новые продукты';
 $_['text_view_all']              = 'Смотреть все';
+$_['text_total_products']        = '(%s)';
 
 // Entry
 $_['entry_template_name']   = 'Название шаблона';
@@ -100,6 +101,7 @@ $_['column_date_added']     = 'Дата создания';
 $_['column_template_name']  = 'Название шаблона';
 $_['column_date_start']     = 'Дата авторассылки';
 $_['column_category_name']  = 'Название категории';
+$_['column_mailing_category_name'] = 'Категория шаблона';
 
 // Help
 $_['help_products']         = 'Для добавления линейки продуктов в письмо';
@@ -141,3 +143,4 @@ $_['button_copy']           = 'Копировать';
 $_['button_product_to_mailing'] = 'Добавить в рассылку';
 $_['button_product_from_mailing'] = 'Удалить из рассылки';
 $_['button_preview'] = 'Предпросмотр';
+$_['button_search'] = 'Поиск';

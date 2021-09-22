@@ -72,7 +72,7 @@ class ModelExtensionModuleMailing extends Model {
 		) ENGINE=MyISAM DEFAULT COLLATE=utf8_general_ci;");
         $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "mailing_category` (
             `mailing_category_id` INT(11) NOT NULL AUTO_INCREMENT,
-            `name` VARCHAR(255) DEFAULT NULL,
+            `category_name` VARCHAR(255) DEFAULT NULL,
             PRIMARY KEY (`mailing_category_id`)
 		) ENGINE=MyISAM DEFAULT COLLATE=utf8_general_ci;");
         $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "category_to_mailing` (
@@ -213,13 +213,13 @@ class ModelExtensionModuleMailing extends Model {
         $sql = "SELECT * FROM " . DB_PREFIX . "mailing_category mc";
 
         $sort_data = array(
-            'mc.name',
+            'mc.category_name',
         );
 
         if (isset($data['sort']) && in_array($data['sort'], $sort_data)) {
             $sql .= " ORDER BY " . $data['sort'];
         } else {
-            $sql .= " ORDER BY mc.name";
+            $sql .= " ORDER BY mc.category_name";
         }
 
         if (isset($data['order']) && ($data['order'] == 'DESC')) {
@@ -240,7 +240,7 @@ class ModelExtensionModuleMailing extends Model {
     }
 
     public function addMailingCategory($data) {
-        $this->db->query("INSERT INTO " . DB_PREFIX . "mailing_category SET `name` = '" . $this->db->escape($data['name']) . "'");
+        $this->db->query("INSERT INTO " . DB_PREFIX . "mailing_category SET `category_name` = '" . $this->db->escape($data['category_name']) . "'");
 
         $mailing_id = $this->db->getLastId();
 
@@ -250,7 +250,7 @@ class ModelExtensionModuleMailing extends Model {
     }
 
     public function editMailingCategory($mailing_category_id, $data) {
-        $this->db->query("UPDATE " . DB_PREFIX . "mailing_category SET `name` = '" . $this->db->escape($data['name']) . "' WHERE mailing_category_id = '" . (int)$mailing_category_id ."'");
+        $this->db->query("UPDATE " . DB_PREFIX . "mailing_category SET `category_name` = '" . $this->db->escape($data['category_name']) . "' WHERE mailing_category_id = '" . (int)$mailing_category_id ."'");
 
         $this->cache->delete('mailing_category');
     }
@@ -431,7 +431,7 @@ class ModelExtensionModuleMailing extends Model {
     }
 
     public function getMailings($data = array()) {
-        $sql = "SELECT * FROM " . DB_PREFIX . "mailing m LEFT JOIN " . DB_PREFIX . "mailing_description md ON (m.mailing_id = md.mailing_id) WHERE md.language_id = '" . (int)$this->config->get('config_language_id') . "'";
+        $sql = "SELECT * FROM " . DB_PREFIX . "mailing m LEFT JOIN " . DB_PREFIX . "mailing_description md ON (m.mailing_id = md.mailing_id) LEFT JOIN " . DB_PREFIX . "mailing_category mс ON (m.mailing_category_id = mс.mailing_category_id) WHERE md.language_id = '" . (int)$this->config->get('config_language_id') . "'";
 
         $sort_data = array(
             'm.mailing_id',
@@ -458,7 +458,7 @@ class ModelExtensionModuleMailing extends Model {
     }
 
     public function getMailingsAutocomplete($data = array()) {
-        $sql = "SELECT * FROM " . DB_PREFIX . "mailing WHERE `name` LIKE '%" . $this->db->escape($data['filter_name']) . "%'";
+        $sql = "SELECT * FROM " . DB_PREFIX . "mailing m LEFT JOIN " . DB_PREFIX . "mailing_category mс ON (m.mailing_category_id = mс.mailing_category_id) WHERE m.`name` LIKE '%" . $this->db->escape($data['filter_name']) . "%'";
 
         if (isset($data['start']) || isset($data['limit'])) {
             if ($data['start'] < 0) {
@@ -471,6 +471,14 @@ class ModelExtensionModuleMailing extends Model {
 
             $sql .= " LIMIT " . (int)$data['start'] . "," . (int)$data['limit'];
         }
+
+        $query = $this->db->query($sql);
+
+        return $query->rows;
+    }
+
+    public function getMailingsByName($mailing_name) {
+        $sql = "SELECT * FROM " . DB_PREFIX . "mailing m LEFT JOIN " . DB_PREFIX . "mailing_category mс ON (m.mailing_category_id = mс.mailing_category_id) WHERE m.`name` LIKE '%" . $this->db->escape($mailing_name) . "%'";
 
         $query = $this->db->query($sql);
 
@@ -566,6 +574,28 @@ class ModelExtensionModuleMailing extends Model {
         }
 
         return $customer_mails;
+    }
+
+    public function getCustomersByEmailOrName($data = array()) {
+        $sql = "SELECT *, CONCAT(c.firstname, ' ', c.lastname) AS name FROM " . DB_PREFIX . "customer c";
+
+        $implode = array();
+
+        if (!empty($data['filter_name'])) {
+            $implode[] = "CONCAT(c.firstname, ' ', c.lastname) LIKE '%" . $this->db->escape($data['filter_name']) . "%'";
+        }
+
+        if (!empty($data['filter_email'])) {
+            $implode[] = "c.email LIKE '" . $this->db->escape($data['filter_email']) . "%'";
+        }
+
+        if ($implode) {
+            $sql .= " WHERE " . implode(" AND ", $implode);
+        }
+
+        $query = $this->db->query($sql);
+
+        return $query->rows;
     }
 
     public function getMailingByMailingCategoryId($mailing_category_id) {
@@ -756,6 +786,12 @@ class ModelExtensionModuleMailing extends Model {
         $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "category_path WHERE category_id = '" . (int)$category_id . "' ORDER BY `level`, `path_id`");
 
         return $query->rows;
+    }
+
+    public function getTotalProductsByCategoryId($category_id) {
+        $query = $this->db->query("SELECT COUNT(*) as total FROM " . DB_PREFIX . "product p LEFT JOIN " . DB_PREFIX . "product_description pd ON (p.product_id = pd.product_id) LEFT JOIN " . DB_PREFIX . "product_to_category p2c ON (p.product_id = p2c.product_id) WHERE pd.language_id = '" . (int)$this->config->get('config_language_id') . "' AND p2c.category_id = '" . (int)$category_id . "'");
+
+        return $query->row['total'];
     }
 
     public function log($data) {
