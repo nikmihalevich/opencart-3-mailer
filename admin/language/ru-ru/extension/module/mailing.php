@@ -126,6 +126,7 @@ $_['error_letter_theme']    = 'Введите тему письма!';
 $_['error_letter_text']     = 'Введите текст письма!';
 $_['error_mailing_category']= 'Выберите категорию!';
 $_['error_mailing_category_name'] = 'Введите название категории!';
+$_['error_before_start_add_customers'] = 'Перед началом рассылки добавьте в нее пользователей!';
 
 // Button
 $_['button_start']          = 'Запустить сейчас';

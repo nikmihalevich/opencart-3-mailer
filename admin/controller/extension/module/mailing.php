@@ -1134,7 +1134,7 @@ class ControllerExtensionModuleMailing extends Controller {
     public function mailingCustomersId() {
         if ($this->request->server['REQUEST_METHOD'] == 'POST') {
             $this->load->model('extension/module/mailing');
-            $mailing_customers = $this->model_extension_module_mailing->getMailingCustomersId($this->request->get['mailing_category_id']);
+            $mailing_customers = $this->model_extension_module_mailing->getMailingCustomersIdByCategoryId($this->request->get['mailing_category_id']);
 
             $this->response->addHeader('Content-Type: application/json');
 		    $this->response->setOutput(json_encode($mailing_customers));
@@ -1188,13 +1188,14 @@ class ControllerExtensionModuleMailing extends Controller {
     public function startMailing() {
         if(isset($this->request->get['mailing_id'])) {
             $this->load->model('extension/module/mailing');
+            $this->load->language('extension/module/mailing');
 
             $mailing_customers = $this->model_extension_module_mailing->getMailingCustomersId($this->request->get['mailing_id']);
 
             if(!empty($mailing_customers)) {
                 $this->mailing($this->request->get['mailing_id']);
             } else {
-                $this->response->setOutput("Для начала рассылки добавьте в нее пользователей!");
+                $this->response->setOutput($this->language->get('error_before_start_add_customers'));
             }
         }
     }

@@ -543,7 +543,22 @@ class ModelExtensionModuleMailing extends Model {
         return $social_links;
     }
 
-    public function getMailingCustomersId($mailing_category_id) {
+    public function getMailingCustomersId($mailing_id) {
+        $query = $this->db->query("SELECT customer_id FROM " . DB_PREFIX . "customer_to_mailing ctm LEFT JOIN " . DB_PREFIX . "mailing m ON (ctm.mailing_category_id = m.mailing_category_id) WHERE m.mailing_id = '" . (int)$mailing_id . "'");
+
+        $new_array = array();
+
+        // make array as need for us
+        foreach ($query->rows as $key => $row) {  // loop over the array of arrays
+            foreach ($row as $kkey => $value) {  // loop over each sub-array (even if just 1 item)
+                $new_array[$key] = $value;      // set the output array key to the value
+            }
+        }
+
+        return $new_array;
+    }
+
+    public function getMailingCustomersIdByCategoryId($mailing_category_id) {
         $query = $this->db->query("SELECT customer_id FROM " . DB_PREFIX . "customer_to_mailing WHERE mailing_category_id = '" . (int)$mailing_category_id . "'");
 
         $new_array = array();
